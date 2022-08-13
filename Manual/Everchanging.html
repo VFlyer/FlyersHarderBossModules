@@ -1,0 +1,1129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <title>Everchanging — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="js/ktane-utils.js"></script>
+    <style>
+        table:not(.exempt):not(.wire-table)
+        {
+            text-align: center;
+            width: 100%;
+            display: table;
+        }
+        .wire-table
+        {
+            width: 32%;
+        }
+        .wire-table tr td
+        {
+            margin: 0;
+            line-height: 150%;
+        }
+        .center
+        {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .dark svg
+        {
+            filter: invert(95%);
+        }
+        .dark .svg
+        {
+            filter: invert(95%);
+        }
+        .dark .filled
+        {
+            background-color: white;
+        }
+        .filled
+        {
+            background-color: black;
+        }
+        .squeeze
+        {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .fake-flavor-text
+        {
+            font-style: italic;
+            font-size: 75%;
+            margin-top: .5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <div class="page page-bg-01" id="top">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging</span>
+            </div>
+            <div class="page-content">
+                <img src="img/Component/Everchanging.svg" class="diagram">
+                <h2>The Subject Of Everchanging</h2>
+                <p class="flavour-text">When the world changes so much against you, will you take the time to fight back?</p>
+                <p>This module will consist of a stage counter, a wider component area, a cube, an LED, a digit display, and a timer just above the wider component area. To disarm the module, take note of as many stages as possible as well as active components that are shown on the module. Calculate the value needed to input from the individual sections provided. Then, perform the correct action ranging from cutting specific wires in order, entering digits on a keypad, or inputting directions of a forgotten arrow module. The module may randomly request an input early if none of the smaller components are revealed, so bare in mind when accounting for that.</p>
+                <p>Inputting a calculated value incorrectly or letting the timer run out when the module requests an input while multiple solves are being processed will result in a strike.</p>
+                <p>The smaller components range from a digit on the display, an LED, and a cube, which may rotate in a random direction.</p>
+                <h1>Table Of Contents</h1>
+                <ul>
+                    <li><h2><a href="#stagegen">Stage Generation Procedures, Exhibition Mode</a></h2></li>
+                    <li><h2><a href="#stagecalculations">Individual Stage Calculations</a></h2></li>
+                    <li><h2><a href="#inputprocedure">Input Procedures</a></h2></li>
+                </ul>
+            </div>
+            <div class="page-footer relative-footer">Page 1 of 14</div>
+        </div>
+        <div class="page page-bg-02" id="stagegen">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, SGP</span>
+            </div>
+            <div class="page-content">
+                <h1>Stage Generation Procedures</h1>
+                <h2>Override: Boss Mode</h2>
+                <p>In this mode, each stage will be generated based on the number of <a href="../More/Ignore%20Table.html#mod=Everchanging">non-ignored modules</a> detected. The timer will count down at 15 seconds per stage that is currently shown and advance to the next stage when the timer expires and a non-ignored module is solved. By default, smaller components are randomly selected to be active or not active. However there are rules that can be applied to alter how the stages are generated. By default, this mode will be active if the module is able to obtain an ignore list.</p>
+                <p>These rules apply in boss mode with the 1st rule having highest priority:</p>
+                <ul>
+                    <li>If there are 6 or fewer non-ignored unsolved modules left, the given stages from the non-ignored modules must reveal at least 1 of the smaller components. Likewise, the next stage immediately after those will ALWAYS be the input procedure.</li>
+                    <li>The first 3 stages at the start will reveal exactly 1 of the smaller components.</li>
+                    <li>If none of the smaller components are revealed for that given stage, the module will then request an early input. The next 6 stages generated after the current stage must reveal at least 1 of the smaller components. In the case of multiple solves being processed, a stage requiring early inputs will have a timer set for 2 minutes instead of 15 seconds. The timer may be extended by 15 seconds for every stage after the 8th requested stage.</li>
+                </ul>
+                <h2>Override: Exhibition Mode</h2>
+                <p>To distinguish between exhibition mode and boss mode, the timer will be fully disabled in exhibition mode as well as the display on the timer saying "EXHIBITION." In this mode, the defuser is able to view each stage at their own pace. The defuser can access the next stage by pressing the timer, but as a consequence of this, you cannot avoid early input procedures by pressing the timer. This mode may be enforced in the settings if necessary.</p>
+                <p>These rules apply in exhibition mode with the 1st rule having highest priority:</p>
+                <ul>
+                    <li>If the current stage no. is equal to the number of solvable modules present, that given stage must reveal at least 1 of the smaller components. Likewise, the next stage immediately after that will ALWAYS be the input procedure.</li>
+                    <li>If none of the smaller components are revealed for that given stage, the module will then request an early input. The next 3 stages generated after the current stage must reveal at least 1 of the smaller components.</li>
+                </ul>
+            </div>
+            <div class="page-footer relative-footer">Page 2 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="stagecalculations">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: General Overview</h2>
+                <p class="fake-flavor-text">There's so much to prep for.</p>
+                <p>In order to obtain the calculated value, the expert will need to find the page which only contains the specified components shown on that stage and refer to page on how to retrieve the calculated value. If colorblind mode is enabled for Everchanging, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off. This letter is the first letter of the given color, I.E. R for Red, O for Orange, etc. If the digit is present on any of the stages, the name of the color will be shown to the right of the digit.</p>
+                <p>The components are only active if they are visible during that stage.</p>
+                <h2>Contents in this Section:</h2>
+                <ol>
+                    <li><a href="#singleled">Singular LED</a></li>
+                    <li><a href="#floatingcube">Floating Cube</a></li>
+                    <li><a href="#lonelydigit">Lonely Digit</a></li>
+                    <li><a href="#ledmatheasy">Simple LED Math</a></li>
+                    <li><a href="#alphaforget">AlphaForget</a></li>
+                    <li><a href="#cubedecync">Cube Desynchronization</a></li>
+                    <li><a href="#cubelite">The Cube Lite</a></li>
+                </ol>
+            </div>
+            <div class="page-footer relative-footer">Page 3 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="singleled">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: Singular LED</h2>
+                <p>If the smaller active components are not <strong>[ LED ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>The LED will show exactly 1 color which can be one of the following colors in the table provided. If colorblind mode is enabled for Everchanging, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off. This letter is the first letter of the given color, I.E. R for Red, O for Orange, etc.</p>
+                <p>The calculated value is determined on the current stage number shown on the module and the color of the LED, from the cell in the given table provided.</p>
+                <table style="font-size: 90%">
+                    <tr>
+                        <th rowspan="3">Stage no. % 2</th>
+                        <th colspan="10">LED Color</th>
+                    </tr>
+                    <tr>
+                        <th>White</th>
+                        <th>Red</th>
+                        <th>Orange</th>
+                        <th>Yellow</th>
+                        <th>Green</th>
+                        <th>Lime</th>
+                        <th>Cyan</th>
+                        <th>Blue</th>
+                        <th>Purple</th>
+                        <th>Magenta</th>
+                    </tr>
+                    <tr>
+                        <th style="background-color: white"></th>
+                        <th style="background-color: red"></th>
+                        <th style="background-color: orange"></th>
+                        <th style="background-color: yellow"></th>
+                        <th style="background-color: green"></th>
+                        <th style="background-color: lime"></th>
+                        <th style="background-color: cyan"></th>
+                        <th style="background-color: blue"></th>
+                        <th style="background-color: purple"></th>
+                        <th style="background-color: magenta"></th>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>6</td>
+                        <td>7</td>
+                        <td>8</td>
+                        <td>9</td>
+                    </tr>
+                    <tr>
+                        <th>0</th>
+                        <td>5</td>
+                        <td>6</td>
+                        <td>7</td>
+                        <td>8</td>
+                        <td>9</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="page-footer relative-footer">Page 4 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="floatingcube">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: Floating Cube</h2>
+                <p class="fake-flavor-text">Do the dice look similar to the ones from that one switch party game?</p>
+                <p>If the smaller active components are not <strong>[ Cube ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>The cube will show a random digit from 0 to 9 on each face. Each cube shown on this manual corresponds to a calculated value, however the digit shown on the module is represented by dots on a given domino side. 0 will be shown as literally nothing on the given face. The cube will also rotate randomly to show each face if possible.</p>
+                <p>The calculated value is determined by checking if the net of the cube matches the cube being displayed. Each cube has a unique combination of faces whose net corresponds to a different number. Each net is indexed from 0, where 0 is the typical 6-sided die (1-6 on each face). The index from the obtained net is your calculated value for that stage.</p>
+                <h3>Possible Nets</h3>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">5</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">6</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 0</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">5</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">6</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 1</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">9</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 2</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">0</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">6</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 3</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">0</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">5</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">7</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 4</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">2</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">6</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">6</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 5</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">0</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">4</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 6</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">0</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">8</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 7</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">3</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">4</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">4</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 8</text>
+                    </svg>
+                    <svg width="160px" height="120px">
+                        <rect x="0" y="0" width="40" height="120" stroke="black" fill="none"/>
+                        <rect x="0" y="40" width="160" height="40" stroke="black" fill="none"/>
+                        <rect x="80" y="40" width="40" height="40" stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="25">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="65">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="55" y="65">1</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="95" y="65">6</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="135" y="65">6</text>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="15" y="105">6</text>
+                        <text fill="#000000" font-size="25" font-family="Special Elite" x="65" y="25">Net 9</text>
+                    </svg>
+            </div>
+            <div class="page-footer relative-footer">Page 5 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="lonelydigit">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: Lonely Digit</h2>
+                <p>If the smaller active components are not <strong>[ Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>The digit shown will show a random number from 0 - 9 on the module when it is revealed. The digit may also show a random color which can be safely ignored as the color has no relevance for this section.</p>
+                <p>Start with the digit currently on the display. Modify it by this table underneath in respect to the conditions:</p>
+                <table>
+                    <tr>
+                        <th>Condition</th>
+                        <th>Modifier</th>
+                    </tr>
+                    <tr>
+                        <td>Serial number contains a vowel</td>
+                        <td>-1</td>
+                    </tr>
+                    <tr>
+                        <td>Batteries</td>
+                        <td>+1 for each</td>
+                    </tr>
+                    <tr>
+                        <td>The last digit of the serial number is even</td>
+                        <td>+1</td>
+                    </tr>
+                    <tr>
+                        <td>CAR indicator is present</td>
+                        <td>+1</td>
+                    </tr>
+                    <tr>
+                        <td>Parallel port and lit NSA are both present</td>
+                        <td>Undo those modifications</td>
+                    </tr>
+                </table>
+                <p>Then keep adding or subtracting 10 after the using the table provided, until you have a number with 0 - 9 inclusive. This your calculated value for this stage.</p>
+            </div>
+            <div class="page-footer relative-footer">Page 6 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="ledmatheasy">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: Simple LED Math</h2>
+                <p>If the smaller active components are not <strong>[ LED, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>A digit and LED will show denoting a possible expression made by the color of the digit, the LED, and the number shown on the digit. The digit will be colored in white or green while the LED will be in one of 10 different colors, including off. If colorblind mode is enabled for Everchanging, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off; likewise, the color of the digit will also be shown to the right of the digit that is currently shown.</p>
+                <p>The calculated value is determined by evaluating this expression: (digit shown)(digit color)(LED color) and then adding or subtracting 10 continuously until the result is within 0 - 9 inclusive. Do bare in mind (digit color) and (LED color) need to be replaced with specific operators and values respectively!</p>
+                <table style="width: auto; float: left">
+                    <tr>
+                        <th colspan="2">LED color</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>White</td>
+                        <th style="background-color: white"></th>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>Red</td>
+                        <th style="background-color: red"></th>
+                        <td>9</td>
+                    </tr>
+                    <tr>
+                        <td>Orange</td>
+                        <th style="background-color: orange"></th>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>Yellow</td>
+                        <th style="background-color: yellow"></th>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>Green</td>
+                        <th style="background-color: green"></th>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>Lime</td>
+                        <th style="background-color: lime"></th>
+                        <td>7</td>
+                    </tr>
+                    <tr>
+                        <td>Cyan</td>
+                        <th style="background-color: cyan"></th>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>Blue</td>
+                        <th style="background-color: blue"></th>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>Purple</td>
+                        <th style="background-color: purple"></th>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Magenta</td>
+                        <th style="background-color: magenta"></th>
+                        <td>3</td>
+                    </tr>
+                </table>
+                <table style="width: auto; float: right">
+                    <tr>
+                        <th>Color of Digit</th>
+                        <th>Operator</th>
+                    </tr>
+                    <tr>
+                        <td>White</td>
+                        <td>+</td>
+                    </tr>
+                    <tr>
+                        <td>Green</td>
+                        <td>-</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="page-footer relative-footer">Page 7 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="alphaforget">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: AlphaForget</h2>
+                <p class="fake-flavor-text">To be fair, he saw a harder variant of this and didn't approve that difficulty. At all.</p>
+                <p>If the smaller active components are not <strong>[ LED, Cube ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>An LED will light up alongside a cube transforming into 8 separate spheres, and performing a specific rotation. Determine the calculated value by plugging in the function for that given rotation. The diagram shown here will show the axis for each rotation specified. Note that +Y is shown on the top as if the defuser is facing at the module but the diagram shows all 3 possible axes.</p>
+                <p style="text-align: center"><img class="svg" src="img/Everchanging/EverchangingOrbDiagram.svg" alt="(Orb Diagram Image Here)"></p>
+                <table style="font-size: 60%; padding: 0%; margin: 0%;">
+                    <tr>
+                        <th colspan="10">LED Color -&gt; LED Value</th>
+                    </tr>
+                    <tr>
+                        <th>White</th>
+                        <th>Red</th>
+                        <th>Orange</th>
+                        <th>Yellow</th>
+                        <th>Green</th>
+                        <th>Lime</th>
+                        <th>Cyan</th>
+                        <th>Blue</th>
+                        <th>Purple</th>
+                        <th>Magenta</th>
+                    </tr>
+                    <tr>
+                        <th style="background-color: white"></th>
+                        <th style="background-color: red"></th>
+                        <th style="background-color: orange"></th>
+                        <th style="background-color: yellow"></th>
+                        <th style="background-color: green"></th>
+                        <th style="background-color: lime"></th>
+                        <th style="background-color: cyan"></th>
+                        <th style="background-color: blue"></th>
+                        <th style="background-color: purple"></th>
+                        <th style="background-color: magenta"></th>
+                    </tr>
+                    <tr style="font-size: 125%">
+                        <td>7</td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>8</td>
+                        <td>5</td>
+                        <td>2</td>
+                        <td>9</td>
+                        <td>6</td>
+                        <td>3</td>
+                        <td>0</td>
+                    </tr>
+                </table>
+                <table style="width: auto; margin: auto; float: right">
+                    <tr>
+                        <th>Rotation Shown</th>
+                        <th>Function To Apply</th>
+                    </tr>
+                    <tr>
+                        <th>YX</th>
+                        <td>CV = L + S</td>
+                    </tr>
+                    <tr>
+                        <th>XY</th>
+                        <td>CV = S - L</td>
+                    </tr>
+                    <tr>
+                        <th>ZX</th>
+                        <td>CV = D<sub>0</sub> + S</td>
+                    </tr>
+                    <tr>
+                        <th>XZ</th>
+                        <td>CV = D<sub>0</sub> - S</td>
+                    </tr>
+                    <tr>
+                        <th>YZ</th>
+                        <td>CV = L + D<sub>1</sub></td>
+                    </tr>
+                    <tr>
+                        <th>ZY</th>
+                        <td>CV = D<sub>1</sub> - L</td>
+                    </tr>
+                </table>
+                <p>For the rotation table provided, D<sub>n</sub> refers to the (n+1)th digit in the serial number; S refers to the stage number the module is currently on when this combination of smaller components were revealed; and L is the LED value of the wider table provided above for that stage. If the CV is not within the range of 0-9, repeatedly add or subtract 10 until it is.</p>
+            </div>
+            <div class="page-footer relative-footer">Page 8 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="cubedecync">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: Cube Desynchronization</h2>
+                <p class="fake-flavor-text">Are you forgetting what perspective you should follow instead?</p>
+                <p>If the smaller active components are not <strong>[ Cube, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>A random digit will be shown and a random rotation will be applied to the cube. The current displayed digit is then modified by the rotation shown, and then modified by a hidden value. This new value, modulo 10, is then displayed and used as the next digit for the next random rotation. This procedure repeats until another stage is requested. The diagram show the axis of the rotations shown where the Y+ axis is where the defuser is looking directly on top of the module.</p>
+                <p style="text-align: center">
+                    <svg width="240px" height="200px">
+                        <path d="M 10 170 L 110 170 L 190 110 L 190 10 L 90 10 L 10 70 L 110 70 L 190 10 M 110 70 L 110 170 M 10 70 L 10 170 " stroke="black" fill="none"/>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="70" y="60">Y+</text>
+                        <line x1="100" y1="40" x2="100" y2="0" stroke="black" stroke-width="3" stroke-linecap="round"/>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="50" y="110">Z+</text>
+                        <line x1="150" y1="90" x2="240" y2="90" stroke="black" stroke-width="3" stroke-linecap="round"/>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="150" y="85">X+</text>
+                        <line x1="60" y1="120" x2="-20" y2="180" stroke="black" stroke-width="3" stroke-linecap="round"/>
+                        <text fill="#000000" font-size="15" font-family="Special Elite" x="30" y="190">Figure Not To Scale</text>
+                    </svg>
+                </p>
+                <table class="exempt" style="margin: auto; float: right">
+                    <tr>
+                        <th rowspan="2">Given Rotation</th>
+                        <th colspan="10">Last Digit</th>
+                    </tr>
+                    <tr>
+                        <th>0</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                    </tr>
+                    <tr>
+                        <td>X (X+ - axis CW)</td>
+                        <td>5</td>
+                        <td>8</td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>3</td>
+                        <td>9</td>
+                        <td>2</td>
+                        <td>6</td>
+                        <td>7</td>
+                    </tr>
+                    <tr>
+                        <td>X' (X+ - axis CCW)</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>7</td>
+                        <td>0</td>
+                        <td>8</td>
+                        <td>9</td>
+                        <td>6</td>
+                        <td>3</td>
+                        <td>5</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>Y (Y+ - axis CW)</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>8</td>
+                        <td>9</td>
+                        <td>6</td>
+                        <td>5</td>
+                        <td>3</td>
+                        <td>0</td>
+                        <td>7</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>Y' (Y+ - axis CCW)</td>
+                        <td>3</td>
+                        <td>9</td>
+                        <td>0</td>
+                        <td>8</td>
+                        <td>7</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>2</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>Z (Z+ - axis CW)</td>
+                        <td>7</td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>6</td>
+                        <td>5</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>8</td>
+                        <td>9</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>Z' (Z+ - axis CCW)</td>
+                        <td>9</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>7</td>
+                        <td>8</td>
+                        <td>6</td>
+                        <td>3</td>
+                        <td>5</td>
+                    </tr>
+                </table>
+                <p>Determine the hidden value by applying the last displayed digit to the last rotation shown based on the table provided. Now count the number of steps to reach the current displayed digit, after modulo 10. For example, to get from 9 to 5, it would take 6 steps. The number of steps to reach the new displayed digit will be your calculated value.</p>
+            </div>
+            <div class="page-footer relative-footer">Page 9 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-07" id="cubelite">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, ISC</span>
+            </div>
+            <div class="page-content">
+                <h2>Individual Stage Calculations: The Cube Lite</h2>
+                <p>If the smaller active components are not <strong>[ LED, Cube, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Click here to go back to General Overview for Individual Stage Calculations.</a></p>
+                <p>The LED will show a random color out of red, orange, white, green, blue, and purple; the digit will cycle between 2 different digits; and the cube will show 6 digits on the module from 0 - 9 inclusive, with the first and last faces being marked with an LED. To distinguish between the first and last faces with the LED, the first face will have the LED on the bottom left in white and the last face will have the LED on the top left in dark gray. The faces are labeled in the net shown on this page here, as if the faces are right-side up.</p>
+                <p style="text-align: center">
+                    <svg width="240px" height="180px">
+                        <rect x="0" y="0" width="60" height="180" stroke="black" fill="none"/>
+                        <rect x="0" y="60" width="240" height="60" stroke="black" fill="none"/>
+                        <rect x="120" y="60" width="60" height="60" stroke="black" fill="none"/>
+                        <circle cx="10" cy="50" r="5" stroke="black" fill="white"/>
+                        <circle cx="10" cy="130" r="5" stroke="black" fill="gray"/>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="40">1</text>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="100">2</text>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="82" y="100">3</text>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="142" y="100">4</text>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="202" y="100">5</text>
+                        <text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="160">6</text>
+                    </svg>
+                </p>
+                <p>The first table in this page provide the LED value for this stage.</p>
+                <table style="font-size: 90%">
+                    <tr>
+                        <th>Red</th>
+                        <td>No. of Modules (including needies) + 5</td>
+                        <th>Orange</th>
+                        <td>Stage No.</td>
+                        <th>White</th>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <th>Green</th>
+                        <td>6 + Sum of Serial No. Digits</td>
+                        <th>Blue</th>
+                        <td>1 + (number of letters in Serial No.)</td>
+                        <th>Purple</th>
+                        <td>Sum of digits on the cube</td>
+                    </tr>
+                </table>
+                <p>The cube will also perform 5 rotations. These rotations are determined from a top-down perspective. One of these rotations is distinct from the 5 rotations and is converted into a given value from the table provided.</p>
+                <table>
+                    <tr>
+                        <th>Rotate CCW</th>
+                        <td>2nd face digit</td>
+                        <th>Rotate CW</th>
+                        <td>5th face digit</td>
+                        <th>Tilt Up</th>
+                        <td>1st face digit</td>
+                    </tr>
+                    <tr>
+                        <th>Tilt Down</th>
+                        <td>6th face digit</td>
+                        <th>Tip Right</th>
+                        <td>3rd face digit</td>
+                        <th>Tip Left</th>
+                        <td>4th face digit</td>
+                    </tr>
+                </table>
+                <p>Add the LED value with the value of the provided rotation and then modulo 8 if the current stage number is 10n + 5, 9 if the current stage number is 10n + 6, or 10 otherwise. Add that result with the sum of the digits that are shown, and then modulo 10. This results in your calculated value for that stage.</p>
+            </div>
+            <div class="page-footer relative-footer">Page 10 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="inputprocedure">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, IP</span>
+            </div>
+            <div class="page-content">
+                <h2>Input Procedures: General Overview</h2>
+                <p>When the module successfully reveals no components or is ready to solve, the module will reveal one of the three input methods that the defuser can interact with. Each of the provided pages underneath will provide different procedures that are required to disarm the module. If any inputs were incorrect for that stage, the module may reshow that given stage that was inputted incorrectly.</p>
+                <p>The order of the inputs by default is by when each stage was shown and excluding previous correct sets if there are any. Some components revealed may request a different stage that may be out of the standard order.</p>
+                <p>If the defuser manages to input all of the requested stages correctly when the module successfully reveals no components, the module will clear all of the requested stages up to this input procedure and speed up the timer if the timer has not expired for this stage. Those stages that were inputted correctly will NOT be included in the final input procedure. If this is the final input procedure, the module will instead disarm itself instead.</p>
+                <h2>Contents in this Section:</h2>
+                <ol>
+                    <li><a href="#fmnw">10 Digit Keypad</a></li>
+                    <li><a href="#wireseq">Questionable Wire Sequence</a></li>
+                    <li><a href="#arrows">Monochrome Arrows</a></li>
+                </ol>
+            </div>
+            <div class="page-footer relative-footer">Page 11 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="fmnw">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, IP</span>
+            </div>
+            <div class="page-content">
+                <h2>Input Procedures: 10 Digit Keypad</h2>
+                <p class="fake-flavor-text">It's going to Forget Me. Not. Or is it Now? Or one of Us? Or maybe Later?</p>
+                <p>If the revealed component does not contain <strong>[ Keypad ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Click here to go back to General Overview for Input Procedures.</a></p>
+                <p>The keypad will show 10 digits ranging from 0-9 respectively, alongside the number of digits to input to complete this input procedure.</p>
+                <p>Start with the least significant digit of the calculated value from each stage that requests it. The digit to input for each stage will be calculated value modified by the first condition from the given set of conditions, modulo 10 (kept within 0-9 by adding/subtracting 10).</p>
+                <table>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">First Digit to Input</h2>
+                            <ul style="text-align: left">
+                                <li>If an FRK indicator is present, the modifier is +2 if that indicator is lit, -2 if unlit.</li>
+                                <li>Otherwise, if there are no lit indicators, the modifier is -(number of unlit indicators).</li>
+                                <li>Otherwise, if there are more lit indicators than unlit indicators, the modifier is -7.</li>
+                                <li>Otherwise, the modifier is +(2nd digit of the serial number).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">Second Digit to Input</h2>
+                            <ul style="text-align: left">
+                                <li>If there is an empty port plate, the modifier is 0.</li>
+                                <li>Otherwise, if the previous digit inputted is not divisible by 2, the modifier is +(number of stages required to input % 10)</li>
+                                <li>Otherwise, the modifier is -(1st digit inputted - 1).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">All Other Digits to Input</h2>
+                            <ul style="text-align: left">
+                                <li>If at least one of the last 2 inputted values were a 0, the modifier is +(1st digit of the serial number)</li>
+                                <li>Otherwise, if the 2nd to last inputted value is even and the last inputted value is odd, the modifier is +(sum of all odd digits in the serial number).</li>
+                                <li>Otherwise, the modifier is +(left-most digit of the sum of the last 2 inputted values).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="page-footer relative-footer">Page 12 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="wireseq">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, IP</span>
+            </div>
+            <div class="page-content wire-sequence">
+                <h2>Input Procedures: Questionable Wire Sequences</h2>
+                <p class="fake-flavor-text">This is Wire Sequence? I have many questions about this.</p>
+                <p>If the revealed component does not contain <strong>[ Wire Sequences ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Click here to go back to General Overview for Input Procedures.</a></p>
+                <p>The module will show at most 4 colored wires on each panel with a number on the left/right denoting the stage referenced by that wire. There is also an up and down arrow buttons on the right which are used to switch between panels alongside a 5th display will can safely be ignored. These wires are always single-colored for this instance. The defuser can hold the up arrow to go back to the first panel or the down arrow to go to the most recent incomplete panel.</p>
+                <p class="squeeze">In reading order, account for the number of times the given wire color has occurred and cut based on if the calculated value for that stage displayed on the left, is any of the given values in provided cell. Calculated Value will be referred to as CV for this table provided. If at any case there are 13 or more occurrences of 1 wire color, wrap back to the top of the table and continue downwards from there. Cutting a wire that does not need to be cut will result in a strike but it will not reshow that stage. However, attempting to advance to the next panel when at least 1 wire needs to be cut on the current panel will result in a strike while reshowing the stages based off of the remaining displayed stages in that panel.</p>
+                <div>
+                    <table class="wire-table">
+                        <tr>
+                            <th colspan="2">White Wire Occurrences</th>
+                        </tr>
+                        <tr>
+                            <th>Wire Occurrence</th>
+                            <th>Cut if the stage's CV is...</th>
+                        </tr>
+                        <tr>
+                            <td>1st white</td>
+                            <td>2, 4, 5, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>2nd white</td>
+                            <td>0, 2, 4, 5, 6</td>
+                        </tr>
+                        <tr>
+                            <td>3rd white</td>
+                            <td>1, 3, 5, 6, 8</td>
+                        </tr>
+                        <tr>
+                            <td>4th white</td>
+                            <td>3, 4, 5, 6, 7</td>
+                        </tr>
+                        <tr>
+                            <td>5th white</td>
+                            <td>2, 3, 4, 5, 6</td>
+                        </tr>
+                        <tr>
+                            <td>6th white</td>
+                            <td>0, 1, 4, 6, 9</td>
+                        </tr>
+                        <tr>
+                            <td>7th white</td>
+                            <td>1, 2, 4, 7, 9</td>
+                        </tr>
+                        <tr>
+                            <td>8th white</td>
+                            <td>0, 1, 3, 7, 8</td>
+                        </tr>
+                        <tr>
+                            <td>9th white</td>
+                            <td>1, 2, 6, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>10th white</td>
+                            <td>0, 1, 2, 7, 8</td>
+                        </tr>
+                        <tr>
+                            <td>11th white</td>
+                            <td>0, 3, 5, 7, 9</td>
+                        </tr>
+                        <tr>
+                            <td>12th white</td>
+                            <td>0, 3, 7, 8, 9</td>
+                        </tr>
+                    </table>
+                    <table class="wire-table">
+                        <tr>
+                            <th colspan="2">Red Wire Occurrences</th>
+                        </tr>
+                        <tr>
+                            <th>Wire Occurrence</th>
+                            <th>Cut if the stage's CV is...</th>
+                        </tr>
+                        <tr>
+                            <td>1st red</td>
+                            <td>0, 1, 2, 3, 7</td>
+                        </tr>
+                        <tr>
+                            <td>2nd red</td>
+                            <td>0, 2, 5, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>3rd red</td>
+                            <td>2, 3, 5, 6, 9</td>
+                        </tr>
+                        <tr>
+                            <td>4th red</td>
+                            <td>1, 2, 5, 6, 8</td>
+                        </tr>
+                        <tr>
+                            <td>5th red</td>
+                            <td>1, 2, 3, 5, 8</td>
+                        </tr>
+                        <tr>
+                            <td>6th red</td>
+                            <td>0, 4, 6, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>7th red</td>
+                            <td>0, 3, 4, 7, 9</td>
+                            
+                        </tr>
+                        <tr>
+                            <td>8th red</td>
+                            <td>0, 4, 6, 7, 9</td>
+                        </tr>
+                        <tr>
+                            <td>9th red</td>
+                            <td>3, 5, 6, 7, 9</td>
+                        </tr>
+                        <tr>
+                            <td>10th red</td>
+                            <td>1, 2, 4, 5, 6</td>
+                        </tr>
+                        <tr>
+                            <td>11th red</td>
+                            <td>1, 3, 4, 7, 8</td>
+                        </tr>
+                        <tr>
+                            <td>12th red</td>
+                            <td>0, 1, 4, 7, 8</td>
+                        </tr>
+                    </table>
+                    <table class="wire-table">
+                        <tr>
+                            <th colspan="2">Blue Wire Occurrences</th>
+                        </tr>
+                        <tr>
+                            <th>Wire Occurrence</th>
+                            <th>Cut if the stage's CV is...</th>
+                        </tr>
+                        <tr>
+                            <td>1st blue</td>
+                            <td>1, 3, 4, 5, 8</td>
+                        </tr>
+                        <tr>
+                            <td>2nd blue</td>
+                            <td>0, 1, 3, 6, 7</td>
+                            
+                        </tr>
+                        <tr>
+                            <td>3rd blue</td>
+                            <td>4, 5, 6, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>4th blue</td>
+                            <td>0, 1, 2, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>5th blue</td>
+                            <td>2, 3, 4, 6, 9</td>
+                        </tr>
+                        <tr>
+                            <td>6th blue</td>
+                            <td>0, 1, 4, 5, 6</td>
+                        </tr>
+                        <tr>
+                            <td>7th blue</td>
+                            <td>1, 2, 7, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>8th blue</td>
+                            <td>0, 2, 3, 5, 6</td>
+                        </tr>
+                        <tr>
+                            <td>9th blue</td>
+                            <td>3, 4, 7, 8, 9</td>
+                        </tr>
+                        <tr>
+                            <td>10th blue</td>
+                            <td>0, 2, 5, 6, 7</td>
+                        </tr>
+                        <tr>
+                            <td>11th blue</td>
+                            <td>2, 3, 4, 7, 8</td>
+                        </tr>
+                        <tr>
+                            <td>12th blue</td>
+                            <td>0, 1, 5, 7, 9</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="page-footer relative-footer">Page 13 of 14 <a href="#">Go to first page</a></div>
+        </div>
+        <div class="page page-bg-03" id="arrows">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Everchanging, IP</span>
+            </div>
+            <div class="page-content">
+                <h2>Input Procedures: Monochrome Arrows</h2>
+                <p class="fake-flavor-text">Looks like someone made the sequel of Black Arrows again. This time, it wants more than just grayness.</p>
+                <p>If the revealed component does not contain <strong>[ Arrows ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Click here to go back to General Overview for Input Procedures.</a></p>
+                <p>This module will reveal 4 arrows, with 4 different shades of gray on the module. To complete this input procedure, input the arrows based on the characteristics shown. Inputting the incorrect arrow will reshow each stage used for this input procedure.</p>
+                <p>To obtain the characteristics, you will need to use the calculated values obtained earlier. Add all of the calculated values by how many times the input procedure has activated, including this input procedure, and modulo them by 10. The 3&times;3 table will show the directions to move relative to the starting position.</p>
+                <table class="exempt" style="float: right">
+                    <tr>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <th class="filled"></th>
+                        <th>5</th>
+                    </tr>
+                    <tr>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                    </tr>
+                </table>
+                <p>Starting on the top-left of the 8&times;8 grid, move 1 space to the right for every "9", and 1 space down for every "0". This is now your starting location. Then, for each non 0/9 number in order, move relative to the 3&times;3 table on the right. This 8&times;8 grid wraps around horizontally and vertically.</p>
+                <table class="exempt" style="margin: auto">
+                    <tr>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>C</th>
+                        <th>B</th>
+                        <th>A</th>
+                        <th>H</th>
+                        <th>D</th>
+                        <th>G</th>
+                    </tr>
+                    <tr>
+                        <th>A</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>F</th>
+                        <th>B</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>C</th>
+                    </tr>
+                    <tr>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>A</th>
+                        <th>C</th>
+                        <th>B</th>
+                    </tr>
+                    <tr>
+                        <th>G</th>
+                        <th>H</th>
+                        <th>B</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>C</th>
+                        <th>A</th>
+                        <th>D</th>
+                    </tr>
+                    <tr>
+                        <th>H</th>
+                        <th>B</th>
+                        <th>G</th>
+                        <th>C</th>
+                        <th>E</th>
+                        <th>D</th>
+                        <th>F</th>
+                        <th>A</th>
+                    </tr>
+                    <tr>
+                        <th>B</th>
+                        <th>A</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>C</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>E</th>
+                    </tr>
+                    <tr>
+                        <th>C</th>
+                        <th>E</th>
+                        <th>A</th>
+                        <th>G</th>
+                        <th>D</th>
+                        <th>B</th>
+                        <th>H</th>
+                        <th>F</th>
+                    </tr>
+                    <tr>
+                        <th>D</th>
+                        <th>C</th>
+                        <th>F</th>
+                        <th>A</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>B</th>
+                        <th>H</th>
+                    </tr>
+                </table>
+                <p>Each letter obtained from the starting position, every time the direction changes from the current position (I.E moving TL, then BL), and from the end of the sequence, will correspond to characteristic from an arrow that should be pressed. In a case that no movement is performed, only the letter at the starting position is noted. Press them in the order obtained. Up, Down, Left, Right are all abbreviated as U, D, L, R, respectively. Shades of gray refer to the color of that arrow.</p>
+                <table>
+                    <tr>
+                        <th>Letter</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>H</th>
+                    </tr>
+                    <tr>
+                        <th>Characteristic</th>
+                        <th style="background-color: white"></th>
+                        <th style="background-color: rgb(170,170,170)"></th>
+                        <th style="background-color: rgb(85,85,85)"></th>
+                        <th style="background-color: black"></th>
+                        <th>U</th>
+                        <th>R</th>
+                        <th>D</th>
+                        <th>L</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="page-footer relative-footer">Page 14 of 14 <a href="#">Go to first page</a></div>
+        </div>
+    </div>
+</body>
+</html>

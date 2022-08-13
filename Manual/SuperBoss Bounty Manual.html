@@ -1,0 +1,870 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>SuperBoss — Keep Talking and Nobody Explodes Module</title>
+    <meta name="viewport" content="initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <script src="js/ktane-utils.js"></script>
+	<style>
+		table
+		{
+			text-align: center;
+			width: 100%;
+			display: table;
+		}
+		.wire-table
+		{
+			width: 32%;
+		}
+		.wire-table tr td
+		{
+			margin: none;
+			line-height: 150%;
+		}
+		.center
+		{
+			margin-left: auto;
+			margin-right: auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="section">
+		<div class="page page-bg-01" id="top">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss</span>
+			</div>
+			<div class="page-content">
+				<img src="img/Component/Module Name.svg" class="diagram">
+				<h2>The Super Boss: Defeating Manipulating Luck</h2>
+				<p class="flavour-text">Nothing is simple. It just involves RNG being in the way again.
+				</p>
+				<p>This module will consist of a stage counter, 4 areas where the components will appear and disappear, and a timer just above the wider component area. To disarm the module, take note of as many stages as possible as well as the components that are shown on the module. Calculate the value needed to input from the individual sections provided. Then, perform the correct action ranging from cutting specific wires in order, entering digits on a keypad, or inputting similarly to The Sphere when the module requests to input. The module may randomly request an input early if none of the smaller components are revealed, so bare in mind when accounting for that.</p>
+				<p>Inputting a calculated value incorrectly or letting the timer run out when the module requests an input while multiple solves are being processed will result in a strike.</p>
+				<p>The smaller components range from a digit on the display, an LED, and a cube, which may rotate in a random direction.</p>
+				<h1>Table Of Contents</h1>
+				<h2>
+				<ol>
+					<li><a href="#stagegen">Stage Generation Procedures</a></li>
+					<li><a href="#stagecalculations">Individual Stage Calculations</a></li>
+					<li><a href="#inputprocedure">Input Procedures</a></li>
+				</ol>
+				</h2>
+			</div>
+			<div class="page-footer relative-footer">Page 1 of 14</div>
+		</div>
+		<div class="page page-bg-02" id="stagegen">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, SGP</span>
+			</div>
+			<div class="page-content">
+				<h2>Stage Generation Procedures</h2>
+				<p>Each stage will be generated based on the number of non-ignored modules that are solved so far. The timer will count down at 15 seconds per stage that is currently shown and advance when the timer expires. By default, smaller components are randomly selected to be active or not active. However there are rules that can be applied to alter how the stages are generated.</p>
+				<p>These following rules ALWAYS applies (Top-most rule takes highest priority, bottom-most rule takes lowest priority):</p>
+				<ul>
+					<li>If there is exactly 1 non-ignored unsolved module left, that given stage must reveal at least 1 of the smaller components. Likewise, the next stage immediately after that will ALWAYS be the input procedure.</li>
+					<li>The first 3 stages at the start will reveal exactly 1 of the smaller components.</li>
+					<li>If module has revealed none of the smaller components for that given stage, the module will then request an early input. The next 4 stages generated after the current stage must reveal at least 1 of the smaller components. In the case of multiple solves being processed, a stage requiring early inputs will have a timer set for 2 minutes instead of 15 seconds. The timer may be extended by 15 seconds for every stage after the 8th requested stage.</li>
+					<li>Other rules corresponding to this module are present however the defuser will need very specific modules present in order to trigger these corresponding rules.</li>
+				</ul>
+			</div>
+			<div class="page-footer relative-footer">Page 2 of 14 <a href="#">Go to first page</a>
+			</div>
+		</div>
+            <div class="page page-bg-02">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">SuperBoss</span>
+                </div>
+                <div class="page-content">
+                    <h2>Stage Generation Procedures (Continued)</h2>
+					<p>These following rules only apply if very specific conditions are applied. Solving these modules will trigger an event that will cause SuperBoss to modify its current behavior.</p>
+					<ul>
+						<li><strong>Any Module:</strong> If previous stage was an input procedure and the solved module required another input procedure directly after that stage. SuperBoss will instead generate at least 1 component instead. THIS TAKES HIGHEST PRIORITY.</li>
+						<li><strong>The Cube:</strong> The next stage generated will include the cube component for that stage only.</li>
+						<li><strong>The Sphere:</strong> The next stage will be an input procedure involving the floating sphere.</li>
+						<li><strong>Wire Sequence, Not Wire Sequence:</strong> The next stage generated will be the input procedure involving on cutting wires.</li>
+						<li><strong>The Digit, 7:</strong> The next stage generated will include the digit component.</li>
+						<li><strong>100 Levels of Defusal:</strong> The next stage generated will reveal exactly 2 components if the previous input procedure revolves cycling letters to get the correct result.</li>
+						<li><strong>Forget Me Now:</strong> The next stage generated will only reveal the digit component if the previous input procedure involves the 10 digit keypad.</li>
+						<li><strong>The Modkit:</strong> The next stage generated will reveal components based on what components are required in The Modkit.</li>
+						<li><strong>The Heart:</strong> The next stage generated will have a 30 second cooldown rather than 15.</li>
+					</ul>
+                </div>
+                <div class="page-footer relative-footer">Page 2 of 3 <a href="#top">Go to first page</a></div>
+            </div>
+		<div class="page page-bg-03" id="stagecalculations">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: General Overview</h2>
+				<p class="flavour-text">There's so much to prep for.</p>
+				<p>In order to obtain the calculated value, the expert will need to find the page which only contains the specified components shown on that stage and refer to page on how to retrieve the calculated value. The expert may be required to relay the information back to the defuser. In addition, the defuser may need to read out the properties of the smaller components. If colorblind mode is enabled for SuperBoss, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off. This letter is the first letter of the given color, I.E. R for Red, O for Orange, etc. For clarity on the reading the cube on the module, all single "9"'s will be in <strong>bold text</strong> and all "6"'s will not.</p>
+				<h2>Contents in this Section:</h2>
+				<ol>
+					<li><a href="#singleled">Singular LED</a></li>
+					<li><a href="#floatingcube">Floating Cube</a></li>
+					<li><a href="#lonelydigit">Lonely Digit</a></li>
+					<li><a href="#ledmatheasy">Simple LED Math</a></li>
+					<li><a href="#fakeperspective">False Perception</a></li>
+					<li><a href="#alphaforget">AlphaForget</a></li>
+					<li><a href="#cubelite">The Cube Lite</a></li>
+				</ol>
+			</div>
+			<div class="page-footer relative-footer">Page 3 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="singleled">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: Singular LED</h2>
+				<p>If the smaller active components are not <strong>[ LED ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>The LED will show exactly 1 color which can be one of the following colors: red, orange, yellow, green, cyan, blue, magenta, purple, white, off. If colorblind mode is enabled for SuperBoss, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off. This letter is the first letter of the given color, I.E. R for Red, O for Orange, etc.</p>
+				<p>The calculated value is determined on the current stage number shown on the module and the color of the LED, from the cell in the given table provided.</p>
+				<table style="font-size: 90%">
+					<tr>
+						<th rowspan="2">Stage no. % 10</th>
+						<th colspan="10">LED Color</th>
+					</tr>
+					<tr>
+						<th>Off</th>
+						<th>Red</th>
+						<th>Orange</th>
+						<th>Yellow</th>
+						<th>Green</th>
+						<th>Cyan</th>
+						<th>Blue</th>
+						<th>Magenta</th>
+						<th>Purple</th>
+						<th>White</th>
+					</tr>
+					<tr>
+						<th>9</th>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+					</tr>
+					<tr>
+						<th>8</th>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<th>7</th>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+					</tr>
+					<tr>
+						<th>6</th>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+					</tr>
+					<tr>
+						<th>5</th>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+					</tr>
+					<tr>
+						<th>4</th>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+					</tr>
+					<tr>
+						<th>3</th>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+					</tr>
+					<tr>
+						<th>2</th>
+						<td>7</td>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+					</tr>
+					<tr>
+						<th>1</th>
+						<td>8</td>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+					</tr>
+					<tr>
+						<th>0</th>
+						<td>9</td>
+						<td>0</td>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+					</tr>
+				</table>
+			</div>
+			<div class="page-footer relative-footer">Page 4 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="floatingcube">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: Floating Cube</h2>
+				<p>If the smaller active components are not <strong>[ Cube ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>The cube will show a unique digit from 1 to 6 on each face except for one face which will be referred to as the starting face. The cube will rotate to another face 1 to 3 times and then reverse its rotation to go back to the starting face.</p>
+				<p>The calculated value is determined by adding up the digits the cube has rotated to as the new reference face (The original reference face is marked as "X"), subtracting the missing value, and then taking the absolute value of that result, modulo 10.</p>
+				<p>As an example, take for instance the net of the cube where the "X" face is the top face:</p>
+				<table class="center" style="width: auto">
+					<tr>
+						<td>1</td>
+					</tr>
+					<tr>
+						<td>X</td>
+						<td>5</td>
+						<td>4</td>
+						<td>2</td>
+					</tr>
+					<tr>
+						<td>6</td>
+					</tr>
+				</table>
+				<p>If the cube now rotates to show the top face numbered 5, and then rotates to show the top face numbered 6 before reversing the rotations, the sum from the referred faces is now 11. Since the replaced digit is a 3 according to the net, you would do 11 - 3 to get your calculated value of 8.</p>
+			</div>
+			<div class="page-footer relative-footer">Page 5 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="lonelydigit">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: Lonely Digit</h2>
+				<p>If the smaller active components are not <strong>[ Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>The digit shown will show a random number from 0 - 9 on the module when it is revealed. The digit may also show a random color which can be safely ignored as the color has no relevance for this section.</p>
+				<p>Start with the digit currently on the display. Modify it by this table underneath in respect to the conditions:</p>
+				<table>
+					<tr>
+						<th>Condition</th>
+						<th>Modifier</th>
+					</tr>
+					<tr>
+						<td>Serial number contains a vowel</td>
+						<td>-1</td>
+					</tr>
+					<tr>
+						<td>Batteries</td>
+						<td>+1 for each</td>
+					</tr>
+					<tr>
+						<td>The last digit of the serial number is even</td>
+						<td>+1</td>
+					</tr>
+					<tr>
+						<td>CAR indicator is present</td>
+						<td>+1</td>
+					</tr>
+					<tr>
+						<td>Parallel port and lit NSA are both present</td>
+						<td>Undo those modifications</td>
+					</tr>
+				</table>
+				<p>Then keep adding or subtracting 10 after the using the table provided, until you have a number with 0 - 9 inclusive. This your calculated value for this stage.</p>
+			</div>
+			<div class="page-footer relative-footer">Page 6 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="ledmatheasy">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: Simple LED Math</h2>
+				<p>If the smaller active components are not <strong>[ LED, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>A digit and LED will show denoting a possible expression made by the color of the digit, the LED, and the number shown on the digit. The digit will be colored in one of 3 different possibilities while the LED will be in one of 10 different colors, including off. If colorblind mode is enabled for SuperBoss, a letter will also be shown to denote the color of the LED if it's on, or no letters at all if it's off; likewise, the color of the digit will also be shown underneath the digit that is currently shown.</p>
+				<p>The calculated value is determined by evaluating this expression: (digit shown)(digit color)(LED color) and then adding or subtracting 10 continuously until the result is within 0 - 9 inclusive. Do bare in mind (digit color) and (LED color) need to be replaced with specific operators and values respectively!</p>
+				<table style="width: auto; float: left">
+					<tr>
+						<th>LED color</th>
+						<th>Value</th>
+					</tr>
+					<tr>
+						<td>Off</td>
+						<td>9</td>
+					</tr>
+					<tr>
+						<td>Red</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>Orange</td>
+						<td>8</td>
+					</tr>
+					<tr>
+						<td>Yellow</td>
+						<td>1</td>
+					</tr>
+					<tr>
+						<td>Green</td>
+						<td>7</td>
+					</tr>
+					<tr>
+						<td>Cyan</td>
+						<td>2</td>
+					</tr>
+					<tr>
+						<td>Blue</td>
+						<td>6</td>
+					</tr>
+					<tr>
+						<td>Magenta</td>
+						<td>3</td>
+					</tr>
+					<tr>
+						<td>Purple</td>
+						<td>5</td>
+					</tr>
+					<tr>
+						<td>White</td>
+						<td>4</td>
+					</tr>
+				</table>
+				<table align="center" style="width: auto; float: right">
+					<tr>
+						<th>Color of Digit</th>
+						<th>Operator</th>
+					</tr>
+					<tr>
+						<td>White</td>
+						<td>+</td>
+					</tr>
+					<tr>
+						<td>Green</td>
+						<td>-</td>
+					</tr>
+					<tr>
+						<td>Magenta</td>
+						<td>&times;</td>
+					</tr>
+				</table>
+			</div>
+			<div class="page-footer relative-footer">Page 7 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="alphaforget">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: AlphaForget</h2>
+				<p class="flavour-text">To be fair, he saw a harder variant of this and didn't approve that difficulty. At all.</p>
+				<p>If the smaller active components are not <strong>[ LED, Cube ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>An LED will light up alongside a cube constantly rotating in one direction very quickly. Determine the calculated value by plugging in the function for that given rotation. The diagram shown here will show the axis for each rotation specified. Note that Y+ is shown on the top as if the module is facing away from the hole where the cube normally shows up in.</p>
+				<p style="text-align: center">
+					<svg width="240px" height="200px">
+						<path d="M 10 170 L 110 170 L 190 110 L 190 10 L 90 10 L 10 70 L 110 70 L 190 10 M 110 70 L 110 170 M 10 70 L 10 170 " stroke="black" fill="none"/>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="70" y="60" align="center">Y+</text>
+						<line x1="100" y1="40" x2="100" y2="0" stroke="black" stroke-width="3" stroke-linecap="round"/>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="50" y="100" align="center">X+</text>
+						<line x1="150" y1="90" x2="240" y2="90" stroke="black" stroke-width="3" stroke-linecap="round"/>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="150" y="85" align="center">Z+</text>
+						<line x1="60" y1="120" x2="-20" y2="180" stroke="black" stroke-width="3" stroke-linecap="round"/>
+						<text fill="#000000" font-size="15" font-family="Special Elite" x="30" y="190" align="center">Figure Not To Scale</text>
+					</svg>
+				</p>
+				<table style="font-size: 60%; padding: 0%; margin: 0%;">
+					<tr>
+						<th colspan="10">LED Color -> LED Value</th>
+					</tr>
+					<tr>
+						<th>Red</th>
+						<th>Orange</th>
+						<th>Yellow</th>
+						<th>Green</th>
+						<th>Cyan</th>
+						<th>Blue</th>
+						<th>Magenta</th>
+						<th>Purple</th>
+						<th>White</th>
+						<th>Off</th>
+					</tr>
+					<tr style="font-size: 125%">
+						<td>7</td>
+						<td>4</td>
+						<td>1</td>
+						<td>8</td>
+						<td>5</td>
+						<td>2</td>
+						<td>9</td>
+						<td>6</td>
+						<td>3</td>
+						<td>0</td>
+					</tr>
+				</table>
+				<p>For the rotation table provided, D is referred to the sum of digits in the serial number; S refers to the stage number the module is currently on when this combination of smaller components were revealed; and L is the LED value of the wider table provided above for that stage. The +Y-axis is referred when looking top-down at the module, .</p>
+				<table style="width: auto" align="center">
+					<tr>
+						<th>Rotation Shown</th>
+						<th>Function To Apply</th>
+					</tr>
+					<tr>
+						<th>X (X axis CW)</th>
+						<td>CV = (L + S) % 10</td>
+					</tr>
+					<tr>
+						<th>X' (X axis CCW)</th>
+						<td>CV = |S - L| % 10</td>
+					</tr>
+					<tr>
+						<th>Y (Y axis CW)</th>
+						<td>CV = (D + S) % 10</td>
+					</tr>
+					<tr>
+						<th>Y' (Y axis CCW)</th>
+						<td>CV = |D - S| % 10</td>
+					</tr>
+					<tr>
+						<th>Z (Z axis CW)</th>
+						<td>CV = (L + D) % 10</td>
+					</tr>
+					<tr>
+						<th>Z' (Z axis CCW)</th>
+						<td>CV = |D - L| % 10</td>
+					</tr>
+				</table>
+			</div>
+			<div class="page-footer relative-footer">Page 8 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="fakeperspective">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: False Perception</h2>
+				<p class="flavour-text">Are you forgetting what perspective you should follow instead?</p>
+				<p>If the smaller active components are not <strong>[ Cube, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>This cube has 6 faces with one of 6 different colors from red, orange, yellow, green, blue, magenta; alongside having different values on each of the faces. The digit will also show a value from 0 - 9 which will be used for later in this stage.</p>
+				<p>One of the faces will be flickering to distinguish between an active face used for stage calculations. Follow the procedure from <a href="Forget%20Perspective.html">Forget Perspective</a> up to step involving reorienting the cube.</p>
+				<p>Now take the stage number and bring this down to a value within 1 - 6 by subtracting 6 repetitively. This is your referenced face from the net obtained from that manual. Use the digit shown on this stage to obtain the modifier the rule number from <a href="Character%20Shift.html">Character Shift's</a> manual, assuming rule seed 1 and default X and Y values. Add the value of the referenced face to the modifier from the rule number obtained from Character Shift.</p>
+				<p>Keep this value within 0 - 9 inclusive by adding or subtracting 10 continuously until within the specified range to obtain your calculated value.</p>
+				<p></p>
+			</div>
+			<div class="page-footer relative-footer">Page 9 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-07" id="cubelite">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, ISC</span>
+			</div>
+			<div class="page-content">
+				<h2>Individual Stage Calculations: The Cube Lite</h2>
+				<p>If the smaller active components are not <strong>[ LED, Cube, Digit ]</strong>, you are looking at the wrong page! <a href="#stagecalculations">Go back to General Overview for Individual Stage Calculations.</a></p>
+				<p>The LED will show a random color out of red, orange, white, green, blue, and purple; the digit will cycle between 2 different digits; and the cube will show 6 digits on the module from 0-9 inclusive, with the first and last faces being marked with an LED. To distinguish between the first and last faces with the LED, the first face will have the LED on the bottom left in white and the last face will have the LED on the top left in dark gray. The faces are labeled in the net shown on this page here, as if the faces are right-side up.</p>
+				<p style="text-align: center">
+					<svg width="240px" height="180px">
+						<rect x="0" y="0" width="60" height="180" stroke="black" fill="none"/>
+						<rect x="0" y="60" width="240" height="60" stroke="black" fill="none"/>
+						<rect x="120" y="60" width="60" height="60" stroke="black" fill="none"/>
+						<circle cx="10" cy="50" r="5" stroke="black" fill="white"/>
+						<circle cx="10" cy="130" r="5" stroke="black" fill="gray"/>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="40" align="center">1</text>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="100" align="center">2</text>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="82" y="100" align="center">3</text>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="142" y="100" align="center">4</text>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="202" y="100" align="center">5</text>
+						<text fill="#000000" font-size="30" font-family="Special Elite" x="22" y="160" align="center">6</text>
+					</svg>
+				</p>
+				<p>The first table in this page provide the LED value for this stage. MSD and LSD are referred to as the most significant digit and least significant digit in the provided table. For stages such as "0#", the most significant digit in that stage will be 0 for this instance only.</p>
+				<table style="font-size: 90%">
+					<tr>
+						<th>Red</th>
+						<td>No. of Modules (including needies) + 5</td>
+						<th>Orange</th>
+						<td>LSD in Stage No.</td>
+						<th>White</th>
+						<td>2</td>
+					</tr>
+					<tr>
+						<th>Green</th>
+						<td>MSD in Stage No. + 5</td>
+						<th>Blue</th>
+						<td>1 + (number of letters in Serial No.)</td>
+						<th>Purple</th>
+						<td>Sum of digits in the cube</td>
+					</tr>
+				</table>
+				<p>The cube will also perform a single rotation every couple of seconds. The movement is determined from a top-down perspective and is converted into a given value from the table provided.</p>
+				<table>
+					<tr>
+						<th>Rotate CCW</th>
+						<td>2nd face digit</td>
+						<th>Rotate CW</th>
+						<td>5th face digit</td>
+						<th>Tilt Up</th>
+						<td>1st face digit</td>
+					</tr>
+					<tr>
+						<th>Tilt Down</th>
+						<td>6th face digit</td>
+						<th>Tip Right</th>
+						<td>3rd face digit</td>
+						<th>Tip Left</th>
+						<td>4th face digit</td>
+					</tr>
+				</table>
+				<p>Add the LED value with the value of the provided rotation and then modulo 8 if the current stage number is 10n + 5, 9 if the current stage number is 10n + 6, or 10 otherwise. Add that result with the sum of the digits that are shown, and then modulo 10. This results in your calculated value for that stage.</p>
+			</div>
+			<div class="page-footer relative-footer">Page 10 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="inputprocedure">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, IP</span>
+			</div>
+			<div class="page-content">
+				<h2>Input Procedures: General Overview</h2>
+				<p>When the module successfully reveals no components or is ready to solve, the wider component will open up and reveal one of the three input methods that the defuser can interact with. Each of the provided pages underneath will provide different procedures that are required to disarm the module. If any inputs were incorrect for that stage, the module may reshow that given stage that was inputted incorrectly.</p>
+				<p>The order of the inputs by default is by when each stage was shown and excluding previous correct sets if there are any. Some components revealed by the wider component may request a different stage that may be out of the standard order.</p>
+				<p>If the defuser manages to input all of the requested stages correctly when the module successfully reveals no components, the module will clear all of the requested stages up to this input procedure and speeds up the timer if the timer has not ran out yet for this stage. Those stages that were inputted correctly will NOT be included in the final input procedure. If this is the final input procedure, the module will instead disarm itself instead.</p>
+				<h2>Contents in this Section:</h2>
+				<ol>
+					<li><a href="#fmnw">10 Digit Keypad</a></li>
+					<li><a href="#wireseq">Questionable Logical Wire Sequence</a></li>
+					<li><a href="#sphere">The Unstoppable Floating Sphere</a></li>
+				</ol>
+			</div>
+			<div class="page-footer relative-footer">Page 11 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="fmnw">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, IP</span>
+			</div>
+			<div class="page-content">
+				<h2>Input Procedures: 10 Digit Keypad</h2>
+				<p class="flavour-text">It's going to Forget Me. Not. Or is it Now? Or one of Us?</p>
+				<p>If the wider revealed component is not <strong>[ Keypad ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Go back to General Overview for Input Procedures.</a></p>
+				<p>The keypad will show 10 digits ranging from 0-9 respectively. This will <strong>always</strong> be revealed when the module is ready to solve or randomly otherwise when none of the smaller components are revealed.</p>
+				<p>Start with the least significant digit of the calculated value from each stage that requests it. The digit to input for each stage will be the least significant digit of the absolute value of the calculated value modified by the first condition from the given set of conditions.</p>
+				<table>
+					<tr>
+						<td>
+							<h2 style="text-align: center">First Digit to Input</h2>
+							<ul style="text-align: left">
+								<li>If an FRK indicator is present, the modifier is +2 if that indicator is lit, -2 if unlit.</li>
+								<li>Otherwise, if there are no lit indicators, the modifier is -(number of unlit indicators).</li>
+								<li>Otherwise, if there are more lit indicators than unlit indicators, the modifier is -7.</li>
+								<li>Otherwise, the modifier is +(2nd digit of the serial number).</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<h2 style="text-align: center">Second Digit to Input</h2>
+							<ul style="text-align: left">
+								<li>If there is an empty port plate, the modifier is 0.</li>
+								<li>Otherwise, if the previous digit inputted is divisible by 3, the modifier is +(number of stages required to input % 10)</li>
+								<li>Otherwise, the modifier is +(1st digit inputted - 1).</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<h2 style="text-align: center">All Other Digits to Input</h2>
+							<ul style="text-align: left">
+								<li>If any of the last 2 inputted values were a 0, the modifier is +( h(n-2) % 10, where n is the current stage number, h(x) referring to the graph from <a href="Forget Me Now.html">Forget Me Now</a>)</li>
+								<li>Otherwise, if the 2nd to last inputted value is even and the last inputted value is odd, the modifier is +(sum of all odd digits in the serial number).</li>
+								<li>Otherwise, the modifier is +(left-most digit of the sum of the last 2 inputted values).</li>
+							</ul>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="page-footer relative-footer">Page 12 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="wireseq">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, IP</span>
+			</div>
+			<div class="page-content wire-sequence">
+				<h2>Input Procedures: Questionable Logical Wire Sequences</h2>
+				<p class="flavour-text">This is Wire Sequence? I have many questions about this.</p>
+				<p>If the wider revealed component is not <strong>[ Wire Sequences ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Go back to General Overview for Input Procedures.</a></p>
+				<p>The module will show 2 colored wires on each panel with a number on the left denoting the stage referenced by that wire. There is also an up and down arrow buttons on the right which are used to switch between panels alongside a 3rd display that displays a logic operator for that panel of wires. These wires may be multi-colored for this instance. The defuser can hold the up arrow to go back to the first panel or the down arrow to go to the most recent incomplete panel.</p>
+				<p>Account for the number of times the given wire color has occurred based on and check if the calculated value for that stage displayed on the left is any of the given values in provided cell. Apply the operator on that wire and cut if the expression return true. Calculated Value will be referred to as CV for these tables provided. If at any case there are 13 or more occurrences of 1 wire color, wrap back to the top of the table and continue downwards from there. "(any)" represents "0, 1, 2, 3, 4, 5, 6, 7, 8, 9" for the CVs; likewise "(none)" represents "". Cutting a wire that does not need to be cut will result in a strike but it will not reshow that stage. However, attempting to advance to the next panel when at least 1 wire needs to be cut on the current panel will result in a strike while reshowing the stages based off of the displayed stages in that panel.</p>
+				<div>
+					<table class="wire-table">
+						<tr>
+							<th colspan="2">Black Wire Occurrences</th>
+						</tr>
+						<tr>
+							<th>Wire Occurrence</th>
+							<th>Cut if the stage's CV is...</th>
+						</tr>
+						<tr>
+							<td>1st white</td>
+							<td>2, 6</td>
+						</tr>
+						<tr>
+							<td>2nd white</td>
+							<td>3, 1, 6, 7, 0</td>
+						</tr>
+						<tr>
+							<td>3rd white</td>
+							<td>6, 5, 2, 3</td>
+						</tr>
+						<tr>
+							<td>4th white</td>
+							<td>9, 8, 1, 7, 2</td>
+						</tr>
+						<tr>
+							<td>5th white</td>
+							<td>6, 4, 9</td>
+						</tr>
+						<tr>
+							<td>6th white</td>
+							<td>(any)</td>
+						</tr>
+						<tr>
+							<td>7th white</td>
+							<td>7, 1, 6, 2, 4</td>
+						</tr>
+						<tr>
+							<td>8th white</td>
+							<td>0, 5, 3, 2</td>
+						</tr>
+						<tr>
+							<td>9th white</td>
+							<td>4, 8, 9</td>
+						</tr>
+						<tr>
+							<td>10th white</td>
+							<td>(none)</td>
+						</tr>
+						<tr>
+							<td>11th white</td>
+							<td>4, 1, 8, 0</td>
+						</tr>
+						<tr>
+							<td>12th white</td>
+							<td>2, 5</td>
+						</tr>
+					</table>
+					<table class="wire-table">
+						<tr>
+							<th colspan="2">Red Wire Occurrences</th>
+						</tr>
+						<tr>
+							<th>Wire Occurrence</th>
+							<th>Cut if the stage's CV is...</th>
+						</tr>
+						<tr>
+							<td>1st red</td>
+							<td>(any)</td>
+						</tr>
+						<tr>
+							<td>2nd red</td>
+							<td>0, 2, 4, 6, 8</td>
+						</tr>
+						<tr>
+							<td>3rd red</td>
+							<td>1, 3, 5, 7, 9</td>
+						</tr>
+						<tr>
+							<td>4th red</td>
+							<td>3, 7, 8</td>
+						</tr>
+						<tr>
+							<td>5th red</td>
+							<td>7, 8</td>
+						</tr>
+						<tr>
+							<td>6th red</td>
+							<td>0, 1, 9</td>
+						</tr>
+						<tr>
+							<td>7th red</td>
+							<td>4, 0, 7</td>
+						</tr>
+						<tr>
+							<td>8th red</td>
+							<td>1, 4, 3, 5</td>
+						</tr>
+						<tr>
+							<td>9th red</td>
+							<td>6, 5</td>
+						</tr>
+						<tr>
+							<td>10th red</td>
+							<td>5, 7, 0, 8, 9</td>
+						</tr>
+						<tr>
+							<td>11th red</td>
+							<td>(none)</td>
+						</tr>
+						<tr>
+							<td>12th red</td>
+							<td>2, 3, 5</td>
+						</tr>
+					</table>
+					<table class="wire-table">
+						<tr>
+							<th colspan="2">Blue Wire Occurrences</th>
+						</tr>
+						<tr>
+							<th>Wire Occurrence</th>
+							<th>Cut if the stage's CV is...</th>
+						</tr>
+						<tr>
+							<td>1st blue</td>
+							<td>7, 2, 1</td>
+						</tr>
+						<tr>
+							<td>2nd blue</td>
+							<td>6, 7</td>
+						</tr>
+						<tr>
+							<td>3rd blue</td>
+							<td>1, 2, 0, 6, 5</td>
+						</tr>
+						<tr>
+							<td>4th blue</td>
+							<td>8, 5, 9, 7</td>
+						</tr>
+						<tr>
+							<td>5th blue</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>6th blue</td>
+							<td>9, 4, 8</td>
+						</tr>
+						<tr>
+							<td>7th blue</td>
+							<td>(any)</td>
+						</tr>
+						<tr>
+							<td>8th blue</td>
+							<td>6, 9, 4</td>
+						</tr>
+						<tr>
+							<td>9th blue</td>
+							<td>(none)</td>
+						</tr>
+						<tr>
+							<td>10th blue</td>
+							<td>8, 1, 2, 9</td>
+						</tr>
+						<tr>
+							<td>11th blue</td>
+							<td>9</td>
+						</tr>
+						<tr>
+							<td>12th blue</td>
+							<td>2, 8, 5</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="page-footer relative-footer">Page 13 of 14 <a href="#">Go to first page</a></div>
+		</div>
+		<div class="page page-bg-03" id="sphere">
+			<div class="page-header">
+				<span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+				<span class="page-header-section-title">SuperBoss, IP</span>
+			</div>
+			<div class="page-content">
+				<h2>Input Procedures: The Unstoppable Floating Sphere</h2>
+				<p>If the wider revealed component is not <strong>[ Sphere ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Go back to General Overview for Input Procedures.</a></p>
+				<p>The sphere will emerge from the smaller component and expand once it is at the center of this module. The wider component will then reveal a screen consisting of the last 10 inputs, indicated by smaller spheres, on the left side of the wider component alongside a detailed input and a left arrow button on the right side of the module. The left arrow button can be used to delete the last input if the last input was done improperly. This cannot be done on the last requested stage's input.</p>
+				<p>The detailed input on the right side will show 2 characters when interacting with the sphere with "T" denoting a tap, "H" denoting a hold, and a number to the right of that denoting the calculated value inputted. The smaller spheres will be colored dark cyan if the action was a hold and light green if the action was a tap.</p>
+				<p>If for each stage, that stage has an odd number of components revealed, the calculated value from that stage must be inputted as a hold. Otherwise the calculated value must be inputted as a tap. The sphere will play a sound every time it glows to confirm.</p>
+				<p>For each tap, tap the sphere when the last seconds digit is the calculated value, modulo 10, for that given stage. Likewise, for each hold, hold the module until the calculated value, modulo 10, is how long the sphere was held, based on the countdown timer. A 0 for that calculated value should actually be inputted as a 10 for those holds. Refer to <a href="The Sphere.html">The Sphere</a> for clarifications. These must be inputted in order by when these stages were obtained. Try not to hold for more than 10 timer ticks, otherwise the module WILL strike at a cost of deleting that input in the process.</p>
+				<p>Failure to input all of the requested stages correctly with the correct actions will reshow all stages that were incorrect by hiding the sphere first, and then proceeding to reshow each stage that has its calculated value inputted incorrectly. Only reinput the stages that were shown again when the module is ready for input again.</p>
+			</div>
+			<div class="page-footer relative-footer">Page 14 of 14 <a href="#">Go to first page</a></div>
+		</div>
+	</div>
+</body>
+</html>

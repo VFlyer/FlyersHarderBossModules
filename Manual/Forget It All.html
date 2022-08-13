@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>Forget It All — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+        <style>
+            .action
+            {
+                font-size: 75%;
+            }
+			.squeeze
+			{
+				margin: auto;
+			}
+			.left
+			{
+				width: 40%;
+			}
+        </style>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Forget It All</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/Forget%20It%20All.svg" class="diagram">
+                    <h2>On the Subject of Forget It All</h2>
+                    <p class="flavour-text">If you do not remember where you have been, does it even help to figure out where you are going?</p>
+                    <p>This module consists of 6 buttons with an LED attached to the center of the button, and 2 displays, one long display that may display a name of a module, another that displays the stage counter.</p>
+                    <p>Under normal circumstances, the stage counter will start at 1 and some of the LEDs may be lit.</p>
+                    <p>When a <a href="../More/Ignore%20Table.html#mod=ForgetItAll">non-ignored module</a> is solved after a short amount of time, the stage counter will increment and a new set of LEDs will be shown. For each stage, take note of which LEDs were ON and which module caused the stage to change (i.e., the first solved module will correspond to the first stage).</p>
+                    <p>When all other modules have been solved, the number display will show how many correct presses in the expected sequence over 10, and all of the LEDs will be shut off. That means that the module is ready to be solved. Obtain the necessary sequence of presses needed to disarm this module. Pressing an incorrect button in that sequence or before the module is ready to solve will cause a strike.</p>
+					<h3>Calculating the Sequence To Press</h3>
+					<p>When the module is ready to be solved, for each LED, count the number of stages in which it was ON (see Interpreting Tampered LEDs to determine LEDs that were modified) and multiply by its multiplier, as seen in the table below. Sum all of the obtained LED values, and if the sum is not between 1 and the number of stages, add or subtract the number of stages until it is. This number will be the first key stage.</p>
+					<h3>Pressing Buttons</h3>
+					<p>Using the table below, translate each character, of the module’s name corresponding to the key stage into a color. If a character corresponding to the module’s name does not correspond to a color, skip to the next character if there are more. If the sequence of colors has fewer than 10 colors, repeat that sequence by duplicating itself, until it has 10 or more colors. Tak the first 10 colors of the sequence. If there are no colors in relation to the translated module’s name, use the next stage as the key stage, wrapping to the first stage if on the last stage, until you obtain a sequence of colors, or you loop back to the first key stage, without a sequence of colors. If the expert is unable to obtain a sequence of colors upon looping back to the first key stage, refer to the special cases.</p>
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Forget It All</span>
+                </div>
+                <div class="page-content">
+					<h3>Interpreting Tampered LEDs</h3>
+					<p>For each stage, use the table below and the name of module that caused it to change to the next stage to identify which LEDs were tampered that stage. Consider each ON tampered LED as if it was OFF, and vice-versa.</p>
+					<p>An LED is tampered for a specific stage if the corresponding module’s name contains any of the words in the respective row in the table below. For example, if the module's name is "Complicated Wires" for one of the stages and the LEDs were Orange and Purple, the final LEDs would be Red, Orange, Purple, and Yellow. If there are multiple instances of one set of words for one color, toggle the LED as many times as that many instances.</p>
+					<table>
+						<tr>
+							<th colspan="2">Color</th>
+							<th>Multiplier</th>
+							<th>Modifier Keywords</th>
+							<th>Associated Characters</th>
+						</tr>
+						<tr>
+							<td style="background-color: red"></td>
+							<td>Red</td>
+							<td>Number of Strikes (upon entering submission)</td>
+							<td>Cruel, Unfair('s), Broken, Deceptive, Fault(y), Curse(d), Complicate(d), Not, Complex</td>
+							<td>B, R, Ø, K, 3, N</td>
+						</tr>
+						<tr>
+							<td style="background-color: orange"></td>
+							<td>Orange</td>
+							<td>Number of Batteries</td>
+							<td>LED(s), Light(ing,ings,s), Flash(ing,ed,es), Blink(ing,ed), Bulb(s), Shine(s), (Un,Dis,Re)Color(ful,ed,s), (Un,Dis,Re)Colour(ful,ed,s), RGB, CMYK, Black, White, Gray(scale)</td>
+							<td>C, 8, L, M, D, 5</td>
+						</tr>
+						<tr>
+							<td style="background-color: yellow"></td>
+							<td>Yellow</td>
+							<td>Number of Ports</td>
+							<td>Button(s), Maze(s), Morse, Simon, Memory, Grid(s,lock), Basic, Simply, Simplified, Easy, Wire(s)</td>
+							<td>Q, J, 4, 1, G, Z</td>
+						</tr>
+						<tr>
+							<td style="background-color: green"></td>
+							<td>Green</td>
+							<td>Sum of Serial Number Digits</td>
+							<td>Count(ing,ed,s,down), Digit(s), Number(s,ed), Value(s,d), Calculate, Math(s), Calculus, Algebra </td>
+							<td>T, 6, P, 2, S, W</td>
+						</tr>
+						<tr>
+							<td style="background-color: blue"></td>
+							<td>Blue</td>
+							<td>Number of Indicators</td>
+							<td>(Pass,Key)Word(s,le,ing), Cipher(s), Anagram(s), Homophones, Name(d,s), (Pass)Code(s), Letter(s), Cryptic, Message(s), Key(s,ed,pad), Alpha(bet,batic)</td>
+							<td>F, 7, V, 9, H, X</td>
+						</tr>
+						<tr>
+							<td style="background-color: purple"></td>
+							<td>Purple</td>
+							<td>Number of Purple Instances (after adjusting tampered)</td>
+							<td>Sphere(s), Cube(s), Triangle(s), Circle(s), Square(s), (Penta,Hexa,Octa,Poly)gon(s), Shape(s,ed)</td>
+							<td>A, E, I, O, U, Y</td>
+						</tr>
+					</table>
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Forget It All</span>
+                </div>
+                <div class="page-content">
+                    <h2>Special Cases</h2>
+                    <p>If at any point, the module does not behave as intended, follow these conditions instead to obtain the final sequence.</p>
+                    <h3>Use If There Are No Stages to Generate or No Valid Stages To Obtain the Sequence of Presses</h3>
+                    <table>
+                        <tr>
+                            <th class="left">Condition</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <td>At least one of the stages has "❖" assigned for the name of the module that advanced this stage.</td>
+                            <td class="action">Add Red, Orange, Yellow, Green onto the final sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>At least one of the stages has "...?" assigned for the name of the module that advanced this stage.</td>
+                            <td class="action">Add Purple, Orange, Green, Yellow, Blue, Red onto the final sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>Forget Them All is NOT present.</td>
+                            <td class="action"><table style="float: right">
+                                    <tr>
+                                        <td>R = 1</td>
+                                        <td>O = 2</td>
+                                        <td>Y = 3</td>
+                                    </tr>
+                                    <tr>
+                                        <td>G = 4</td>
+                                        <td>B = 5</td>
+                                        <td>P = 6</td>
+                                    </tr>
+                                </table><p class="squeeze">Convert letters in the serial number into their A1Z26 counterparts. Create this as 1 string of digits. Now using the base table and each digit in the string:</p>
+								<ul class="squeeze">
+                                <li>If the digit is 7 or 8, shift the top row's colors to the (left if 7, right if 8) by 1, wrapping the colors around to the other side of the table.</li>
+                                <li>If the digit is 9 or 0, shift the bottom row's colors to the (left if 9, right if 0) by 1, wrapping the colors around to the other side of the table.</li>
+                                <li>Otherwise, look at the table's corresponding digit to the corresponding color to append onto the final sequence, where R=Red, O=Orange, Y=Yellow, G=Green, B=Blue, P=Purple.</li>
+                                </ul>
+								
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Floor Lights is present or R, G, or B is present in the serial number.</td>
+                            <td class="action">Add Red, Green, Blue onto the final sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>Amnesia is present.</td>
+                            <td class="action">Start with Red, Orange, Blue, Green and shift this to the right by the number of batteries present (3B, ROBG &rarr; OBGR). Add that result onto the final sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>RPS Judging is present, or there is an indicator that contains the letter S.</td>
+                            <td class="action">Add Blue, Red onto the final sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>The Twin is present.</td>
+                            <td class="action">Add Red, Yellow, Green, Blue onto the final sequence. If multiple Twins are present, reverse the final sequence before continuing.</td>
+                        </tr>
+						<tr>
+							<td>The final sequence has more than 10 colors.</td>
+							<td class="action">Take only the last 10 colors in the final sequence and discard the rest. This is your final sequence to press.</td>
+						</tr>
+                        <tr>
+                            <td>The final sequence is STILL empty.</td>
+                            <td class="action">The actual sequence of buttons to press is Red, Orange, Yellow, Green, Blue, Purple.</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Forget It All</span>
+                </div>
+                <div class="page-content">
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+    </body>
+</html>

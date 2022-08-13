@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>Monochrome Arrows — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+        <style>
+            table:not(.exempt)
+            {
+                text-align: center;
+                width: 100%;
+                display: table;
+            }
+            .dark .filled
+            {
+                background-color: white;
+            }
+            .filled
+            {
+                background-color: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Monochrome Arrows</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/Monochrome%20Arrows.svg" class="diagram">
+                    <h2>On the Subject of Monochrome Arrows</h2>
+                    <p class="flavour-text">Our world pointed to black and white. Why can't it be more colorful?</p>
+                <p>This module consists of 4 arrows with 4 different shades of gray, and a display pulsing digits repeatedly. To solve this module, input the arrows in order based on the characteristics determined. Inputting the incorrect arrow in order will result in a strike and clear all inputs.</p>
+                <p>To obtain the characteristics, you will need to use digits displayed on the module in order. The digits will be shown two at a time, where every time the module pulses, the first digit of the two is dropped to display the next digit, after the 2nd digit in the sequence. To distinguish between the start and end of the sequence, the display will flash the last digit of the sequence, then nothing, and then only the first digit of the same sequence. Add all of the obtained digits individually by the last digit of the serial number, and modulo all by 10.</p>
+                <table class="exempt" style="float: right">
+                    <tr>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <th class="filled"></th>
+                        <th>5</th>
+                    </tr>
+                    <tr>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                    </tr>
+                </table>
+                <p>Starting on the top-left of the 8&times;8 grid, move 1 space to the right for every "9", and 1 space down for every "0". This is now your starting location. Then, for each non 0/9 number in order, move relative to the 3&times;3 table on the right. This 8&times;8 grid wraps around horizontally and vertically.</p>
+                <table class="exempt" style="margin: auto">
+                    <tr>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>C</th>
+                        <th>B</th>
+                        <th>A</th>
+                        <th>H</th>
+                        <th>D</th>
+                        <th>G</th>
+                    </tr>
+                    <tr>
+                        <th>A</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>F</th>
+                        <th>B</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>C</th>
+                    </tr>
+                    <tr>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>A</th>
+                        <th>C</th>
+                        <th>B</th>
+                    </tr>
+                    <tr>
+                        <th>G</th>
+                        <th>H</th>
+                        <th>B</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>C</th>
+                        <th>A</th>
+                        <th>D</th>
+                    </tr>
+                    <tr>
+                        <th>H</th>
+                        <th>B</th>
+                        <th>G</th>
+                        <th>C</th>
+                        <th>E</th>
+                        <th>D</th>
+                        <th>F</th>
+                        <th>A</th>
+                    </tr>
+                    <tr>
+                        <th>B</th>
+                        <th>A</th>
+                        <th>D</th>
+                        <th>H</th>
+                        <th>C</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>E</th>
+                    </tr>
+                    <tr>
+                        <th>C</th>
+                        <th>E</th>
+                        <th>A</th>
+                        <th>G</th>
+                        <th>D</th>
+                        <th>B</th>
+                        <th>H</th>
+                        <th>F</th>
+                    </tr>
+                    <tr>
+                        <th>D</th>
+                        <th>C</th>
+                        <th>F</th>
+                        <th>A</th>
+                        <th>G</th>
+                        <th>E</th>
+                        <th>B</th>
+                        <th>H</th>
+                    </tr>
+                </table>
+                <p>Each letter obtained from the starting position, every time a turn is performed from the current position (I.E moving TL, then BL), and from the end of the sequence, will correspond to characteristic from an arrow that is should be pressed. Press them in the order obtained. Up, Down, Left, Right are all abbreviated as U, D, L, R, respectively. Shades of gray refer to the color of that arrow to press.</p>
+                <table>
+                    <tr>
+                        <th>Letter</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>H</th>
+                    </tr>
+                    <tr>
+                        <th>Characteristic</th>
+                        <th style="background-color: white"></th>
+                        <th style="background-color: rgb(170,170,170)"></th>
+                        <th style="background-color: rgb(85,85,85)"></th>
+                        <th style="background-color: black"></th>
+                        <th>U</th>
+                        <th>R</th>
+                        <th>D</th>
+                        <th>L</th>
+                    </tr>
+                </table>
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+    </body>
+</html>

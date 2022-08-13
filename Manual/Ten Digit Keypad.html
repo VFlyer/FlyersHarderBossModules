@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>Ten Digit Keypad — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+        <style>
+            table
+            {
+                text-align: center;
+                width: 100%;
+                display: table;
+            }
+			.squeeze
+			{
+				margin-bottom: 0 pt;
+			}
+			.list
+			{
+				text-align: left;
+			}
+        </style>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Ten Digit Keypad</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/Ten%20Digit%20Keypad.svg" class="diagram">
+                    <h2>On the Subject of Ten Digit Keypad</h2>
+                    <p class="flavour-text">Someone got lazy again and forgot to include the labels.</p>
+                <p class="squeeze">This module consists of an unlabeled 10-digit keypad arranged in a keypad-like formation. The digits on the keypad in reading order input the digits 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, respectively. In addition, there are 2 displays, a rotated wide display showing the last 3 correct inputs, and a display on the top-left showing a continuous sequence of digits. The digit shown from the top-left screen will be in yellow if this is the current position of the sequence to input, green if the digit in that position is already inputted, or white otherwise. When no correct digits are inputted, the first digit to input will be in yellow, and no green digits are displayed.</p>
+                <p class="squeeze">For each digit to input, start with the displayed digit. The digit to input will be displayed digit in that sequence modified by the first condition from the provided list, and kept within 0 - 9 by adding/subtracting 10.</p>
+                <table>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">First Digit to Input</h2>
+                            <ul class="list">
+                                <li>If an FRK indicator is present, the modifier is +2 if that indicator is lit, -2 if unlit.</li>
+                                <li>Otherwise, if there are no lit indicators, the modifier is -(number of unlit indicators).</li>
+                                <li>Otherwise, if there are more lit indicators than unlit indicators, the modifier is -7.</li>
+                                <li>Otherwise, the modifier is +(2nd digit of the serial number).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">Second Digit to Input</h2>
+                            <ul class="list">
+                                <li>If there is an empty port plate, the modifier is 0.</li>
+                                <li>Otherwise, if the previous digit inputted is not divisible by 2, the modifier is +(least significant number of digits displayed, on the top-left)</li>
+                                <li>Otherwise, the modifier is -(1st digit inputted - 1).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2 style="text-align: center">All Other Digits to Input</h2>
+                            <ul class="list">
+                                <li>If at least one of the last 2 inputted values were a 0, the modifier is +(1st digit of the serial number)</li>
+                                <li>Otherwise, if the 2nd to last inputted value is even and the last inputted value is odd, the modifier is +(sum of all odd digits in the serial number).</li>
+                                <li>Otherwise, the modifier is +(left-most digit of the sum of the last 2 inputted values).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 1</div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
+  m_Name: ModConfig
+  m_EditorClassIdentifier: 
+  id: FlyersModMiscV2
+  title: Flyer's Bossier Modules
+  author: VFlyer
+  description: '[i]The word "boss module" is used to describe a module that requires
+    taking extensive notes; and require inputs, usually at the very end, or in-between
+    each solve. I never thought he would make modules so complicated, it would take
+    him nearly a year to finish, and attempt. Maybe that''s supposed to be good since
+    it allows him to "warm up to be a master."[/i]
+
+
+    A collection of 2 modules developed by VFlyer, consisting some ideas from other
+    users.
+
+
+    The following module ideas come from their respective authors of the original
+    idea:
+
+    Pointer Pointer: BigCrunch22
+
+
+
+    Module IDs in this collection:
+
+    Pointer Pointer: pointerPointerModule
+
+    Slight Gibberish Twist: slightGibberishTwistModule
+
+
+'
+  version: 1.0.0
+  outputFolder: build
+  previewImage: {fileID: 0}

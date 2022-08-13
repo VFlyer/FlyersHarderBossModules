@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>Scrambled Rule Seeds — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+		<script src="js/ruleseed.js"></script>
+        <style>
+            .squeeze
+            {
+                margin-bottom: auto;
+                margin-top: auto;
+            }
+			.wide
+			{
+				width: 100%;
+			}
+        </style>
+        <script>
+            // Rule seed code goes here.
+			var defaultInspect = "last digit of the serial number is even";
+			var curInspect = "";
+			
+			var defaultModifcations = [ "Set the 5th displayed value as the current value.", "If the number of solved modules is odd, subtract the 2nd displayed value from the current value.", "Flip the bit of the current value whose index from the right corresponds to the number of ports, modulo 32, where 0 is the right-most bit.", "Divide this current value by the sum of digits in the serial number.", "XOR the current value with the 3rd displayed value.", "Add the 6th calculated value to the current value.", "Multiply the current value with the number of batteries.", "If the 1st display is odd, XOR the current value with the 10th displayed value. Otherwise, XOR the current value with the 9th displayed value.", "Subtract the 8th displayed value from the current value.", "If the number of strikes is even, subtract the 4th displayed value from the current value. Otherwise XOR the current value with the 7th displayed value." ];
+			var curModifications = [];
+			
+			var operatorSubs = [ "add the XXXX to the current value.", "subtract the XXXX from the current value.", "multiply the XXXX to the current value.", "divide the current value by XXXX.", "XOR the XXXX to the current value.", "OR the XXXX to the current value.", "AND the XXXX to the current value.", "set the XXXX as the current value." ];
+			var conditionalStart = "If the XXXX YYYY, ZZZZ";
+			var conditionalAppend = " Otherwise, WWWW"
+			var possibleVariables = [ "first digit of the serial number","second digit of the serial number","last digit of the serial number","sum of digits in the serial number","number of modules","1st displayed value","2nd displayed value","3rd displayed value","4th displayed value","5th displayed value","6th displayed value","7th displayed value","8th displayed value","9th displayed value","10th displayed value","number of ports","number of port plates","number of solved modules" ];
+			
+            function setDefaultRules(rnd) {
+                curModifications = defaultModifcations;
+                curInspect = defaultInspect;
+                DisplayGivenRuleSeed();
+            }
+            function setRules(rnd)
+            {
+                DisplayGivenRuleSeed();
+            }
+            function DisplayGivenRuleSeed()
+			{
+				var rsModifierRules = document.getElementsByClassName("rsRule");
+				for (var x = 0; x < rsModifierRules.length;x++)
+					{
+						rsModifierRules[x].innerHTML = curModifications[x];
+					}
+				var rsInspectRules = document.getElementsByClassName("rsInspect");
+					rsInspectRules[0].innerHTML = curInspect;
+			}
+        </script>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Scrambled Rule Seeds</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/Scrambled%20Rules.svg" class="diagram">
+                    <h2>On the Subject of Scrambled Rule Seeds</h2>
+                    <p class="flavour-text">When the instructions are jumbled up, who knows what you are supposed to do?</p>
+                    <p class="squeeze">This module consists of 4 keys in reading order labeled, &lt;, T, C, and S, respectively. There will also be 2 screens on the top and the right that will be displaying a sequence of numbers. To disarm this module, submit the binary representation of the final value calculated. If the <span class="rsInspect">last digit of the serial number is even</span>, the right display is the rule seeds of instructions to follow. Otherwise, the top display is the rule seeds of instructions to follow.</p>
+                    <p class="squeeze">The other display is the set of values, used for calculating the final value. Starting on instruction 0 from the table provided, follow the instructions in ascending numerical order from 0-9, while using different seeds for each <strong>SEPARATE</strong> instruction.</p>
+                    <h3>The Relevant Table</h3>
+                    <table class="wide">
+                        <tr>
+                            <th>0</th>
+                            <td class="rsRule">Set the 5th displayed value as the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td class="rsRule">If the number of solved modules is odd, subtract the 2nd displayed value from the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td class="rsRule">Flip the bit of the current value whose index from the right corresponds to the number of ports, modulo 32, where 0 is the right-most bit.</td>
+                        </tr>
+                        <tr>
+                            <th>3</th>
+                            <td class="rsRule">Divide this current value by the sum of digits in the serial number.</td>
+                        </tr>
+                        <tr>
+                            <th>4</th>
+                            <td class="rsRule">XOR the current value with the 3rd displayed value.</td>
+                        </tr>
+                        <tr>
+                            <th>5</th>
+                            <td class="rsRule">Add the 6th calculated value to the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>6</th>
+                            <td class="rsRule">Multiply the current value with the number of ports.</td>
+                        </tr>
+                        <tr>
+                            <th>7</th>
+                            <td class="rsRule">If the 1st display is odd, XOR the current value with the 10th displayed value. Otherwise, XOR the current value with the 9th displayed value.</td>
+                        </tr>
+                        <tr>
+                            <th>8</th>
+                            <td class="rsRule">Subtract the 8th displayed value from the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>9</th>
+                            <td class="rsRule">If the number of strikes is even, subtract the 4th displayed value from the current value. Otherwise XOR the current value with the 7th displayed value.</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 2</div>
+            </div>
+            <div class="page page-bg-02">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Scrambled Rule Seeds</span>
+                </div>
+                <div class="page-content">
+                    <p class="squeeze">When pressing the keys the displays may both update to show the same number. The 32-bit sequence is obtained by converting the displayed number being inputted into binary. The function of the keys are the following:</p>
+                    <ul class="squeeze">
+                        <li>"&lt;": Shifts the entire 32-bit sequence of the current input 1 left by appending a 0 at the end, and removing the first bit in the sequence. If this button is pressed first, this will pause the automatic cycling with further presses manually cycling each displayed numbers.</li>
+                        <li>"T": Toggles the last bit into a 1 or a 0 in the 32-bit sequence.</li>
+                        <li>"C": Clears the input and reshow the original displayed numbers, alongside resetting the cycle.</li>
+                        <li>"S": Submits the displayed value. If this button is pressed first, or immediately after clearing, it will submit UNDEFINED. UNDEFINED should ONLY be submitted if the user is attempting to divide by 0, or if the module errors out.</li>
+                    </ul>
+					<p>Incorrectly submitting an incorrect value will NOT generate a new set of instructions.</p>
+					<h3>Extra Notes:</h3>
+                    <p class="conditional">Some values are calculated upon pressing the submit button.</p>
+					<p>When performing an operator, if the value overflows/underflows past the 32-bit integer limit, only consider the LEAST 32 significant bits. In other words, if the value after performing that operator is greater than 2,147,483,647 or less than -2,147,483,648, repeatedly add or subtract 4,294,967,296 until the current value is within -2,147,483,648 to 2,147,483,647 inclusive. When dividing, <strong>OMIT decimals.</strong></p>
+                </div>
+                <div class="page-footer relative-footer">Page 2 of 2</div>
+            </div>
+        </div>
+    </body>
+</html>
