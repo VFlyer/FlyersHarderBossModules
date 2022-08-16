@@ -20,18 +20,23 @@ public class PointerPointerScript : MonoBehaviour {
 	IEnumerable<string> ignoredModules = new[] {
 		"Forget Me Not", "Souvenir", "Forget Everything", "Simon's Stages", "Forget This", "Purgatory", "The Troll", "Forget Them All", "Tallordered Keys", "Forget Enigma", "Forget Us Not", "Forget Perspective", "Organization", "The Very Annoying Button", "Forget Me Later", "Übermodule", "Ultimate Custom Night", "14", "Forget It Not", "Simon Forgets", "Brainf---", "Forget The Colors", "RPS Judging", "The Twin", "Iconic", "OmegaForget", "Kugelblitz", "A>N<D", "Don't Touch Anything", "Busy Beaver", "Whiteout", "Forget Any Color", "Keypad Directionality", "Security Council", "Shoddy Chess", "Floor Lights", "Black Arrows", "Forget Maze Not", "+", "Soulscream", "Cube Synchronization", "Out of Time", "Tetrahedron", "The Board Walk", "Gemory", "Duck Konundrum", "Concentration", "Twister", "Forget Our Voices", "Soulsong", "Forget Morse Not", "ID Exchange", "8", "Ultra Custom Night", "Remember Simple", "Remembern't Simple", "The Grand Prix", "Forget Me Maybe", "Simon Sonundrum", "HyperForget", "Bitwise Oblivion", "Damocles Lumber", "Top 10 Numbers", "Squad's Shadow", "Memory's Shadow", "Turn The Keys", "The Swan", "Divided Squares", "Hogwarts", "Cookie Jars", "The Troll", "Four-Card Monte", "Encryption Bingo", "Forget Infinity", "Mystery Module", "Multitask", "Amnesia", "42", "501", "Button Messer", "B-Machine", "The Klaxon", "Custom Keys", "Simon", "Scrabble Scramble", "Forget Morse Not", "Ultra Custom Night", "Speedrun", "Peek-A-Boo", "Channel Surfing", "Binary Memory", "Damocles Lumber", "Module Maneuvers", "Squad's Shadow", "Turn The Keys", "Encrypted Hangman", "The Heart", "42", "501", "Access Codes", "SUSadmin", "Custom Keys", "Simon", "Damocles Lumber", "Module Maneuvers", "Mystery Widget", "X", "Y", "[BIG SHOT]", "Castor", "Pollux", "Turn The Key", "The Time Keeper", "Timing is Everything", "Bamboozling Time Keeper", "Password Destroyer", "OmegaDestroyer", "Zener Cards", "Doomsday Button", "Red Light Green Light", "Again"
 		};
-	int curStageIdx, reachableStageIdx, lastSolveCount;
+	int curStageIdx, reachableStageIdx, lastSolveCount, PPAToGive;
 
-	const int squareLength = 6;
+	
 
 	readonly static Color[] refColors = { Color.black, Color.red, Color.green, Color.blue, Color.white, Color.yellow, Color.magenta, Color.cyan };
 	readonly static string[] directionRefAbbrev = { "U", "UR", "R", "DR", "D", "DL", "L", "UL" },
 		colorRefAbbrev = { "K", "R", "G", "B", "W", "Y", "M", "C", };
+
 	const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const int authorPPAScore = 2, maxTilesVisit = 15, minTilesVisit = 9;
+	const int squareLength = 6;
+
 	List<StagePointerPointer> allPointerStages;
 
-	bool started, inputting, moduleSolved, disableStrike, colorblindDetected, revealed = false;
+	bool started, inputting, moduleSolved, disableStrike, colorblindDetected, revealed = false, altGen;
 	IEnumerator screenFlashingAnim, specificTileFlasher, ledFlashAnim;
+	FlyersBossierSettings globalSettings = new FlyersBossierSettings();
 
 	void QuickLog(string message, params object[] args)
     {
@@ -40,13 +45,29 @@ public class PointerPointerScript : MonoBehaviour {
 	void Awake()
     {
 		try
-        {
-			colorblindDetected = colorblindMode.ColorblindModeActive;
-        }
+		{
+			var obtainedSettings = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
+			globalSettings = obtainedSettings.Settings;
+			obtainedSettings.Settings = globalSettings;
+			altGen = globalSettings.PPUseAlternativeGen;
+			PPAToGive = globalSettings.UseAuthorDynamicScoring ? authorPPAScore : globalSettings.PPPointsPerActivation;
+		}
 		catch
-        {
-			colorblindDetected = false;
-        }
+		{
+			altGen = false;
+			PPAToGive = authorPPAScore;
+		}
+		finally
+		{
+			try
+			{
+				colorblindDetected = colorblindMode.ColorblindModeActive;
+			}
+			catch
+			{
+				colorblindDetected = false;
+			}
+		}
     }
 	// Use this for initialization
 	void Start () {
@@ -54,7 +75,10 @@ public class PointerPointerScript : MonoBehaviour {
 		var detectedIgnoredModules = bossHandler.GetIgnoredModules(modSelf);
 		ignoredModules = (detectedIgnoredModules.Except(ignoredModules).Any() ? detectedIgnoredModules : ignoredModules).Union(new[] { modSelf.ModuleDisplayName });
 		modSelf.OnActivate += delegate {
-			GenerateStages();
+			if (altGen)
+				GenerateStagesAlt();
+			else
+				GenerateStages();
 		};
 		reachableStageIdx = bombInfo.GetSolvableModuleNames().Count(a => !ignoredModules.Contains(a)) - 1;
 		allPointerStages = new List<StagePointerPointer>();
@@ -134,22 +158,18 @@ public class PointerPointerScript : MonoBehaviour {
 		}
 
     }
-
-	void GenerateStages()
+	void GenerateStagesAlt()
     {
 		QuickLog("Total Stages Generatable: {0}", reachableStageIdx + 1);
+		QuickLog("Using an alternative stage generation algorithm to generate stages. This may create short paths that can make the module quick.");
 		var gridSize = squareLength * squareLength;
-        for (var x = 0; x <= reachableStageIdx; x++)
-        {
+		for (var x = 0; x <= reachableStageIdx; x++)
+		{
 
 			var newStage = new StagePointerPointer();
 			var newArrowIdxes = new int[gridSize];
 			var newColorIdxes = new int[gridSize];
 
-			for (var y = 0; y < newArrowIdxes.Length; y++)
-				newArrowIdxes[y] = Random.Range(0, 8);
-			for (var y = 0; y < newColorIdxes.Length; y++)
-				newColorIdxes[y] = Random.Range(0, refColors.Length);
 			newStage.truthDirectionIdxes = newArrowIdxes;
 			newStage.colorDisplayIdxes = newColorIdxes;
 
@@ -157,16 +177,15 @@ public class PointerPointerScript : MonoBehaviour {
 			var visitedCellIdxes = new List<int>();
 			for (var p = 0; p < selectedPossibleStartIdxes.Count(); p++)
 			{
+				// Generate a random set of directions associated with this module.
 				for (var y = 0; y < newArrowIdxes.Length; y++)
 					newArrowIdxes[y] = Random.Range(0, 8);
-				for (var y = 0; y < newColorIdxes.Length; y++)
-					newColorIdxes[y] = Random.Range(0, refColors.Length);
 
 				visitedCellIdxes.Clear();
 				var curCell = selectedPossibleStartIdxes.ElementAt(p);
-				
+
 				newStage.startIdx = curCell;
-				
+
 				do
 				{
 					visitedCellIdxes.Add(curCell);
@@ -207,9 +226,139 @@ public class PointerPointerScript : MonoBehaviour {
 				}
 				while (!visitedCellIdxes.Contains(curCell));
 				newStage.endIdx = curCell;
-				if (visitedCellIdxes.Count >= 9 && visitedCellIdxes.Count <= 15)
+				if (visitedCellIdxes.Count >= minTilesVisit && visitedCellIdxes.Count <= maxTilesVisit)
 					break;
 			}
+			
+			for (var y = 0; y < newColorIdxes.Length; y++)
+				newColorIdxes[y] = Random.Range(0, refColors.Length);
+			newStage.pathIdxTaken = visitedCellIdxes;
+			QuickLog("------------------------- Stage {0} -------------------------", x + 1);
+			QuickLog("Colors displayed:");
+			for (var y = 0; y < squareLength; y++)
+				QuickLog("{0}", newColorIdxes.Skip(y * squareLength).Take(squareLength).Select(a => colorRefAbbrev[a]).Join());
+
+			QuickLog("Arrows displayed:");
+			for (var y = 0; y < squareLength; y++)
+			{
+				var curIdxes = Enumerable.Range(squareLength * y, squareLength);
+				QuickLog("{0}", curIdxes.Select(a => directionRefAbbrev[(newArrowIdxes[a] - newColorIdxes[a] + 8) % 8]).Join());
+			}
+
+			QuickLog("Truth directions:");
+			for (var y = 0; y < squareLength; y++)
+				QuickLog("{0}", newArrowIdxes.Skip(y * squareLength).Take(squareLength).Select(a => directionRefAbbrev[a]).Join());
+
+
+			QuickLog("Starting Coordinate: {0}{1}", alphabet[newStage.startIdx % squareLength], newStage.startIdx / squareLength + 1);
+			QuickLog("Ending Coordinate: {0}{1}", alphabet[newStage.endIdx % squareLength], newStage.endIdx / squareLength + 1);
+			QuickLog("Path Taken: {0} -> {1}", visitedCellIdxes.Select(a => string.Format("{0}{1}", alphabet[a % squareLength], a / squareLength + 1)).Join(" -> "), string.Format("{0}{1}", alphabet[newStage.endIdx % squareLength], newStage.endIdx / squareLength + 1));
+
+			allPointerStages.Add(newStage);
+		}
+		StartModule();
+	}
+	void GenerateStages()
+    {
+		QuickLog("Total Stages Generatable: {0}", reachableStageIdx + 1);
+		var gridSize = squareLength * squareLength;
+		// Generate a node grid of all of the connected cells.
+		var idxConnectedCells = new List<List<int>>();
+		for (var p = 0; p < gridSize; p++)
+		{
+			var nextIdxesCur = new List<int>();
+			for (var a = 0; a < 8; a++)
+			{
+				var curRow = p / squareLength;
+				var curCol = p % squareLength;
+				switch (a)
+				{
+					case 0: // Up
+						curRow = (curRow + squareLength - 1) % squareLength;
+						break;
+					case 1: // Up-Right
+						curRow = (curRow + squareLength - 1) % squareLength;
+						curCol = (curCol + 1) % squareLength;
+						break;
+					case 2: // Right
+						curCol = (curCol + 1) % squareLength;
+						break;
+					case 3: // Down-Right
+						curRow = (curRow + 1) % squareLength;
+						curCol = (curCol + 1) % squareLength;
+						break;
+					case 4: // Down
+						curRow = (curRow + 1) % squareLength;
+						break;
+					case 5: // Down-Left
+						curRow = (curRow + 1) % squareLength;
+						curCol = (curCol + squareLength - 1) % squareLength;
+						break;
+					case 6: // Left
+						curCol = (curCol + squareLength - 1) % squareLength;
+						break;
+					case 7: // Up-Left
+						curCol = (curCol + squareLength - 1) % squareLength;
+						curRow = (curRow + squareLength - 1) % squareLength;
+						break;
+				}
+				var destCur = curRow * squareLength + curCol;
+				nextIdxesCur.Add(destCur);
+			}
+			idxConnectedCells.Add(nextIdxesCur);
+		}
+		for (var x = 0; x <= reachableStageIdx; x++)
+        {
+
+			var newStage = new StagePointerPointer();
+			var newArrowIdxes = new int[gridSize];
+			var newColorIdxes = new int[gridSize];
+
+			newStage.truthDirectionIdxes = newArrowIdxes;
+			newStage.colorDisplayIdxes = newColorIdxes;
+
+			var selectedPossibleStartIdxes = x > 0 ? allPointerStages[x - 1].endIdx : Enumerable.Range(0, squareLength * squareLength).PickRandom();
+			var visitedCellIdxes = new List<int>();
+			{
+				// Select a random number of cells to visit and the starting location.
+				var curCell = selectedPossibleStartIdxes;
+				var cntCellsToVisit = Random.Range(minTilesVisit - 1, maxTilesVisit);
+				var blacklistCellsToVisit = new List<int>();
+				newStage.startIdx = curCell;
+				
+				visitedCellIdxes.Add(curCell);
+				while (visitedCellIdxes.Count() < cntCellsToVisit)
+				{
+					var lastCell = visitedCellIdxes.Last();
+					var nextCellsToVisit = idxConnectedCells[lastCell].Where(a => !(visitedCellIdxes.Contains(a) || blacklistCellsToVisit.Contains(a)));
+					if (nextCellsToVisit.Any())
+                    {
+						var nextCell = nextCellsToVisit.PickRandom();
+						visitedCellIdxes.Add(nextCell);
+                    }
+					else
+                    {
+						blacklistCellsToVisit.Add(lastCell);
+						visitedCellIdxes.Remove(lastCell);
+                    }
+				}
+				// Upon reaching ending the loop above, grab the last cell visited.
+				var lastCellVisited = visitedCellIdxes.Last();
+				// Obtain a series of cells from the last cell visited to overlap another cell, and pick one at random.
+				var finalCellsToVisit = idxConnectedCells[lastCellVisited].Where(a => visitedCellIdxes.Contains(a));
+				var selectedEndIdx = finalCellsToVisit.PickRandom();
+				visitedCellIdxes.Add(selectedEndIdx);
+				newStage.endIdx = selectedEndIdx;
+				for (var y = 0; y < newArrowIdxes.Length; y++)
+				{
+					var idxFirstCell = visitedCellIdxes.IndexOf(y);
+					newArrowIdxes[y] = idxFirstCell >= 0 ? idxConnectedCells[y].IndexOf(visitedCellIdxes[idxFirstCell + 1]) : Random.Range(0, 8);
+				}
+				visitedCellIdxes.RemoveAt(visitedCellIdxes.Count - 1);
+			}
+
+			for (var y = 0; y < newColorIdxes.Length; y++)
+				newColorIdxes[y] = Random.Range(0, refColors.Length);
 			newStage.pathIdxTaken = visitedCellIdxes;
 			QuickLog("------------------------- Stage {0} -------------------------", x + 1);
 			QuickLog("Colors displayed:");
@@ -234,6 +383,10 @@ public class PointerPointerScript : MonoBehaviour {
 
 			allPointerStages.Add(newStage);
 		}
+		StartModule();
+	}
+	void StartModule()
+    {
 		QuickLog("------------------------- Actions Performed -------------------------", reachableStageIdx + 1);
 		started = true;
 		if (allPointerStages.Any())
@@ -244,6 +397,7 @@ public class PointerPointerScript : MonoBehaviour {
 		else
 			QuickLog("Oh, no stages, huh? I guess just press any screen to solve this module then... Don't ask why this message is here.");
 	}
+
 	void CauseStrikeMercy()
     {
 		modSelf.HandleStrike();
@@ -410,7 +564,8 @@ public class PointerPointerScript : MonoBehaviour {
 	}
 	IEnumerator FlashScreensOrderly(float speed = 3f)
     {
-		mAudio.PlaySoundAtTransform("UI_Numpad_Affirm_Amp", transform);
+		yield return HideBoard(5f);
+		mAudio.PlaySoundAtTransform("UI_Numpad_Affirm_Amp_Trimmed", transform);
 		var idxesToGreen = new[] { 1, 2, 3, 4, 6, 12, 18, 20, 21, 22, 23, 24, 29, 31, 32, 33, 34 };
 		var allVals = Enumerable.Range(0, squareLength * squareLength).Where(a => idxesToGreen.Contains(a));
 		for (var x = 0; x < 2; x++)
@@ -722,6 +877,12 @@ public class PointerPointerScript : MonoBehaviour {
 	readonly static string TwitchHelpMessage = "Press that button in the specified coordinate with \"!{0} X#\", \"press\" or \"submit\" is optional. Rows are labeled 1-6 from top to bottom; columns are labeled A-F from left to right. Toggle colorblind mode with \"!{0} colorblind/colourblind\".";
 	IEnumerator ProcessTwitchCommand(string cmd)
     {
+		if (moduleSolved)
+        {
+			yield return "sendtochaterror This module is refusing to accept commands onto this module.";
+			yield break;
+        }
+
 		var regexColorblind = Regex.Match(cmd, @"^colou?rblind$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 		var regex6x6Press = Regex.Match(cmd, @"^((submit|press)\s)?[A-F][1-6]$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 		if (regexColorblind.Success)
@@ -744,7 +905,7 @@ public class PointerPointerScript : MonoBehaviour {
 			yield return null;
 			screenSelectables[6 * expectedRow + expectedCol].OnInteract();
 			if (curStageIdx != lastStageCnt && curStageIdx <= reachableStageIdx)
-				yield return "awardpoints 2";
+				yield return string.Format("awardpoints {0}", PPAToGive);
 			else if (curStageIdx > reachableStageIdx)
 				yield return "solve";
 		}

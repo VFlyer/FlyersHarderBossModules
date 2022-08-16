@@ -52,15 +52,15 @@ public class BTRGBLScript : MonoBehaviour {
 		{ 9, new[] { 0, 4, 7, 8 } },
 	};
 	const string clrAbrev = "KBGCRMYW";
-	SlightGibberishSettings gibberishSettings = new SlightGibberishSettings();
+	FlyersBossierSettings globalSettings = new FlyersBossierSettings();
 	// Use this for initialization
 	void QuickLog(string value, params object[] args)
     {
-		Debug.LogFormat("[{0} #{1}]: {2}", modSelf.ModuleDisplayName, moduleID, string.Format(value, args));
+		Debug.LogFormat("[{0} #{1}]: {2}", "Slight Gibberish Twist", moduleID, string.Format(value, args));
     }
 	void QuickLogDebug(string value, params object[] args)
     {
-		Debug.LogFormat("<{0} #{1}>: {2}", modSelf.ModuleDisplayName, moduleID, string.Format(value, args));
+		Debug.LogFormat("<{0} #{1}>: {2}", "Slight Gibberish Twist", moduleID, string.Format(value, args));
     }
 	void Awake()
     {
@@ -69,12 +69,12 @@ public class BTRGBLScript : MonoBehaviour {
 
 		try
         {
-			var modSettings = new ModConfig<SlightGibberishSettings>("SlightGibberishSettings");
-			gibberishSettings = modSettings.Settings;
-			modSettings.Settings = gibberishSettings;
-			enforceExhibiton = gibberishSettings.exhibitionMode;
-			maxStageAhd = gibberishSettings.maxStagesAhead;
-			maxStageBhd = gibberishSettings.maxStagesBehind;
+			var modSettings = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
+			globalSettings = modSettings.Settings;
+			modSettings.Settings = globalSettings;
+			enforceExhibiton = globalSettings.SGTExhibitionMode;
+			maxStageAhd = globalSettings.SGTMaxStagesAhead;
+			maxStageBhd = globalSettings.SGTMaxStagesBehind;
         }
 		catch
         {
@@ -180,19 +180,33 @@ public class BTRGBLScript : MonoBehaviour {
 			u.AddRange(Enumerable.Range(1, maxExtraStages).Where(a => j[a - 1] == x).ToArray().Shuffle().Take(3));
 		}
 		u.Shuffle();
-		if (maxStageBhd < 3)
-			maxStageBhd = 3;
-		if (maxStageAhd < 5)
-			maxStageAhd = 5;
 
-		stgodr = new List<int>();
-		stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
-		do
-			stgodr.Shuffle();
-		while (bossActive && Enumerable.Range(0, maxExtraStages).Any(a => stgodr[a + 1] - stgodr[a] > maxStageAhd || stgodr[a] - stgodr[a + 1] < maxStageBhd));
 		if (bossActive)
-			QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
-
+		{
+			stgodr = new List<int>();
+			stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
+			if (maxStageBhd > 0 && maxStageAhd > 0)
+			{
+				do
+					stgodr.Shuffle();
+				while (Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)));
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
+			}
+			else if (maxStageAhd <= 0 && maxStageBhd > 0)
+			{
+				stgodr.Reverse();
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, no stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
+			}
+			else if (maxStageAhd <= 0 && maxStageBhd <= 0)
+			{
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
+				stgodr.Shuffle();
+			}
+			else
+			{
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, no stages behind, {1} stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
+			}
+		}
 		QuickLog("Required stages to solve: {0}", u.Select(a => a + 1).Join(", "));
         for (var cnt = 0; cnt < u.Count; cnt++)
         {
@@ -552,7 +566,7 @@ public class BTRGBLScript : MonoBehaviour {
         yield return null;
 		mAudio.PlaySoundAtTransform("Simpletonic", transform);
 		StartCoroutine(AnimateASet(0.1f, 0, "A", "D", "V", "A", "N", "C", "I", "N", "G"));
-		if (stageIdx == i.Count)
+		if (stageIdx >= i.Count)
 			StartCoroutine(ColorizePallete());
 		for (var x = 0; x < m.Length; x++)
 		{
@@ -564,7 +578,8 @@ public class BTRGBLScript : MonoBehaviour {
             {
 				var p = y % k;
 				var q = y / k;
-				a[8 * p + q].material.color = stageIdx == 0 || stageIdx >= i.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
+				var curStg = !bossActive ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+				a[8 * p + q].material.color = curStg == 0 || stageIdx >= i.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
 			}
             for (var y = 0; y < b.Length; y++)
             {
@@ -580,29 +595,9 @@ public class BTRGBLScript : MonoBehaviour {
 			}
 			yield return new WaitForSeconds(0.25f);
         }
-		var curStage = !bossActive ? stageIdx : stgodr[stageIdx];
 
-
-		if (curStage == 0)
-        {
-			for (var y = 0; y < k * k; y++)
-			{
-				var p = y % k;
-				var q = y / k;
-				a[8 * q + p].material.color = clr[g[y]];
-			}
-		}
-		else if (stageIdx < stgodr.Count)
-        {
-			for (var y = 0; y < k * k; y++)
-			{
-				var p = y % k;
-				var q = y / k;
-				a[8 * q + p].material.color = h[curStage - 1][y] ? clr[1 << j[curStage - 1]] : clr[0];
-			}
-		}
-		else
-        {
+		if (stageIdx >= i.Count)
+		{
 			for (var y = 0; y < k * k; y++)
 			{
 				var p = y % k;
@@ -628,32 +623,54 @@ public class BTRGBLScript : MonoBehaviour {
 			}
 			animating = false;
 			yield break;
-        }
-		StartCoroutine(AnimateASet(delay: 0.1f, txt: new[] { "STAGE", (curStage + 1).ToString("000"), "" }));
-        StartCoroutine(AnimateASet(delay: 0.1f, offset: 3, txt: new[] { "", "", "" }));
-		StartCoroutine(AnimateASet(delay: 0.1f, offset: 6, txt: bossActive ? recoverable ? new[] { "READY", "TO", "SOLVE" } : new[] { "STAGES", "QUEUED", (solveCountNonIgnored - stageIdx).ToString("00000") } : new[] { "BOSS", "MODE", "OFF" }));
-		for (var x = 0; x < b.Length; x++)
-        {
-			b[x].filled = x == 1 ^ o[curStage];
-        }
-		for (var x = 0; x < c.Length; x++)
-        {
-			c[x].filled = x == 1 ^ q[curStage];
-        }
-
-        for (var x = 0; x < d.Length; x++)
-        {
-			var xVal = x % 2 == 1 ^ o[curStage];
-			var yVal = x / 2 == 1 ^ q[curStage];
-			d[x].filled = Oper(xVal, yVal, i[curStage]);
 		}
-		for (var x = 0; x < m.Length; x++)
+		else
 		{
-			m[x].filled = !bossActive;
+			var curStage = !bossActive ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+			if (curStage == 0)
+			{
+				for (var y = 0; y < k * k; y++)
+				{
+					var p = y % k;
+					var q = y / k;
+					a[8 * q + p].material.color = clr[g[y]];
+				}
+			}
+			else
+			{
+				for (var y = 0; y < k * k; y++)
+				{
+					var p = y % k;
+					var q = y / k;
+					a[8 * q + p].material.color = h[curStage - 1][y] ? clr[1 << j[curStage - 1]] : clr[0];
+				}
+			}
+			StartCoroutine(AnimateASet(delay: 0.1f, txt: new[] { "STAGE", (curStage + 1).ToString("000"), "" }));
+			StartCoroutine(AnimateASet(delay: 0.1f, offset: 3, txt: new[] { "CHN", curStage >= 1 ? clrAbrev[1 << j[curStage - 1]].ToString() : "RGB", "" }));
+			StartCoroutine(AnimateASet(delay: 0.1f, offset: 6, txt: bossActive ? recoverable ? new[] { "READY", "TO", "SOLVE" } : new[] { "STAGES", "QUEUED", (solveCountNonIgnored - stageIdx).ToString("00000") } : new[] { "BOSS", "MODE", "OFF" }));
+			for (var x = 0; x < b.Length; x++)
+			{
+				b[x].filled = x == 1 ^ o[curStage];
+			}
+			for (var x = 0; x < c.Length; x++)
+			{
+				c[x].filled = x == 1 ^ q[curStage];
+			}
+
+			for (var x = 0; x < d.Length; x++)
+			{
+				var xVal = x % 2 == 1 ^ o[curStage];
+				var yVal = x / 2 == 1 ^ q[curStage];
+				d[x].filled = Oper(xVal, yVal, i[curStage]);
+			}
+			for (var x = 0; x < m.Length; x++)
+			{
+				m[x].filled = !bossActive;
+			}
+			started = true;
+			tickCooldown = bossActive;
+			animating = false;
 		}
-		started = true;
-		tickCooldown = bossActive;
-		animating = false;
     }
 	IEnumerator AnimateASet(params string[] txt)
     {
