@@ -517,7 +517,7 @@ public class PointerPointerScript : MonoBehaviour {
 				var y = values.ElementAt(x);
 				arrowRenderers[y].material.color = refColors[curStage.colorDisplayIdxes[y]] * t;
 				colorblindTextMeshes[y].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
-				screenRenderers[y].material.color = Color.gray * t;
+				screenRenderers[y].material.color = new Color(0.5f * t, 0.25f * t, 0.25f * t);
 			}
 			yield return null;
         }
@@ -769,12 +769,12 @@ public class PointerPointerScript : MonoBehaviour {
 		{
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * (1f - t) + Color.gray * t;
+				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * (1f - t);
 				yield return null;
 			}
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * t + Color.gray * (1f - t);
+				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * t;
 				yield return null;
 			}
 

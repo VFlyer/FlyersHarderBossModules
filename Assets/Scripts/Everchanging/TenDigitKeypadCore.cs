@@ -101,7 +101,7 @@ public class TenDigitKeypadCore : MonoBehaviour {
                             var sumLastCalcedValues = submissionValues.ElementAt(x - 1) + submissionValues.ElementAt(x - 2);
                             //Debug.Log(sumLastCalcedValues);
                             //Debug.Log(sumLastCalcedValues.ToString("0").First());
-                            curValue += sumLastCalcedValues.ToString("0").First() - '0';
+                            curValue += sumLastCalcedValues > 9 ? 1 : sumLastCalcedValues;
                             itemsToLog.Add(string.Format("Digit #{0}, applying modifier of +{1}.", x + 1, sumLastCalcedValues.ToString("0").First() - '0'));
                         }
                         break;
