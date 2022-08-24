@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BTRGBLScript : MonoBehaviour {
+public class EBTRGBLScript : MonoBehaviour {
 
 	public KMBossModuleExtensions bossHandler;
 	public KMBombInfo bombInfo;
@@ -13,11 +13,14 @@ public class BTRGBLScript : MonoBehaviour {
 	public TextMesh[] f;
 	public OutlineFillAnim[] b, c, d, m;
 	public SizeModifierAnim n;
+	public DividerModifierAnim div;
 	public KMSelectable[] r, s, grid;
 
 	static int modIDCnt;
 	int moduleID;
-	int stageIdx, k, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored;
+	[SerializeField]
+	int stageIdx;
+	int k, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored;
 	float cooldown = 10f;
 	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton;
 	[SerializeField]
@@ -65,8 +68,9 @@ public class BTRGBLScript : MonoBehaviour {
 	void Awake()
     {
 		if (debugBossMode)
+		{
 			modSelf.ModuleDisplayName = "Forget Me Not";
-
+		}
 		try
         {
 			var modSettings = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
@@ -89,8 +93,9 @@ public class BTRGBLScript : MonoBehaviour {
         QuickLog("What do you mean this is a manual challenge!? I thought the goal was to not decompile stuff like this, and get away with it, for being what it is.");
 
         var p = new[] { 4, 7, 10, 13 };
-        ignoreList = bossHandler.GetAttachedIgnoredModuleIDs(modSelf, new string[0]);
-        var maxExtraStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreList.Contains(a)) - 1;
+        ignoreList = bossHandler.GetAttachedIgnoredModuleIDs(modSelf,
+			Application.isEditor ? new[] { "slightGibberishTwistModule" } : new string[0]);
+		var maxExtraStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreList.Contains(a)) - 1;
         if (ignoreList != null && ignoreList.Any())
         {
             bossActive = true;
@@ -119,13 +124,21 @@ public class BTRGBLScript : MonoBehaviour {
 		}
 		QuickLog("Allocating board size {0} by {0}.", k);
 		n.HandleResize(k);
-        g = new int[k * k];
+		div.HandleResize(k);
+		g = new int[k * k];
 		v = new int[k * k];
 		for (var x = 0; x < g.Length; x++)
             g[x] = Random.Range(0, 8);
 		w = g.ToArray();
 		//QuickLog("-------------- Stage 1 ---------------");
-		QuickLog("Initial board (from left to right, top to bottom): {0}", g.Select(a => clrAbrev[a]).Join(""));
+		//QuickLog("Initial board (from left to right, top to bottom): {0}", g.Select(a => clrAbrev[a]).Join(""));
+		QuickLog("Initial board (from left to right, top to bottom): {0}",
+			Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[g[a * k + b]]).Join("")).Join(","));
+		for (var x = 0; x < 3; x++)
+		{
+			QuickLogDebug("Initial {1} state (from left to right, top to bottom): {0}", g.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
+		}
+
 
 		i = new List<int>();
         j = new List<int>();
@@ -160,7 +173,7 @@ public class BTRGBLScript : MonoBehaviour {
 			var newStage = new bool[k * k];
             for (var y = 0; y < newStage.Length; y++)
 				newStage[y] = Random.value < 0.5f;
-			
+			//QuickLog("Displayed Grid (GOL Style): {0}", Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Any(b => newStage[a * k + b]) ? Enumerable.Range(0, k).Where(b => newStage[a * k + b]).Select(b => b + 1).Join("") : "-").Join(","));
 			h.Add(newStage);
 			var curVld = !(conflicts.ContainsKey(curI) && conflicts[curI].Contains(i[x]));
 			if (x >= 2)
@@ -185,47 +198,56 @@ public class BTRGBLScript : MonoBehaviour {
 		{
 			stgodr = new List<int>();
 			stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
-			if (maxStageBhd > 0 && maxStageAhd > 0)
+			if (maxStageBhd > 1 && maxStageAhd > 1)
 			{
+				var iterCount = 0;
+				var maxIterCount = 100;
 				do
+				{
 					stgodr.Shuffle();
-				while (Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)));
+					iterCount++;
+				}
+				while (iterCount < maxIterCount && Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)));
+				if (iterCount >= maxIterCount && Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)))
+					QuickLog("After {0} iteration{1}, the module was unable to generate stages with a valid max behind and max forward.", maxIterCount, maxIterCount == 1 ? "" : "s");
 				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
 			}
-			else if (maxStageAhd <= 0 && maxStageBhd > 0)
+			else if (maxStageAhd <= 1 && maxStageBhd > 1)
 			{
 				stgodr.Reverse();
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, no stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, 1 stage ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
 			}
-			else if (maxStageAhd <= 0 && maxStageBhd <= 0)
+			else if (maxStageAhd <= 1 && maxStageBhd <= 1)
 			{
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
 				stgodr.Shuffle();
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
 			}
 			else
 			{
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, no stages behind, {1} stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max 1 stage behind, {1} stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
 			}
 		}
 		QuickLog("Required stages to solve: {0}", u.Select(a => a + 1).Join(", "));
         for (var cnt = 0; cnt < u.Count; cnt++)
         {
 			var curI = i[u[cnt]];
-			if (!vld[curI]) continue;
+			if (!vld[u[cnt]]) continue;
 			var chn = j[u[cnt] - 1];
 			var prevChan = w.Select(a => (a >> chn) % 2 == 1);
             var resChan = Enumerable.Range(0, k * k).Select(a => Oper(prevChan.ElementAt(a), h[u[cnt] - 1][a], curI));
             for (var zp = 0; zp < w.Length; zp++)
             {
-				if ((w[zp] >> chn) % 2 == 1 ^ resChan.ElementAt(zp))
+				if (((w[zp] >> chn) % 2 == 1) ^ resChan.ElementAt(zp))
 					w[zp] ^= 1 << chn;
             }
 		}
 		for (var x = 0; x < 3; x++)
 		{
-			QuickLogDebug("Expected {1} state (from left to right, top to bottom): {0}", w.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), "BGR"[x]);
+			QuickLogDebug("Expected {1} state (from left to right, top to bottom): {0}", w.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
 		}
-		QuickLog("Expected final state (from left to right, top to bottom): {0}", w.Select(a => clrAbrev[a]).Join(""));
+        //QuickLog("Expected final state (from left to right, top to bottom): {0}", w.Select(a => clrAbrev[a]).Join(""));
+		QuickLog("Expected board to submit (from left to right, top to bottom): {0}",
+			Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[w[a * k + b]]).Join("")).Join(","));
 		for (var x = 0; x < r.Length; x++)
         {
 			var y = x;
@@ -258,18 +280,22 @@ public class BTRGBLScript : MonoBehaviour {
 						for (var cnt = 0; cnt < u.Count; cnt++)
 						{
 							var curI = i[u[cnt]];
-							var lastI = i[u[cnt] - 1];
-							if (conflicts.ContainsKey(curI) && conflicts[curI].Contains(lastI)) continue;
+							if (!vld[u[cnt]]) continue;
 							var chn = j[u[cnt] - 1];
 							var prevChan = w.Select(a => (a >> chn) % 2 == 1);
 							var resChan = Enumerable.Range(0, k * k).Select(a => Oper(prevChan.ElementAt(a), h[u[cnt] - 1][a], curI));
 							for (var zp = 0; zp < w.Length; zp++)
 							{
-								if (w[zp] >> chn % 2 == 1 ^ resChan.ElementAt(zp))
+								if (((w[zp] >> chn) % 2 == 1) ^ resChan.ElementAt(zp))
 									w[zp] ^= 1 << chn;
 							}
 						}
-						QuickLog("New expected final state (from left to right, BOTTOM TO TOP): {0}", w.Select(a => clrAbrev[a]).Join(""));
+						for (var cnt = 0; cnt < 3; cnt++)
+						{
+							QuickLogDebug("New expected {1} state (from left to right, top to bottom): {0}", w.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
+						}
+						QuickLog("New expected final state (from left to right, top to bottom): {0}",
+							Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[w[a * k + b]]).Join("")).Join(","));
 						stageIdx = 0;
 						StartCoroutine(UncolorizePallete());
 						StartCoroutine(BigAnim());
@@ -318,6 +344,7 @@ public class BTRGBLScript : MonoBehaviour {
         for (var x = 0; x < grid.Length; x++)
         {
 			var y = x;
+			if (!grid[x].gameObject.activeSelf) continue;
 			grid[x].OnInteract += delegate {
 				grid[y].AddInteractionPunch(0.1f);
 				mAudio.PlaySoundAtTransform("BlipSelect", grid[y].transform);
@@ -359,7 +386,7 @@ public class BTRGBLScript : MonoBehaviour {
 		else
         {
 			StartCoroutine(AnimateASet(delay: 0, txt: new[] { "STAGE", (stageIdx + 1).ToString("000"), "" }));
-			StartCoroutine(AnimateASet(delay: 0, offset: 3, txt: new[] { "", "", "" }));
+			StartCoroutine(AnimateASet(delay: 0f, offset: 3, txt: new[] { "CHN", stageIdx >= 1 ? clrAbrev[1 << j[stageIdx - 1]].ToString() : "RGB", "" }));
 			StartCoroutine(bossActive ? AnimateASet(delay: 0, offset: 6, txt: new[] { "STAGES", "QUEUED", (bombInfo.GetSolvedModuleIDs().Count(a => !ignoreList.Contains(a)) - stageIdx).ToString("00000") }) : AnimateASet(delay: 0, offset: 6, txt: new[] { "BOSS", "MODE", "OFF" }));
 		}
     }
@@ -440,7 +467,8 @@ public class BTRGBLScript : MonoBehaviour {
 				var idxY = x / k;
 				a[8 * idxY + idxX].material.color = x < correctCnt ? clr[2] : clr[4];
 			}
-			QuickLog("Submitted the final state (from left to right, top to bottom): {0}", v.Select(a => clrAbrev[a]).Join(""));
+			QuickLog("Submitted the current state: (from left to right, top to bottom): {0}",
+				Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[v[a * k + b]]).Join("")).Join(","));
 			if (v.SequenceEqual(w))
             {
 				QuickLog("SOLVED. No errors detected.");
@@ -503,6 +531,7 @@ public class BTRGBLScript : MonoBehaviour {
 			mAudio.HandlePlaySoundAtTransform("249300__suntemple__access-denied", transform);
 			modSelf.HandleStrike();
 			xoring = false;
+			recoverable = true;
 			yield return new WaitForSeconds(2f);
 			UpdateSomething();
 			for (var x = 0; x < combinedX.Count(); x++)
@@ -578,7 +607,7 @@ public class BTRGBLScript : MonoBehaviour {
             {
 				var p = y % k;
 				var q = y / k;
-				var curStg = !bossActive ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+				var curStg = !bossActive || recoverable ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
 				a[8 * p + q].material.color = curStg == 0 || stageIdx >= i.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
 			}
             for (var y = 0; y < b.Length; y++)
@@ -604,7 +633,7 @@ public class BTRGBLScript : MonoBehaviour {
 				var q = y / k;
 				a[8 * q + p].material.color = clr[v[y]];
 			}
-			StartCoroutine(AnimateASet(delay: 0.1f, txt: u.Select(a => (a + 1).ToString("000")).ToArray()));
+			StartCoroutine(AnimateASet(delay: 0.1f, txt: u.Select(a => (a + 1).ToString("000")).Concat(Enumerable.Repeat("", 9 - u.Count())).ToArray()));
 			for (var y = 0; y < b.Length; y++)
 			{
 				b[y].filled = true;
@@ -626,7 +655,7 @@ public class BTRGBLScript : MonoBehaviour {
 		}
 		else
 		{
-			var curStage = !bossActive ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+			var curStage = !bossActive || recoverable ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
 			if (curStage == 0)
 			{
 				for (var y = 0; y < k * k; y++)
@@ -647,7 +676,11 @@ public class BTRGBLScript : MonoBehaviour {
 			}
 			StartCoroutine(AnimateASet(delay: 0.1f, txt: new[] { "STAGE", (curStage + 1).ToString("000"), "" }));
 			StartCoroutine(AnimateASet(delay: 0.1f, offset: 3, txt: new[] { "CHN", curStage >= 1 ? clrAbrev[1 << j[curStage - 1]].ToString() : "RGB", "" }));
-			StartCoroutine(AnimateASet(delay: 0.1f, offset: 6, txt: bossActive ? recoverable ? new[] { "READY", "TO", "SOLVE" } : new[] { "STAGES", "QUEUED", (solveCountNonIgnored - stageIdx).ToString("00000") } : new[] { "BOSS", "MODE", "OFF" }));
+			StartCoroutine(AnimateASet(delay: 0.1f, offset: 6, txt: bossActive ? recoverable ? new[] { "READY", "TO", "SOLVE" } : new[] { "STAGES", "QUEUED" } : new[] { "BOSS", "MODE", "OFF" }));
+			if (bossActive && !recoverable)
+			{
+				StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("00000")));
+			}
 			for (var x = 0; x < b.Length; x++)
 			{
 				b[x].filled = x == 1 ^ o[curStage];
@@ -766,9 +799,13 @@ public class BTRGBLScript : MonoBehaviour {
 		if (!(bossActive && started) || animating || recoverable) return;
 		if (tickCooldown && cooldown > 0f)
 			cooldown -= Time.deltaTime;
-		if (cooldown <= float.Epsilon && solveCountNonIgnored < stgodr.Count)
+		var curSolveCnt = bombInfo.GetSolvedModuleIDs().Count(a => !ignoreList.Contains(a));
+		if (solveCountNonIgnored != curSolveCnt)
+			solveCountNonIgnored = curSolveCnt;
+		if (stageIdx < stgodr.Count)
+			StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("00000")));
+		if (cooldown <= float.Epsilon)
         {
-			solveCountNonIgnored = bombInfo.GetSolvedModuleIDs().Count(a => !ignoreList.Contains(a));
 			if (stageIdx < solveCountNonIgnored)
 			{
 				stageIdx++;

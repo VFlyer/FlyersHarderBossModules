@@ -767,14 +767,16 @@ public class PointerPointerScript : MonoBehaviour {
 		var curStage = allPointerStages[curStageIdx];
 		do
 		{
+			var referredColorCurTile = refColors[curStage.colorDisplayIdxes[idx]];
+
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * (1f - t);
+				arrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, 1f - t);
 				yield return null;
 			}
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = refColors[curStage.colorDisplayIdxes[idx]] * t;
+				arrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, t);
 				yield return null;
 			}
 

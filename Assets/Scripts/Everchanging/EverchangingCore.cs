@@ -102,7 +102,7 @@ public class EverchangingCore : MonoBehaviour {
 	};
 	static readonly string[] debugDirections = { "Up", "Right", "Down", "Left", };
 	IEnumerable<int> lockFirstStageComponentsIdx, requiredStageIdxes;
-	EverchangingSettings modSelfSettings;
+	FlyersBossierSettings modSelfSettings;
 	Vector3 storedCubeLocalPos, storedLEDLocalPos, storedSevenSegmentLocalPos, storedWireSeqLocalPos, storedMonochromeArrowsLocalPos;
 	public int debugIdxStageIdx = -1;
 	public bool debugBossMode, disableInputLinking;
@@ -140,14 +140,14 @@ public class EverchangingCore : MonoBehaviour {
 			dotRenderer.enabled = false;
 		try
         {
-			ModConfig<EverchangingSettings> settingsFile = new ModConfig<EverchangingSettings>("EverchangingSettings");
+			ModConfig<FlyersBossierSettings> settingsFile = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
 			modSelfSettings = settingsFile.Settings;
 			settingsFile.Settings = modSelfSettings;
-			if (!modSelfSettings.exhibitionMode)
+			if (!modSelfSettings.ECExhibitionMode)
 				bossModeActive = canEnableBossMode;
 			else
 				QuickLog("Enforcing Exhibition Mode by settings.");
-			dynamicStageGen = modSelfSettings.dynamicStageGen;
+			dynamicStageGen = modSelfSettings.ECDynamicStageGen;
         }
 		catch
         {

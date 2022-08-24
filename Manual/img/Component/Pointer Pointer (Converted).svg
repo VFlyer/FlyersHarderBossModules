@@ -11,7 +11,7 @@
    fill="none"
    version="1.1"
    id="svg6"
-   sodipodi:docname="Pointer Pointer.svg"
+   sodipodi:docname="Pointer Pointer (Converted).svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata12">
@@ -71,13 +71,10 @@
      stroke-width="2"
      stroke="#000"
      id="path4" />
-  <rect
+  <path
      style="fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     id="rect824"
-     width="222.81499"
-     height="222.81499"
-     x="62.592506"
-     y="110.63383" />
+     d="M 62.592506,110.63383 H 285.40749 V 333.44881 H 62.592506 Z"
+     id="rect824" />
   <path
      style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
      d="M 174,110.63383 V 333.44881"
