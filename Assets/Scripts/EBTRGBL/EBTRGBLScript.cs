@@ -18,9 +18,8 @@ public class EBTRGBLScript : MonoBehaviour {
 
 	static int modIDCnt;
 	int moduleID;
-	[SerializeField]
 	int stageIdx;
-	int k, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored;
+	int k, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored, strSub;
 	float cooldown = 10f;
 	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton;
 	[SerializeField]
@@ -45,11 +44,11 @@ public class EBTRGBLScript : MonoBehaviour {
 	{
 		{ 0, new[] { 1, 3, 5, 8 } },
 		{ 1, new[] { 4, 5, 7, 9 } },
-		{ 2, new[] { 6 } },
+		{ 2, new[] { 6, 2 } },
 		{ 3, new[] { 1, 5, 7, 9 } },
 		{ 4, new[] { 0, 1, 3, 8 } },
 		{ 5, new[] { 0, 4, 7, 9 } },
-		{ 6, new[] { 2 } },
+		{ 6, new[] { 2, 6 } },
 		{ 7, new[] { 0, 3, 4, 8 } },
 		{ 8, new[] { 1, 3, 5, 9 } },
 		{ 9, new[] { 0, 4, 7, 8 } },
@@ -87,6 +86,10 @@ public class EBTRGBLScript : MonoBehaviour {
 			maxStageBhd = 5;
         }
     }
+	void QuestionMark()
+    {
+
+    }
     void Start()
     {
         moduleID = ++modIDCnt;
@@ -106,7 +109,7 @@ public class EBTRGBLScript : MonoBehaviour {
         {
 			recoverable = true;
             maxExtraStages = 9;
-            k = 4;
+            k = 6;
 			QuickLog("Boss mode is not active. Generating 9 extra stages.");
 		}
 		if (maxExtraStages <= 2)
@@ -130,14 +133,9 @@ public class EBTRGBLScript : MonoBehaviour {
 		for (var x = 0; x < g.Length; x++)
             g[x] = Random.Range(0, 8);
 		w = g.ToArray();
-		//QuickLog("-------------- Stage 1 ---------------");
-		//QuickLog("Initial board (from left to right, top to bottom): {0}", g.Select(a => clrAbrev[a]).Join(""));
+		
 		QuickLog("Initial board (from left to right, top to bottom): {0}",
 			Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[g[a * k + b]]).Join("")).Join(","));
-		for (var x = 0; x < 3; x++)
-		{
-			QuickLogDebug("Initial {1} state (from left to right, top to bottom): {0}", g.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
-		}
 
 
 		i = new List<int>();
@@ -152,15 +150,15 @@ public class EBTRGBLScript : MonoBehaviour {
 		o.Add(Random.value < 0.5f);
 		q.Add(Random.value < 0.5f);
 		vld.Add(true);
-		//QuickLog("Displayed Operator: {0}", i.First());
+		
 		var arrayIdxes = Enumerable.Range(0, 3).ToArray().Shuffle();
 		var l = 0;
         for (var x = 0; x < maxExtraStages; x++)
         {
-			//QuickLog("-------------- Stage {0} ---------------", x + 2);
+			
 			var curI = Random.Range(0, 10);
 			i.Add(curI);
-			//QuickLog("Displayed Operator: {0}", curI);
+			
 			o.Add(Random.value < 0.5f);
 			q.Add(Random.value < 0.5f);
 			if (l >= arrayIdxes.Length)
@@ -173,18 +171,18 @@ public class EBTRGBLScript : MonoBehaviour {
 			var newStage = new bool[k * k];
             for (var y = 0; y < newStage.Length; y++)
 				newStage[y] = Random.value < 0.5f;
-			//QuickLog("Displayed Grid (GOL Style): {0}", Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Any(b => newStage[a * k + b]) ? Enumerable.Range(0, k).Where(b => newStage[a * k + b]).Select(b => b + 1).Join("") : "-").Join(","));
+			
 			h.Add(newStage);
 			var curVld = !(conflicts.ContainsKey(curI) && conflicts[curI].Contains(i[x]));
-			if (x >= 2)
+			if (x >= 1)
 			{
 				var temp = vld.TakeLast(2);
-				curVld = temp.All(a => a) ? false : temp.All(a => !a) ? true : curVld;
+				curVld = !temp.All(a => a) && (temp.All(a => !a) || curVld);
 			}
-			//QuickLog("Validity on current stage: {0}", curVld ? "VALID" : "INVALID");
+
 			vld.Add(curVld);
 		}
-		//QuickLog("-----------------------------");
+		
 		for (var x = 0; x < f.Length; x++)
 			f[x].text = "";
 		u = new List<int>();
@@ -198,26 +196,41 @@ public class EBTRGBLScript : MonoBehaviour {
 		{
 			stgodr = new List<int>();
 			stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
-			if (maxStageBhd > 1 && maxStageAhd > 1)
+			if (maxStageBhd > 0 && maxStageAhd > 0)
 			{
-				var iterCount = 0;
-				var maxIterCount = 100;
-				do
-				{
-					stgodr.Shuffle();
-					iterCount++;
-				}
-				while (iterCount < maxIterCount && Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)));
-				if (iterCount >= maxIterCount && Enumerable.Range(0, maxExtraStages).Any(a => (stgodr[a + 1] - stgodr[a] > maxStageAhd) || (stgodr[a] - stgodr[a + 1] < maxStageBhd)))
-					QuickLog("After {0} iteration{1}, the module was unable to generate stages with a valid max behind and max forward.", maxIterCount, maxIterCount == 1 ? "" : "s");
+				var allStages = new List<int>();
+				allStages.AddRange(stgodr);
+				stgodr.Clear();
+				var why = new int[allStages.Count];
+                for (var x = 0; x < why.Length; x++)
+                {
+					var min = x - maxStageAhd;
+					var stgIdxes = allStages.Where(a => a <= x + maxStageBhd && a >= x - maxStageAhd).ToList();
+					if (!stgIdxes.Any())
+                    {
+						var low = -1;
+						var high = -1;
+						foreach (var sidx in stgIdxes)
+							if (sidx < x) low = Mathf.Max(low, sidx);
+							else high = Mathf.Min(high, sidx);
+						if (low != -1) stgIdxes.Add(low);
+						if (high != -1) stgIdxes.Add(high);
+					}
+					var newStg = stgIdxes.PickRandom();
+					if (stgIdxes.Contains(min)) newStg = min;
+					why[x] = newStg;
+					allStages.Remove(newStg);
+                }
+				stgodr = why.ToList();
+
 				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
 			}
-			else if (maxStageAhd <= 1 && maxStageBhd > 1)
+			else if (maxStageAhd <= 0 && maxStageBhd > 0)
 			{
 				stgodr.Reverse();
 				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, 1 stage ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
 			}
-			else if (maxStageAhd <= 1 && maxStageBhd <= 1)
+			else if (maxStageAhd <= 0 && maxStageBhd <= 0)
 			{
 				stgodr.Shuffle();
 				QuickLog("Stages will be displayed in this order in accordiance to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
@@ -240,12 +253,9 @@ public class EBTRGBLScript : MonoBehaviour {
 				if (((w[zp] >> chn) % 2 == 1) ^ resChan.ElementAt(zp))
 					w[zp] ^= 1 << chn;
             }
+
 		}
-		for (var x = 0; x < 3; x++)
-		{
-			QuickLogDebug("Expected {1} state (from left to right, top to bottom): {0}", w.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
-		}
-        //QuickLog("Expected final state (from left to right, top to bottom): {0}", w.Select(a => clrAbrev[a]).Join(""));
+
 		QuickLog("Expected board to submit (from left to right, top to bottom): {0}",
 			Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[w[a * k + b]]).Join("")).Join(","));
 		for (var x = 0; x < r.Length; x++)
@@ -256,18 +266,7 @@ public class EBTRGBLScript : MonoBehaviour {
 				mAudio.PlaySoundAtTransform("BlipSelect", r[y].transform);
 				if (!animating && started)
                 {
-					if (!bossActive && stageIdx != i.Count)
-					{
-						cooldown = 2f;
-						if (!tickCooldown)
-						{
-							tickCooldown = true;
-							StartCoroutine(TickDelayStg(stageIdx));
-						}
-						stageIdx = (stageIdx + (y == 0 ? -1 : 1) + i.Count) % i.Count;
-						hldIdx = y;
-					}
-					else if (stageIdx == i.Count && recoverable && !tickCooldown)
+					if (stageIdx == i.Count && recoverable && !tickCooldown)
                     {
 						u.Clear();
 						for (var z = 0; z < 3; z++)
@@ -275,6 +274,7 @@ public class EBTRGBLScript : MonoBehaviour {
 							u.AddRange(Enumerable.Range(1, maxExtraStages).Where(a => j[a - 1] == z).ToArray().Shuffle().Take(3));
 						}
 						u.Shuffle();
+						strSub = 0;
 						QuickLog("WARNING! Activating Recovery Mode changed the required stages to disarm the module in the particular order: {0}", u.Select(a => a + 1).Join(", "));
 						w = g.ToArray();
 						for (var cnt = 0; cnt < u.Count; cnt++)
@@ -290,16 +290,25 @@ public class EBTRGBLScript : MonoBehaviour {
 									w[zp] ^= 1 << chn;
 							}
 						}
-						for (var cnt = 0; cnt < 3; cnt++)
-						{
-							QuickLogDebug("New expected {1} state (from left to right, top to bottom): {0}", w.Select(a => (a >> x) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << x]);
-						}
+
 						QuickLog("New expected final state (from left to right, top to bottom): {0}",
 							Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[w[a * k + b]]).Join("")).Join(","));
 						stageIdx = 0;
 						StartCoroutine(UncolorizePallete());
 						StartCoroutine(BigAnim());
 					}
+					else if ((!bossActive || recoverable) && stageIdx != i.Count)
+					{
+						cooldown = 2f;
+						if (!tickCooldown)
+						{
+							tickCooldown = true;
+							StartCoroutine(TickDelayStg(stageIdx));
+						}
+						stageIdx = (stageIdx + (y == 0 ? -1 : 1) + i.Count) % i.Count;
+						hldIdx = y;
+					}
+
 				}
 				return false;
 			};
@@ -315,13 +324,8 @@ public class EBTRGBLScript : MonoBehaviour {
 				mAudio.PlaySoundAtTransform("Douga", s[y].transform);
 				if (!animating && started)
                 {
-					if (!bossActive && !tickCooldown && stageIdx != i.Count)
-                    {
-						stageIdx = i.Count;
-						StartCoroutine(BigAnim());
-                    }
-					else if (stageIdx == i.Count)
-                    {
+					if (stageIdx == i.Count)
+					{
 						if (y == 3)
 							xoring ^= true;
 						else
@@ -332,8 +336,13 @@ public class EBTRGBLScript : MonoBehaviour {
 						{
 							StartCoroutine(TickDelaySub());
 						}
+					}
+					else if ((!bossActive || recoverable) && !tickCooldown && stageIdx != i.Count)
+                    {
+						stageIdx = i.Count;
+						StartCoroutine(BigAnim());
                     }
-					else if (!bossActive && tickCooldown)
+					else if ((!bossActive || recoverable) && tickCooldown)
                     {
 						cooldown = 0f;
 					}
@@ -387,7 +396,7 @@ public class EBTRGBLScript : MonoBehaviour {
         {
 			StartCoroutine(AnimateASet(delay: 0, txt: new[] { "STAGE", (stageIdx + 1).ToString("000"), "" }));
 			StartCoroutine(AnimateASet(delay: 0f, offset: 3, txt: new[] { "CHN", stageIdx >= 1 ? clrAbrev[1 << j[stageIdx - 1]].ToString() : "RGB", "" }));
-			StartCoroutine(bossActive ? AnimateASet(delay: 0, offset: 6, txt: new[] { "STAGES", "QUEUED", (bombInfo.GetSolvedModuleIDs().Count(a => !ignoreList.Contains(a)) - stageIdx).ToString("00000") }) : AnimateASet(delay: 0, offset: 6, txt: new[] { "BOSS", "MODE", "OFF" }));
+			StartCoroutine(bossActive ? AnimateASet(delay: 0, offset: 6, txt: new[] { "READY", "TO", "SOLVE" }) : AnimateASet(delay: 0, offset: 6, txt: new[] { "BOSS", "MODE", "OFF" }));
 		}
     }
 	IEnumerator TickDelaySub()
@@ -459,13 +468,13 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 			yield return new WaitForSeconds(0.2f);
 
-			var correctCnt = Enumerable.Range(0, k * k).Count(a => v[a] == w[a]);
+			var correct = Enumerable.Range(0, k * k).Where(a => v[a] == w[a]);
 
 			for (var x = 0; x < k * k; x++)
 			{
 				var idxX = x % k;
 				var idxY = x / k;
-				a[8 * idxY + idxX].material.color = x < correctCnt ? clr[2] : clr[4];
+				a[8 * idxY + idxX].material.color = strSub == 0 ? x < correct.Count() ? clr[2] : clr[4] : correct.Contains(x) ? clr[2] : clr[4];
 			}
 			QuickLog("Submitted the current state: (from left to right, top to bottom): {0}",
 				Enumerable.Range(0, k).Select(a => Enumerable.Range(0, k).Select(b => clrAbrev[v[a * k + b]]).Join("")).Join(","));
@@ -527,11 +536,20 @@ public class EBTRGBLScript : MonoBehaviour {
 				}
 				yield break;
             }
-			QuickLog("STRIKE. Correct cells filled: {0} / {1}", correctCnt, k * k);
+			strSub++;
+			QuickLog("STRIKE. Correct cells filled: {0} / {1}", correct.Count(), k * k);
+			QuickLog("With the current displayed stages in order, the user has struck {0} time(s).", strSub);
 			mAudio.HandlePlaySoundAtTransform("249300__suntemple__access-denied", transform);
 			modSelf.HandleStrike();
 			xoring = false;
 			recoverable = true;
+			if (strSub >= 2)
+				for (var y = 0; y < k * k; y++)
+				{
+					var p = y % k;
+					var q = y / k;
+					v[y] = w[y] != v[y] ? 0 : v[y];
+				}
 			yield return new WaitForSeconds(2f);
 			UpdateSomething();
 			for (var x = 0; x < combinedX.Count(); x++)
@@ -698,10 +716,10 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 			for (var x = 0; x < m.Length; x++)
 			{
-				m[x].filled = !bossActive;
+				m[x].filled = !bossActive || recoverable;
 			}
 			started = true;
-			tickCooldown = bossActive;
+			tickCooldown = bossActive && !recoverable;
 			animating = false;
 		}
     }

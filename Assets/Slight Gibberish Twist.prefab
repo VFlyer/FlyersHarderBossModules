@@ -23694,7 +23694,7 @@ MonoBehaviour:
   - {fileID: 114220201185567898}
   - {fileID: 114454506942229138}
   - {fileID: 114301614106642574}
-  debugBossMode: 1
+  debugBossMode: 0
 --- !u!114 &114506332385659408
 MonoBehaviour:
   m_ObjectHideFlags: 1
