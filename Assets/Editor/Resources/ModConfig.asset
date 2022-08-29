@@ -14,14 +14,14 @@ MonoBehaviour:
   id: FlyersModMiscV2
   title: Flyer's Bossier Modules
   author: VFlyer
-  description: '[i]The word "boss module" is used to describe a module that requires
+  description: '[i]The term "boss module" is used to describe a module that requires
     taking extensive notes; and require inputs, usually at the very end, or in-between
     each solve. I never thought he would make modules so complicated, it would take
     him nearly a year to finish, and attempt. Maybe that''s supposed to be good since
     it allows him to "warm up to be a master."[/i]
 
 
-    Currently contains 1 module developed by VFlyer, consisting some ideas from other
+    Currently contains 2 modules developed by VFlyer, consisting some ideas from other
     users.
 
 
@@ -36,8 +36,9 @@ MonoBehaviour:
 
     Pointer Pointer: pointerPointerModule
 
+    Slight Gibberish Twist: slightGibberishTwistModule
 
 '
-  version: 1.0.0
+  version: 1.1.0_02
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: c08d098aa0de0634ba7c54db6a5aa14f, type: 3}
+  previewImage: {fileID: 2800000, guid: ba064677d731b624d9dd34d085fd6039, type: 3}

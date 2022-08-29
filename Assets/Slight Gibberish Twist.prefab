@@ -23511,7 +23511,7 @@ MonoBehaviour:
   bombInfo: {fileID: 114372610597740064}
   modSelf: {fileID: 114947481735883084}
   mAudio: {fileID: 114661746117592552}
-  a:
+  gridRenderers:
   - {fileID: 23111887413373154}
   - {fileID: 23027740457338680}
   - {fileID: 23158409465510146}
@@ -23595,7 +23595,7 @@ MonoBehaviour:
   - {fileID: 23992200762740522}
   - {fileID: 23412351842624722}
   - {fileID: 23671358808408922}
-  f:
+  displayTexts:
   - {fileID: 102385072483330050}
   - {fileID: 102021392824331946}
   - {fileID: 102926001520247624}
@@ -23605,26 +23605,26 @@ MonoBehaviour:
   - {fileID: 102212418479394520}
   - {fileID: 102800460712122618}
   - {fileID: 102347057736425232}
-  b:
+  boolAOutAnim:
   - {fileID: 114735141469285016}
   - {fileID: 114102681812727714}
-  c:
+  boolBOutAnim:
   - {fileID: 114027096284903234}
   - {fileID: 114278500692659228}
-  d:
+  logicOutAnim:
   - {fileID: 114037136756533618}
   - {fileID: 114942900222650144}
   - {fileID: 114296927347768158}
   - {fileID: 114134457150948372}
-  m:
+  arrowOutAnim:
   - {fileID: 114082396209552394}
   - {fileID: 114846448897406316}
-  n: {fileID: 114271394961045380}
-  div: {fileID: 114621904207882462}
-  r:
+  squareResizer: {fileID: 114271394961045380}
+  dividerHandler: {fileID: 114621904207882462}
+  arrowSelectables:
   - {fileID: 114873101514865372}
   - {fileID: 114397816216789904}
-  s:
+  logicSelectables:
   - {fileID: 114074442216210940}
   - {fileID: 114050183259262972}
   - {fileID: 114878081057198084}

@@ -1,0 +1,19 @@
+{
+  "BossStatus": "FullBoss",
+  "Compatibility": "Compatible",
+  "Contributors": { "Developer": [ "VFlyer" ] },
+  "DefuserDifficulty": "VeryHard",
+  "Description": "Can you determine how to disarm this module? Manual Challenge.",
+  "ExpertDifficulty": "VeryHard",
+  "Ignore": [ "+FullBoss, +SemiBoss, +PseudoNeedy, +TimeSensitive, +SolveOrderSensitive, +TypicallyIgnored" ],
+  "ModuleID": "slightGibberishTwistModule",
+  "MysteryModule": "MustNotBeHiddenOrKey",
+  "Name": "Slight Gibberish Twist",
+  "Origin": "Mods",
+  "Published": "2022-08-25",
+  "Quirks": "SolvesAtEnd",
+  "SortKey": "SLIGHTGIBBERISHTWIST",
+  "Souvenir": { "Status": "NotACandidate" },
+  "SteamID": "2850158391",
+  "Type": "Regular"
+}
