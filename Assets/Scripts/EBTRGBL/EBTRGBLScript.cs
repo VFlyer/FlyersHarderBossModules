@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EBTRGBLScript : MonoBehaviour {
 
@@ -485,11 +487,12 @@ public class EBTRGBLScript : MonoBehaviour {
 				QuickLog("SOLVED. No errors detected.");
 				mAudio.HandlePlaySoundAtTransform("540321__colorscrimsontears__system-shutdown", transform);
 				modSelf.HandlePass();
+				var miscULClrs = miscULs.Select(a => a.material.color).ToArray();
 				for (float time = 0; time <= 1f; time += Time.deltaTime / 4)
 				{
 					for (var x = 0; x < miscULs.Length; x++)
 					{
-						miscULs[x].material.color = time * Color.black + (1f - time) * Color.white;
+						miscULs[x].material.color = time * Color.black + (1f - time) * miscULClrs.ElementAt(x);
 					}
 					
 					for (var x = 0; x < squareLength * squareLength; x++)
@@ -520,6 +523,10 @@ public class EBTRGBLScript : MonoBehaviour {
 					var idxX = x % squareLength;
 					var idxY = x / squareLength;
 					gridRenderers[8 * idxY + idxX].material.color = clr[0];
+				}
+				for (var x = 0; x < miscULs.Length; x++)
+				{
+					miscULs[x].enabled = false;
 				}
 				for (var x = 0; x < combinedX.Count(); x++)
 				{
@@ -678,7 +685,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 			animating = false;
 			if (TwitchPlaysActive)
-				TwitchHelpMessage = HelpSubmission;
+				TwitchHelpMessage = HelpSubmission + HelpAppend;
 			yield break;
 		}
 		else
@@ -732,7 +739,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			tickCooldown = bossActive && !recoverable;
 			animating = false;
 			if (TwitchPlaysActive)
-				TwitchHelpMessage = HelpRecoverExhibiton;
+				TwitchHelpMessage = HelpRecoverExhibiton + HelpAppend;
 		}
     }
 	IEnumerator AnimateASet(params string[] txt)
@@ -849,8 +856,9 @@ public class EBTRGBLScript : MonoBehaviour {
 	bool TwitchPlaysActive;
 	readonly static string HelpRecoverExhibiton = "Go to the specified stage with \"!{0} stage ###\"; enter submission with \"!{0} submit\".",
 		HelpSubmission = "Toggle that channel with \"!{0} R/G/B\" or the XOR operator with \"!{0} X\" or both a channel and the XOR operator with \"!{0} [R/G/B]X\" Press that button in the specified coordinate with \"!{0} X#\". Rows are labeled 1-8 from top to bottom; columns are labeled A-H from left to right (dependent on board size)." +
-		" The previous 2 can be chained with spaces, I.E. \"!{0} R A1 X G G7 F5 D3 B B2\"... Submit the ENTIRE board with \"!{0} submit RGBCMYWKRGBCMYWK\" (dependent on board size). Enter stage recovery with \"!{0} recover\"";
-	string TwitchHelpMessage = "Go to the specified stage with \"!{0} stage ###\"; enter submission with \"!{0} submit\".";
+		" The previous 2 can be chained with spaces, I.E. \"!{0} R A1 X G G7 F5 D3 B B2\"... Submit the ENTIRE board with \"!{0} submit RGBCMYWKRGBCMYWK\" (dependent on board size). Enter stage recovery with \"!{0} recover\"",
+		HelpAppend = " This help message will change upon entering/exiting submission.";
+	string TwitchHelpMessage = "Go to the specified stage with \"!{0} stage ###\"; enter submission with \"!{0} submit\". This help message will change upon entering/exiting submission.";
 	IEnumerator ProcessTwitchCommand(string command)
     {
 		if (!started || animating)
@@ -893,21 +901,30 @@ public class EBTRGBLScript : MonoBehaviour {
 				yield break;
 			}
 			var splitCmdLst = command.Split().Select(a => a.Trim().ToUpperInvariant()).Last();
-			var nextStageIdx = -1;
-			if (!int.TryParse(splitCmdLst, out nextStageIdx) || nextStageIdx < 1 && nextStageIdx > logicOper.Count)
+			var nextStage = -1;
+			if (!int.TryParse(splitCmdLst, out nextStage) || nextStage < 1 || nextStage > logicOper.Count)
             {
 				yield return string.Format("sendtochaterror {0} does not correspond to a valid stage! That stage is either inaccessible or it doesn't exist.", splitCmdLst);
 				yield break;
 			}
-			yield return null;
-			var distanceFurtherUp = Mathf.Abs(stageIdx - nextStageIdx + 1) < Mathf.Abs(nextStageIdx + 1 - stageIdx + logicOper.Count);
+			
+			var actualStageIdx = nextStage - 1;
+			if (actualStageIdx == stageIdx)
+            {
+				yield return string.Format("sendtochaterror You are already on stage {0}!", nextStage);
+				yield break;
+			}
 
-			arrowSelectables[distanceFurtherUp ? 0 : 1].OnInteract();
-			while (stageIdx + 1 != nextStageIdx)
+			var distancesCnt = new[] { Mathf.Abs(stageIdx - actualStageIdx + logicOper.Count), Mathf.Abs(stageIdx - actualStageIdx) };
+			var idxToPress = 1 == Array.IndexOf(distancesCnt, distancesCnt.Min()) ^ stageIdx < actualStageIdx ? 1 : 0;
+
+			yield return null;
+			arrowSelectables[idxToPress].OnInteract();
+			while (stageIdx != actualStageIdx)
             {
 				yield return null;
             }
-			arrowSelectables[distanceFurtherUp ? 0 : 1].OnInteractEnded();
+			arrowSelectables[idxToPress].OnInteractEnded();
 			logicSelectables.PickRandom().OnInteract();
 		}
 		else if (regexExitRecoverExhib.Success)
@@ -972,7 +989,9 @@ public class EBTRGBLScript : MonoBehaviour {
                     {
 						if (currentBoard[idxFiltered] != x)
 						{
-							grid[idxFiltered].OnInteract();
+							var idxCol = idxFiltered % squareLength;
+							var idxRow = idxFiltered / squareLength;
+							grid[idxRow * squareResizer.GetInitSize() + idxCol].OnInteract();
 							yield return new WaitForSeconds(0.1f);
 						}
 					}
@@ -999,14 +1018,14 @@ public class EBTRGBLScript : MonoBehaviour {
 				if (regexCoordinate.Success)
                 {
 					var possibleCoordinate = regexCoordinate.Value;
-					var rowIdxCmd = "ABCDEFGH".Substring(0, squareLength).IndexOf(possibleCoordinate[0]);
-					var colIdxCmd = "12345678".Substring(0, squareLength).IndexOf(possibleCoordinate[1]);
+					var colIdxCmd = "ABCDEFGH".Substring(0, squareLength).IndexOf(possibleCoordinate[0]);
+					var rowIdxCmd = "12345678".Substring(0, squareLength).IndexOf(possibleCoordinate[1]);
 					if (rowIdxCmd == -1 || colIdxCmd == -1)
                     {
 						yield return string.Format("sendtochaterror {0} would be out of bounds in a {1}x{1} board! Stopping here.", possibleCoordinate, squareLength);
 						yield break;
 					}
-					buttonsToPress.Add(grid[colIdxCmd * squareLength + rowIdxCmd]);
+					buttonsToPress.Add(grid[rowIdxCmd * squareResizer.GetInitSize() + colIdxCmd]);
 				}
 				else if (regexColor.Success)
                 {
@@ -1044,4 +1063,59 @@ public class EBTRGBLScript : MonoBehaviour {
 
 		yield break;
     }
+	IEnumerator TwitchHandleForcedSolve()
+	{
+		while (!started)
+			yield return true;
+		while (!IsInSubmission())
+        {
+			if (recoverable)
+				logicSelectables.PickRandom().OnInteract();
+			yield return true;
+        }
+		while (animating)
+			yield return true;
+		while (!animating)
+		{
+			while (!expectedBoard.SequenceEqual(currentBoard))
+			{
+				if (xoring)
+					logicSelectables.Last().OnInteract();
+				for (var x = 0; x < 8; x++)
+				{
+					var filteredIdxColors = Enumerable.Range(0, squareLength * squareLength).Where(a => expectedBoard[a] == x);
+					if (filteredIdxColors.Any())
+					{
+						for (var p = 0; p < 3; p++)
+						{
+							if ((clrCur >> p) % 2 != (x >> p) % 2)
+							{
+								logicSelectables[p].OnInteract();
+								yield return new WaitForSeconds(0.1f);
+							}
+						}
+						foreach (var idxFiltered in filteredIdxColors)
+						{
+							if (currentBoard[idxFiltered] != x)
+							{
+								var idxCol = idxFiltered % squareLength;
+								var idxRow = idxFiltered / squareLength;
+								grid[idxRow * squareResizer.GetInitSize() + idxCol].OnInteract();
+								yield return new WaitForSeconds(0.1f);
+							}
+						}
+					}
+				}
+				for (var p = 0; p < logicSelectables.Length; p++)
+				{
+					if (p >= 3 || (clrCur >> p & 1) != 0)
+						logicSelectables[p].OnInteract();
+					yield return new WaitForSeconds(0.1f);
+				}
+			}
+			yield return true;
+		}
+		while (animating)
+			yield return true;
+	}
 }

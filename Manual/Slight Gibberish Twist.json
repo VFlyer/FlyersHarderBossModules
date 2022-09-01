@@ -2,10 +2,14 @@
   "BossStatus": "FullBoss",
   "Compatibility": "Compatible",
   "Contributors": { "Developer": [ "VFlyer" ] },
-  "DefuserDifficulty": "VeryHard",
-  "Description": "Can you determine how to disarm this module? Manual Challenge.",
+  "DefuserDifficulty": "Medium",
+  "Description": "Obtain each stages' grid and logic operator; determine each stages' validity; and calculate the submission board from the initial board, using the displayed stages when the module is ready to solve. Tags: circles, grid, squares, rgb-mixing",
   "ExpertDifficulty": "VeryHard",
-  "Ignore": [ "+FullBoss, +SemiBoss, +PseudoNeedy, +TimeSensitive, +SolveOrderSensitive, +TypicallyIgnored" ],
+  "Ignore": [
+    "+SolvesAtEnd",
+    "+SolvesWithOthers",
+    "+TimeDependent"
+  ],
   "ModuleID": "slightGibberishTwistModule",
   "MysteryModule": "MustNotBeHiddenOrKey",
   "Name": "Slight Gibberish Twist",

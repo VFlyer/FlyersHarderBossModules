@@ -30,4 +30,8 @@ public class SizeModifierAnim : MonoBehaviour {
 			}
 		}
 	}
+	public int GetInitSize()
+    {
+		return initializedSize;
+    }
 }
