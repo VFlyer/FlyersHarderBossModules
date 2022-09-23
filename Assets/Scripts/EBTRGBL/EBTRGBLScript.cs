@@ -26,7 +26,7 @@ public class EBTRGBLScript : MonoBehaviour {
 	float cooldown = 10f;
 	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton;
 	[SerializeField]
-	private bool debugBossMode;
+	private bool debugBossMode; // Meant for testing, without Boss Module Manager.
 	int[] initialBoard, currentBoard, expectedBoard;
 	List<bool[]> stageGrids;
 	List<int> logicOper, allChannels, requiredStages, stgodr;
@@ -62,18 +62,17 @@ public class EBTRGBLScript : MonoBehaviour {
 	// Use this for initialization
 	void QuickLog(string value, params object[] args)
     {
-		Debug.LogFormat("[{0} #{1}]: {2}", "Slight Gibberish Twist", moduleID, string.Format(value, args));
+		Debug.LogFormat("[Slight Gibberish Twist #{0}]: {1}", moduleID, string.Format(value, args));
     }
 	void QuickLogDebug(string value, params object[] args)
     {
-		Debug.LogFormat("<{0} #{1}>: {2}", "Slight Gibberish Twist", moduleID, string.Format(value, args));
+		Debug.LogFormat("<Slight Gibberish Twist #{0}>: {1}", moduleID, string.Format(value, args));
     }
 	void Awake()
     {
 		if (debugBossMode)
-		{
 			modSelf.ModuleDisplayName = "Forget Me Not";
-		}
+
 		try
         {
 			var modSettings = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
@@ -179,10 +178,6 @@ public class EBTRGBLScript : MonoBehaviour {
 		for (var x = 0; x < initialBoard.Length; x++)
             initialBoard[x] = Random.Range(0, 8);
 		QuickLog("-------------- Stage 1 ---------------");
-		QuickLog("Initial board (from left to right, top to bottom): {0}",
-			Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[initialBoard[a * squareLength + b]]).Join("")).Join(","));
-
-
 		logicOper = new List<int>();
         allChannels = new List<int>();
 		
@@ -196,6 +191,9 @@ public class EBTRGBLScript : MonoBehaviour {
 		invertB.Add(Random.value < 0.5f);
 		vld.Add(true);
 		QuickLog("Displayed Operator: {0}", logicOperRef[logicOper.First()]);
+		QuickLog("Initial board (from left to right, top to bottom): {0}",
+			Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[initialBoard[a * squareLength + b]]).Join("")).Join(","));
+
 
 		var arrayIdxes = Enumerable.Range(0, 3).ToArray().Shuffle();
 		var l = 0;
@@ -282,7 +280,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 		}
 		else
-			QuickLog("Not available.");
+			QuickLog("Not available due to the module not activating boss handling.");
 		QuickLog("--------------- Submission ---------------");
 		CalculateExpectedBoard();
 		QuickLog("--------------- User Interactions ---------------");

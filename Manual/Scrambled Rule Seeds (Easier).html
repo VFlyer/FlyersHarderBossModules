@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>Scrambled Rule Seeds — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+		<script src="js/ruleseed.js"></script>
+        <style>
+            .squeeze
+            {
+                margin-bottom: auto;
+                margin-top: auto;
+            }
+			.wide
+			{
+				width: 100%;
+			}
+        </style>
+        <script>
+            // Rule seed code goes here.
+			let defaultInspect = "last digit of the serial number is even";
+			let defaultRead = "first digit of the serial number";
+			let defaultOrder = "ascending order, wrapping around to 0 upon reaching 9";
+			let defaultRules = [ "If the 3rd button is the button labeled \"D\", press a yellow button.", "If the number of solved modules is odd, subtract the 2nd displayed value from the current value.", "Flip the bit of the current value whose index from the right corresponds to the number of ports, modulo 32, where 0 is the right-most bit.", "Divide this current value by the sum of digits in the serial number.", "XOR the current value with the 3rd displayed value.", "Add the 6th calculated value to the current value.", "Multiply the current value with the number of ports.", "If the 1st display is odd, XOR the current value with the 10th displayed value. Otherwise, XOR the current value with the 9th displayed value.", "Subtract the 8th displayed value from the current value.", "If the number of strikes is even, subtract the 4th displayed value from the current value. Otherwise XOR the current value with the 7th displayed value." ];
+			let defaultFallbacks = ["2nd button", "blue button", "button labeled \"C\""]
+			
+			var curInspect = "";
+			var curRead = "";
+			var curOrder = "";
+			var curRules = [];
+			var curFallbacks = [];
+
+			var conditionalStart = "If the XXXX, ZZZZ";
+			var possibleVarAny = [ "1st button","2nd button","3rd button","4th button","red button","yellow button","green button","blue button","button labeled \"A\"","button labeled \"B\"","button labeled \"C\"","button labeled \"D\"" ];
+			
+			var possibleEdgework
+			
+            function setDefaultRules(rnd) {
+                
+                curInspect = defaultInspect;
+				curRead = defaultRead;
+				curOrder = defaultOrder;
+				curFallbacks = defaultFallbacks;
+				curRules = defaultRules;
+                DisplayGivenRuleSeed();
+            }
+            function setRules(rnd)
+            {
+                DisplayGivenRuleSeed();
+            }
+            function DisplayGivenRuleSeed()
+			{
+				var rsModifierRules = document.getElementsByClassName("rsRule");
+				for (var x = 0; x < rsModifierRules.length;x++)
+					{
+						rsModifierRules[x].innerHTML = curRules[x];
+					}
+				var rsInsp = document.getElementsByClassName("rsInspect");
+					rsInsp[0].innerHTML = curInspect;
+				var rsRead = document.getElementsByClassName("rsRead");
+					rsRead[0].innerHTML = curRead;
+				var rsOrder = document.getElementsByClassName("rsOrder");
+					rsOrder[0].innerHTML = curOrder;
+				var rsFallback = document.getElementsByClassName("rsBtns");
+					rsFallback[0].innerHTML = curFallbacks.join(", ");
+			}
+        </script>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">Scrambled Rule Seeds</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/Scrambled%20Rules.svg" class="diagram">
+                    <h2>On the Subject of Scrambled Rule Seeds</h2>
+                    <p class="flavour-text">When the instructions are jumbled up, who knows what you are supposed to do?</p>
+                    <p class="squeeze">This module consists of 4 keys randomly colored red, green, yellow, and blue, and randomly labeled A, B, C, D. There will also be 2 screens on the top and the right that will be displaying 2 numbers. To disarm this module, press 3 buttons corresponding to the rule seeds of the displayed numbers, in the correct order. If the <span class="rsInspect">last digit of the serial number is even</span>, the right display is the first rule seed of instructions to follow. Otherwise, the top display is the first rule seeds of instructions to follow.</p>
+					<p class="squeeze">When going through the instructions, the buttons are numbered 1 - 4 going left to right, top to bottom.</p>
+                    <p class="squeeze">Instructions are then alternated between the 2 displays starting on the rule corresponding to the <span class="rsRead">first digit of the serial number</span>, and in <span class="rsOrder">ascending order, wrapping around to 0 upon reaching 9</span>. After going those instructions, follow the "-" on this manual to obtain the rest of the buttons.</p>
+                    <h3>The Relevant Table</h3>
+                    <table class="wide">
+						<tr>
+							<th>-</th>
+							<td>If you haven't pressed 3 buttons at this point, press these buttons in this order until the module is solved:<br><span class="rsBtns">2nd button, blue button, button labeled "C"</span></td>
+						</tr>
+                        <tr>
+                            <th>0</th>
+                            <td class="rsRule">Set the 5th displayed value as the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td class="rsRule">If the number of solved modules is odd, subtract the 2nd displayed value from the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td class="rsRule">Flip the bit of the current value whose index from the right corresponds to the number of ports, modulo 32, where 0 is the right-most bit.</td>
+                        </tr>
+                        <tr>
+                            <th>3</th>
+                            <td class="rsRule">Divide this current value by the sum of digits in the serial number.</td>
+                        </tr>
+                        <tr>
+                            <th>4</th>
+                            <td class="rsRule">XOR the current value with the 3rd displayed value.</td>
+                        </tr>
+                        <tr>
+                            <th>5</th>
+                            <td class="rsRule">Add the 6th calculated value to the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>6</th>
+                            <td class="rsRule">Multiply the current value with the number of ports.</td>
+                        </tr>
+                        <tr>
+                            <th>7</th>
+                            <td class="rsRule">If the 1st display is odd, XOR the current value with the 10th displayed value. Otherwise, XOR the current value with the 9th displayed value.</td>
+                        </tr>
+                        <tr>
+                            <th>8</th>
+                            <td class="rsRule">Subtract the 8th displayed value from the current value.</td>
+                        </tr>
+                        <tr>
+                            <th>9</th>
+                            <td class="rsRule">If the number of strikes is even, subtract the 4th displayed value from the current value. Otherwise XOR the current value with the 7th displayed value.</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="page-footer relative-footer">Page 1 of 2</div>
+            </div>
+        </div>
+    </body>
+</html>
