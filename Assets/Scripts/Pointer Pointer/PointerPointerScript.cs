@@ -17,9 +17,7 @@ public class PointerPointerScript : MonoBehaviour {
 	static int moduleIDCnt;
 	int moduleID;
 
-	IEnumerable<string> ignoredModules = new[] {
-		"Forget Me Not", "Souvenir", "Forget Everything", "Simon's Stages", "Forget This", "Purgatory", "The Troll", "Forget Them All", "Tallordered Keys", "Forget Enigma", "Forget Us Not", "Forget Perspective", "Organization", "The Very Annoying Button", "Forget Me Later", "Übermodule", "Ultimate Custom Night", "14", "Forget It Not", "Simon Forgets", "Brainf---", "Forget The Colors", "RPS Judging", "The Twin", "Iconic", "OmegaForget", "Kugelblitz", "A>N<D", "Don't Touch Anything", "Busy Beaver", "Whiteout", "Forget Any Color", "Keypad Directionality", "Security Council", "Shoddy Chess", "Floor Lights", "Black Arrows", "Forget Maze Not", "+", "Soulscream", "Cube Synchronization", "Out of Time", "Tetrahedron", "The Board Walk", "Gemory", "Duck Konundrum", "Concentration", "Twister", "Forget Our Voices", "Soulsong", "Forget Morse Not", "ID Exchange", "8", "Ultra Custom Night", "Remember Simple", "Remembern't Simple", "The Grand Prix", "Forget Me Maybe", "Simon Sonundrum", "HyperForget", "Bitwise Oblivion", "Damocles Lumber", "Top 10 Numbers", "Squad's Shadow", "Memory's Shadow", "Turn The Keys", "The Swan", "Divided Squares", "Hogwarts", "Cookie Jars", "The Troll", "Four-Card Monte", "Encryption Bingo", "Forget Infinity", "Mystery Module", "Multitask", "Amnesia", "42", "501", "Button Messer", "B-Machine", "The Klaxon", "Custom Keys", "Simon", "Scrabble Scramble", "Forget Morse Not", "Ultra Custom Night", "Speedrun", "Peek-A-Boo", "Channel Surfing", "Binary Memory", "Damocles Lumber", "Module Maneuvers", "Squad's Shadow", "Turn The Keys", "Encrypted Hangman", "The Heart", "42", "501", "Access Codes", "SUSadmin", "Custom Keys", "Simon", "Damocles Lumber", "Module Maneuvers", "Mystery Widget", "X", "Y", "[BIG SHOT]", "Castor", "Pollux", "Turn The Key", "The Time Keeper", "Timing is Everything", "Bamboozling Time Keeper", "Password Destroyer", "OmegaDestroyer", "Zener Cards", "Doomsday Button", "Red Light Green Light", "Again"
-		};
+	IEnumerable<string> ignoredModules;
 	int curStageIdx, reachableStageIdx, lastSolveCount, PPAToGive;
 
 	
@@ -72,8 +70,8 @@ public class PointerPointerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moduleID = ++moduleIDCnt;
-		var detectedIgnoredModules = bossHandler.GetIgnoredModules(modSelf);
-		ignoredModules = (detectedIgnoredModules.Except(ignoredModules).Any() ? detectedIgnoredModules : ignoredModules).Union(new[] { modSelf.ModuleDisplayName });
+		//var detectedIgnoredModules = bossHandler.GetIgnoredModules(modSelf);
+		ignoredModules = bossHandler.GetIgnoredModules(modSelf, DefaultIgnoreList.ignoreListNames);
 		modSelf.OnActivate += delegate {
 			if (altGen)
 				GenerateStagesAlt();

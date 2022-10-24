@@ -24,7 +24,7 @@ public class EBTRGBLScript : MonoBehaviour {
 	int stageIdx;
 	int squareLength, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored, strSub;
 	float cooldown = 10f;
-	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton;
+	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton, enforceAutosolve;
 	[SerializeField]
 	private bool debugBossMode; // Meant for testing, without Boss Module Manager.
 	int[] initialBoard, currentBoard, expectedBoard;
@@ -129,7 +129,7 @@ public class EBTRGBLScript : MonoBehaviour {
 		{
 			QuickLogDebug("Expected {1} state (from left to right, top to bottom): {0}", expectedBoard.Select(a => (a >> cnt) % 2 == 1 ? "T" : "F").Join(""), clrAbrev[1 << cnt]);
 		}
-		if (recalcing) QuickLog("New expected final state (from left to right, top to bottom): {0}",
+		if (recalcing) QuickLog("New expected board to submit (from left to right, top to bottom): {0}",
 			Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[expectedBoard[a * squareLength + b]]).Join("")).Join(","));
         else QuickLog("Expected board to submit (from left to right, top to bottom): {0}",
             Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[expectedBoard[a * squareLength + b]]).Join("")).Join(","));
@@ -262,7 +262,7 @@ public class EBTRGBLScript : MonoBehaviour {
                 }
 				stgodr = why.ToList();
 
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(logicSelectables) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
 			}
 			else if (maxStageAhd <= 0 && maxStageBhd > 0)
 			{
@@ -545,7 +545,7 @@ public class EBTRGBLScript : MonoBehaviour {
             }
 			strSub++;
 			QuickLog("STRIKE. Correct cells filled: {0} / {1}", correct.Count(), squareLength * squareLength);
-			QuickLog("With the current displayed stages in order, the user has struck {0} time(logicSelectables).", strSub);
+			QuickLog("With the current displayed stages in order, the user has struck {0} time(s).", strSub);
 			mAudio.HandlePlaySoundAtTransform("249300__suntemple__access-denied", transform);
 			modSelf.HandleStrike();
 			xoring = false;
@@ -833,7 +833,7 @@ public class EBTRGBLScript : MonoBehaviour {
 	void Update () {
 		if (!(bossActive && started) || animating || recoverable) return;
 		if (tickCooldown && cooldown > 0f)
-			cooldown -= Time.deltaTime;
+			cooldown -= Time.deltaTime * (enforceAutosolve ? 5f : 1f);
 		var curSolveCnt = bombInfo.GetSolvedModuleIDs().Count(a => !ignoreList.Contains(a));
 		if (solveCountNonIgnored != curSolveCnt)
 			solveCountNonIgnored = curSolveCnt;
@@ -1065,6 +1065,8 @@ public class EBTRGBLScript : MonoBehaviour {
 	{
 		while (!started)
 			yield return true;
+		enforceAutosolve = true;
+		QuickLogDebug("Enforcing autosolve behavior.");
 		while (!IsInSubmission())
         {
 			if (recoverable)

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
+using System.Text.RegularExpressions;
 
 public class InOrderScript : MonoBehaviour {
 
@@ -31,11 +32,9 @@ public class InOrderScript : MonoBehaviour {
 	int moduleID;
 	int curStageIdx, curInputIdx;
 	List<StageInOrder> allStages;
-	bool bossModeActive = true, hasStarted, canInput, modSolved, showStageRecovery, flipZ, stageCoroutineRunning;
+	bool bossModeActive = true, hasStarted, canInput, modSolved, showStageRecovery, stageCoroutineRunning, requestAutosolve, colorblindActive;
 	float delayCur, delayMax = 5f;
 	IEnumerable<string> ignoreIds;
-	[SerializeField]
-	private bool debugBossMode;
 	float[] timesArrows = new float[4];
 	bool[] pauseDecreaseArrows = new bool[4];
 	enum Direction
@@ -46,7 +45,7 @@ public class InOrderScript : MonoBehaviour {
 		Left
     }
 
-	Dictionary<int, Direction> numDirReference = new Dictionary<int, Direction>
+	static Dictionary<int, Direction> numDirReference = new Dictionary<int, Direction>
 	{
 		{ 1, Direction.Down },
 		{ 2, Direction.Up },
@@ -57,7 +56,7 @@ public class InOrderScript : MonoBehaviour {
 		{ 7, Direction.Down },
 		{ 8, Direction.Left },
 	};
-
+	static string[] debugDirections = { "Up", "Right", "Down", "Left" };
 	public class StageInOrder
 	{
 		public int idxColor, idxShape, idxDigit, idxPhrase, calculatedValue;
@@ -78,20 +77,11 @@ public class InOrderScript : MonoBehaviour {
 		var obtainedIgnoreIDs = bossHandlerExtended.GetAttachedIgnoredModuleIDs(modSelf);
 		if (obtainedIgnoreIDs == null || !obtainedIgnoreIDs.Any())
         {
-			if (debugBossMode)
-			{
-				ignoreIds = new[] { modSelf.ModuleType };
-			}
-			else
-			{
-				bossModeActive = false;
-				canInput = true;
-			}
+			QuickLogDebug("Using default ignore IDs! This is due to the result of Boss Module Manager being disabled or not present.");
+			ignoreIds = DefaultIgnoreList.ignoreListIDs;
 		}
 		else
-        {
 			ignoreIds = obtainedIgnoreIDs;
-        }
 		modSelf.OnActivate += StartModule;
 		stageNumText.text = "";
 		phraseText.text = "";
@@ -101,7 +91,6 @@ public class InOrderScript : MonoBehaviour {
         {
 			screens[x].material.color = Color.black;
         }
-		flipZ = Random.value < 0.5f;
 		for (var x = 0; x < 4; x++)
 		{
 			arrowInterior[x].material.color = Color.black;
@@ -217,12 +206,12 @@ public class InOrderScript : MonoBehaviour {
 	void StartModule()
     {
 		allStages = new List<StageInOrder>();
-		var extraStagesToGenerate = ignoreIds == null || !ignoreIds.Any() ? 1 : bombInfo.GetSolvableModuleIDs().Count(a => !ignoreIds.Contains(a));
+		var stagesToGenerate = ignoreIds == null || !ignoreIds.Any() ? 1 : bombInfo.GetSolvableModuleIDs().Count(a => !ignoreIds.Contains(a));
 		if (!bossModeActive)
 			QuickLog("Boss handling disabled. Solve this stage without striking to disarm the module.");
 		else
-			QuickLog("Non-ignored modules detected: {0}", extraStagesToGenerate);
-		for (var x = 0; x < extraStagesToGenerate; x++)
+			QuickLog("Non-ignored modules detected: {0}", stagesToGenerate);
+		for (var x = 0; x < stagesToGenerate; x++)
         {
 			QuickLog("-------------------------- Stage {0} --------------------------", x + 1);
 			var newStage = new StageInOrder();
@@ -236,11 +225,17 @@ public class InOrderScript : MonoBehaviour {
 			QuickLog("Phrase shown: \"{0}\"", possiblePhraseDisplays[newStage.idxPhrase]);
 			var curSum = possibleValueColors[newStage.idxColor] + possibleValueDigits[newStage.idxDigit] + possibleValueShapes[newStage.idxShape];
 			QuickLog("Adding up the values associated with the shape, colour and number gives this sum: {0}", curSum);
-			while (curSum > numDirReference.Keys.Max())
-            {
-				curSum -= possiblePhraseValues[newStage.idxPhrase];
-            }
-			QuickLog("After adjusting this value, the result should be: {0}", curSum);
+			if (curSum > numDirReference.Keys.Max())
+			{
+				QuickLog("This sum is greater than 8. The value of the phrase displayed is {0}, and will be repeatedly subtracted until the sum is within 1-8.", possiblePhraseValues[newStage.idxPhrase]);
+				while (curSum > numDirReference.Keys.Max())
+				{
+					curSum -= possiblePhraseValues[newStage.idxPhrase];
+				}
+				QuickLog("After adjusting this sum, the result should be: {0}", curSum);
+			}
+			else
+				QuickLog("This sum is within 1 - 8 inclusive. The value at this point should remain at {0}", curSum);
 			QuickLog("...Corresponding to the direction to press for this stage: {0}", numDirReference[curSum]);
 			newStage.calculatedValue = curSum;
 			allStages.Add(newStage);
@@ -289,7 +284,6 @@ public class InOrderScript : MonoBehaviour {
         {
 			yield return AnimateDisplayStageUntilFalse(curInputIdx, () => { return curInputIdx == curStageIdx; });
 			curStageIdx++;
-			flipZ ^= true;
 		}
 		yield return SolveAnim();
     }
@@ -301,7 +295,6 @@ public class InOrderScript : MonoBehaviour {
 			yield return AnimateDisplayStageUntilFalse(curStageIdx, () => { return delayCur > 0f || curStageIdx >= bombInfo.GetSolvedModuleIDs().Count(a => !ignoreIds.Contains(a)); });
 			curStageIdx++;
 			delayCur = delayMax;
-			flipZ ^= true;
 		}
 		QuickLog("Enough modules has been solved. Activating input phase.");
 		canInput = true;
@@ -317,19 +310,6 @@ public class InOrderScript : MonoBehaviour {
 		}
 		yield return SolveAnim();
 	}
-	IEnumerator WaitUntilOverride(IEnumerator currentHandler, IEnumerator replacementHandler = null)
-    {
-		if (currentHandler != null)
-		{
-			StopCoroutine(currentHandler);
-			while (currentHandler.MoveNext())
-				yield return null;
-		}
-		currentHandler = replacementHandler;
-		if (replacementHandler != null)
-			StartCoroutine(currentHandler);
-		yield break;
-    }
 	IEnumerator AnimateDisplayStageUntilFalse(int stageIdx, Func<bool> condition)
     {
 		stageCoroutineRunning = true;
@@ -337,15 +317,18 @@ public class InOrderScript : MonoBehaviour {
 		if (currentStage == null)
 			yield break;
 		shapeRenderer.enabled = true;
-		digitText.text = possibleDigitDisplays[currentStage.idxDigit];
-		phraseText.text = possiblePhraseDisplays[currentStage.idxPhrase];
+		digitText.text = possibleDigitDisplays[currentStage.idxDigit] + (colorblindActive ? colorblindPossibleColors[currentStage.idxColor] : "");
+		var phraseSelected = possiblePhraseDisplays[currentStage.idxPhrase];
+		//phraseText.text = possiblePhraseDisplays[currentStage.idxPhrase];
 		stageNumText.text = (stageIdx + 1).ToString();
 		shapeFilter.mesh = possibleShapes[currentStage.idxShape];
-		shapeRenderer.transform.localScale = modifierShapeSizes[currentStage.idxShape];
+		var selectedModifierSize = modifierShapeSizes[currentStage.idxShape];
+		if (digitText.transform.parent == shapeRenderer.transform)
+			digitText.transform.localScale = new Vector3(1 / selectedModifierSize.x, 1 / selectedModifierSize.y, 1 / selectedModifierSize.z);
 		shapeRenderer.material.color = possibleColors[currentStage.idxColor];
-		var colorExpected = idxColorToInvertTxtColor.Contains(currentStage.idxColor) ? Color.white : Color.black;
-
+		digitText.color = idxColorToInvertTxtColor.Contains(currentStage.idxColor) ? Color.white : Color.black;
 		var t = 0f;
+		var lastColorblindState = colorblindActive;
 		do
 		{
 			if (condition())
@@ -358,11 +341,18 @@ public class InOrderScript : MonoBehaviour {
 			else
 				t -= Time.deltaTime;
 			var curEase = Easing.InOutSine(t, 0, 1f, 1f);
-			shapeRenderer.transform.localRotation *= Quaternion.Euler(0, 0, (flipZ ? 60 : -60) * Time.deltaTime * curEase);
+			//shapeRenderer.transform.localRotation *= Quaternion.Euler(0, 0, 60 * Time.deltaTime * curEase);
 			shapeRenderer.transform.localScale = modifierShapeSizes[currentStage.idxShape] * curEase;
-			digitText.color = new Color(colorExpected.r, colorExpected.g, colorExpected.b, curEase);
+
 			stageNumText.color = Color.black * curEase;
 			phraseText.color = Color.black * curEase;
+			phraseText.text = phraseSelected.Substring(0, Mathf.RoundToInt(phraseSelected.Length * t));
+			if (lastColorblindState ^ colorblindActive)
+            {
+				lastColorblindState = colorblindActive;
+				digitText.text = possibleDigitDisplays[currentStage.idxDigit] + (colorblindActive ? colorblindPossibleColors[currentStage.idxColor] : "");
+			}
+
 			yield return null;
 		}
 		while (t > 0f);
@@ -374,7 +364,7 @@ public class InOrderScript : MonoBehaviour {
 		yield break;
 	}
 
-	void DisplayStage(int stageIdx)
+	void DisplayStageImmediately(int stageIdx)
     {
 		StageInOrder currentStage = allStages.ElementAtOrDefault(stageIdx);
 		if (currentStage == null)
@@ -406,6 +396,122 @@ public class InOrderScript : MonoBehaviour {
 		}
 		if (!bossModeActive) return;
 		if (delayCur > 0f)
-			delayCur -= Time.deltaTime;
+			delayCur -= Time.deltaTime * (requestAutosolve ? 4f : 1f);
+	}
+
+	IEnumerator TwitchHandleForcedSolve()
+    {
+		requestAutosolve = true;
+		QuickLogDebug("Autosolve requested via TP Handler.");
+		while (!canInput)
+			yield return true;
+		var expectedArrowsAll = allStages.Skip(curInputIdx).Select(a => numDirReference[a.calculatedValue]);
+		foreach (var remainingArrow in expectedArrowsAll)
+        {
+			arrowsSelectable[(int)remainingArrow].OnInteract();
+			yield return new WaitForSeconds(0.1f);
+        }
+    }
+#pragma warning disable 414
+	private readonly string TwitchHelpMessage = "Press the specified arrow button with \"!{0} up/right/down/left\" Words can be substituted as one letter (Ex. right as r). Multiple directions can be issued in one command by spacing them out or as 1 word when abbrevivabted, I.E \"!{0} udlrrrll\". Alternatively, when abbreviated, you may space out the presses in the command. I.E. \"!{0} lluur ddlr urd\" Toggle colorblind mode with \"!{0} colorblind\"";
+#pragma warning restore 414
+	IEnumerator ProcessTwitchCommand(string command)
+	{
+		if (!hasStarted)
+		{
+			yield return "sendtochaterror The module is not accepting any commands at this moment.";
+			yield break;
+		}
+		if (Regex.IsMatch(command, @"^\s*colou?rblind\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			yield return null;
+			colorblindActive = !colorblindActive;
+			yield break;
+		}
+		else if (Regex.IsMatch(command, @"^\s*[uldr\s]+\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			var usableCommand = command.Trim().ToLowerInvariant();
+			List<int> allPresses = new List<int>();
+			foreach (string directionportion in usableCommand.Split())
+			{
+				foreach (char dir in directionportion)
+				{
+					switch (dir)
+					{
+						case 'u':
+							allPresses.Add(0);
+							break;
+						case 'd':
+							allPresses.Add(2);
+							break;
+						case 'l':
+							allPresses.Add(3);
+							break;
+						case 'r':
+							allPresses.Add(1);
+							break;
+						default:
+							yield return string.Format("sendtochaterror I do not know what direction \"{0}\" is supposed to be.", dir);
+							yield break;
+					}
+				}
+			}
+			if (allPresses.Any())
+			{
+				var hasStruck = false;
+				for (int x = 0; x < allPresses.Count && !hasStruck; x++)
+				{
+					var expectedArrowsAll = allStages.Select(a => numDirReference[a.calculatedValue]);
+					yield return null;
+					if (GetDirection(allPresses[x]) != expectedArrowsAll.ElementAt(curInputIdx) && allPresses.Count > 1)
+					{
+						yield return string.Format("strikemessage by incorrectly pressing {0} after {1} press(es) in the TP command!", debugDirections[allPresses[x]], x + 1);
+						hasStruck = true;
+					}
+					arrowsSelectable[allPresses[x]].OnInteract();
+					yield return new WaitForSeconds(0.1f);
+				}
+			}
+		}
+		else
+		{
+			string[] cmdSets = command.Trim().Split();
+			List<KMSelectable> allPresses = new List<KMSelectable>();
+			for (int x = 0; x < cmdSets.Length; x++)
+			{
+				if (Regex.IsMatch(cmdSets[x], @"^\s*u(p)?\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+				{
+					allPresses.Add(arrowsSelectable[0]);
+				}
+				else if (Regex.IsMatch(cmdSets[x], @"^\s*d(own)?\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+				{
+					allPresses.Add(arrowsSelectable[2]);
+				}
+				else if (Regex.IsMatch(cmdSets[x], @"^\s*l(eft)?\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+				{
+					allPresses.Add(arrowsSelectable[3]);
+				}
+				else if (Regex.IsMatch(cmdSets[x], @"^\s*r(ight)?\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+				{
+					allPresses.Add(arrowsSelectable[1]);
+				}
+				else
+				{
+					yield return string.Format("sendtochaterror I do not know what direction \"{0}\" is supposed to be.", cmdSets[x]);
+					yield break;
+				}
+			}
+			var expectedArrowsAll = allStages.Select(a => numDirReference[a.calculatedValue]);
+			for (var x = 0; x < allPresses.Count; x++)
+			{
+				yield return null;
+				var debugIdx = Array.IndexOf(arrowsSelectable, allPresses[x]);
+				if (GetDirection(debugIdx) != expectedArrowsAll.ElementAt(curInputIdx) && allPresses.Count > 1)
+					yield return string.Format("strikemessage by incorrectly pressing {0} after {1} press(es) in the TP command!", debugDirections[debugIdx], x + 1);
+				allPresses[x].OnInteract();
+				yield return new WaitForSeconds(0.1f);
+			}
+			yield break;
+		}
 	}
 }

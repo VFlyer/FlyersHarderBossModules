@@ -517,7 +517,7 @@ Transform:
   m_GameObject: {fileID: 1287686239770312}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.11}
-  m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children:
   - {fileID: 4994621046262538}
   m_Father: {fileID: 4963402391905536}
@@ -686,13 +686,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1984384257354576}
-  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0.12}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: -1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.015}
+  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
   m_Children: []
-  m_Father: {fileID: 4963402391905536}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+  m_Father: {fileID: 4994621046262538}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 180}
 --- !u!4 &4921217782582120
 Transform:
   m_ObjectHideFlags: 1
@@ -732,7 +732,6 @@ Transform:
   m_LocalScale: {x: 0.02, y: 0.02, z: 0.02}
   m_Children:
   - {fileID: 4276315189736734}
-  - {fileID: 4848513890867180}
   m_Father: {fileID: 4587611608286536}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
@@ -756,13 +755,14 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1164381143706862}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 4848513890867180}
   m_Father: {fileID: 4276315189736734}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!4 &4994993641006580
 Transform:
   m_ObjectHideFlags: 1
@@ -1431,7 +1431,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1164381143706862}
-  m_Mesh: {fileID: 4300006, guid: 492569aed282dbf44af2e8ba603c29ad, type: 3}
+  m_Mesh: {fileID: 4300000, guid: ac70797aed144e34191d4047899d1ca5, type: 3}
 --- !u!33 &33943679271984986
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -1547,7 +1547,7 @@ TextMesh:
 
     9'
   m_OffsetZ: 0
-  m_CharacterSize: 0.1
+  m_CharacterSize: 0.075
   m_LineSpacing: 0
   m_Anchor: 4
   m_Alignment: 1
@@ -1972,7 +1972,7 @@ MonoBehaviour:
   - {fileID: 114077170598524786}
   colorblindMode: {fileID: 114167818624992702}
   modSelf: {fileID: 114823064533047896}
-  debugBossMode: 0
+  debugBossMode: 1
 --- !u!114 &114688840247217168
 MonoBehaviour:
   m_ObjectHideFlags: 1

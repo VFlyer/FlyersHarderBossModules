@@ -1,6 +1,6 @@
 ﻿public class FlyersBossierSettings {
     public bool UseAuthorDynamicScoring = true;
-    public bool ECEnableExperimentalStrikeRedirect = false;
+    public bool EnableExperimentalStrikeRedirect = false;
     public bool ECExhibitionMode = false;
     public bool ECDynamicStageGen = true;
     public bool SGTExhibitionMode = false;
