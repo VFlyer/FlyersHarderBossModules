@@ -64,6 +64,8 @@ public class TheNobodysCodeScript : MonoBehaviour {
             {
 				clrSelectable.AddInteractionPunch(0.5f);
 				mAudio.PlaySoundAtTransform("Button Press Alarm", clrSelectable.transform);
+				if (readyToSolve)
+					mAudio.PlaySoundAtTransform("Activation Sound Trimmed Alarm", clrSelectable.transform);
 				HandleClrBtnPress();
             }
 			return false;
