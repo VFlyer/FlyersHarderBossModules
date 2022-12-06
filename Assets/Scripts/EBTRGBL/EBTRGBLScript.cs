@@ -276,7 +276,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 			else
 			{
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max 1 stage behind, {1} stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
+				QuickLog("Stages will be displayed in this order in accordiance to the settings, max 1 stage behind, {1} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
 			}
 		}
 		else
@@ -712,7 +712,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			StartCoroutine(AnimateASet(delay: 0.1f, offset: 6, txt: bossActive ? recoverable ? new[] { "READY", "TO", "SOLVE" } : new[] { "STAGES", "QUEUED" } : new[] { "BOSS", "MODE", "OFF" }));
 			if (bossActive && !recoverable)
 			{
-				StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("00000")));
+				StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("000")));
 			}
 			for (var x = 0; x < boolAOutAnim.Length; x++)
 			{
@@ -838,7 +838,7 @@ public class EBTRGBLScript : MonoBehaviour {
 		if (solveCountNonIgnored != curSolveCnt)
 			solveCountNonIgnored = curSolveCnt;
 		if (stageIdx < stgodr.Count)
-			StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("00000")));
+			StartCoroutine(AnimateASet(delay: 0f, offset: 8, txt: (solveCountNonIgnored - stageIdx).ToString("000")));
 		if (cooldown <= float.Epsilon)
         {
 			if (stageIdx < solveCountNonIgnored)

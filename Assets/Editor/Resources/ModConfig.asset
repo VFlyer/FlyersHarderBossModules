@@ -21,7 +21,7 @@ MonoBehaviour:
     it allows him to "warm up to be a master."[/i]
 
 
-    Currently contains 2 modules developed by VFlyer, consisting some ideas from other
+    Currently contains 4 modules developed by VFlyer, consisting some ideas from other
     users.
 
 
@@ -30,6 +30,9 @@ MonoBehaviour:
 
     Pointer Pointer: BigCrunch22
 
+    The Nobody''s Code: Tachatat
+
+    In Order: TechnoTurquoise
 
 
     Module IDs in this collection:
@@ -37,6 +40,10 @@ MonoBehaviour:
     Pointer Pointer: pointerPointerModule
 
     Slight Gibberish Twist: slightGibberishTwistModule
+
+    The Nobody''s Code: nobodysCodeModule
+
+    In Order: inOrderModule
 
 '
   version: 1.1.0_03

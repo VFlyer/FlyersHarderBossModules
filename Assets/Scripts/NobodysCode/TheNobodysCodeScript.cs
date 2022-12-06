@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using KModkit;
+using System.Text.RegularExpressions;
 
 public class TheNobodysCodeScript : MonoBehaviour {
 
@@ -100,10 +101,10 @@ public class TheNobodysCodeScript : MonoBehaviour {
 			SolveModule();
 			return;
 		}
-		if (inputtedAnswer.Length < 8)
+		//if (inputtedAnswer.Length < 8)
 			inputtedAnswer += idx.ToString();
-		else
-			inputtedAnswer = inputtedAnswer.Substring(1) + idx.ToString();
+		//else
+		//	inputtedAnswer = inputtedAnswer.Substring(1) + idx.ToString();
     }
 	void HandleSubBtnPress()
     {
@@ -146,7 +147,10 @@ public class TheNobodysCodeScript : MonoBehaviour {
             }
 			else
             {
-				QuickLog("Submitted the incorrect number: {0}", inputtedAnswer);
+				if (inputtedAnswer.Length == 8)
+					QuickLog("Submitted the incorrect 8-digit number: {0}", inputtedAnswer);
+				else
+					QuickLog("I don't think this number works for solving... ({1} digit{2} entered): {0}", inputtedAnswer, inputtedAnswer.Length, inputtedAnswer.Length == 1 ? "" : "s");
 				mAudio.PlaySoundAtTransform("", transform);
 				modSelf.HandleStrike();
 				recovering = true;
@@ -191,6 +195,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
 
 	void SolveModule()
     {
+		StopAllCoroutines();
 		QuickLog("Module disarmed.");
 		mAudio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
 		modSelf.HandlePass();
@@ -564,5 +569,80 @@ public class TheNobodysCodeScript : MonoBehaviour {
                 }
 			}
         }
+	}
+
+	IEnumerator TwitchHandleForcedSolve()
+	{
+		QuickLogDebug("Autosolve requested via TP Handler.");
+		while (!readyToSolve)
+			yield return true;
+		if (inputtedAnswer.Any())
+		{
+			clrSelectable.OnInteract();
+			yield return new WaitForSeconds(0.1f);
+		}
+		for (var x = 0; x < 8; x++)
+		{
+			keyNumSelectables[digitString.IndexOf(expectedAnswer[x])].OnInteract();
+			yield return new WaitForSeconds(0.1f);
+		}
+		submitSelectable.OnInteract();
+	}
+#pragma warning disable 414
+	private readonly string TwitchHelpMessage = "Press the specified digits on the module with \"!{0} press ########\", submit the answer with \"!{0} submit ########\", or clear inputs with \"!{0} clear/reset/delete\". To just press the submit button, do not specify digits. Using the submit command will NOT clear previous inputs!";
+#pragma warning restore 414
+	IEnumerator ProcessTwitchCommand(string command)
+	{
+		Match matchPressDigits = Regex.Match(command, @"^press\s\d+$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
+			matchSubmitDigitsOrPlain = Regex.Match(command, @"^submit(\s\d+)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant),
+			matchClear = Regex.Match(command, @"^(reset|clear|delete)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		if (matchClear.Success)
+        {
+			yield return null;
+			clrSelectable.OnInteract();
+        }
+		else if (matchPressDigits.Success)
+        {
+			var possibleDigits = matchPressDigits.Value.Split().Last();
+			var idxDigits = possibleDigits.Select(a => digitString.IndexOf(a));
+			if (idxDigits.Any(a => a < 0))
+            {
+				yield return string.Format("sendtochaterror Detected an invalid digit: \"{0}\" Check your command for typos.", possibleDigits.First(a => !digitString.Contains(a)));
+				yield break;
+            }
+			yield return null;
+            for (var x = 0; x < idxDigits.Count(); x++)
+            {
+				keyNumSelectables[idxDigits.ElementAt(x)].OnInteract();
+				yield return new WaitForSeconds(0.1f);
+            }
+        }
+		else if (matchSubmitDigitsOrPlain.Success)
+        {
+			var detectedCmd = matchPressDigits.Value.Split();
+			if (detectedCmd.Count() == 1)
+            {
+				yield return null;
+				submitSelectable.OnInteract();
+				yield break;
+            }
+			var possibleDigits = detectedCmd.Last();
+			var idxDigits = possibleDigits.Select(a => digitString.IndexOf(a));
+			if (idxDigits.Any(a => a < 0))
+            {
+				yield return string.Format("sendtochaterror Detected an invalid digit: \"{0}\" Check your command for typos.", possibleDigits.First(a => !digitString.Contains(a)));
+				yield break;
+            }
+			yield return null;
+            for (var x = 0; x < idxDigits.Count(); x++)
+            {
+				keyNumSelectables[idxDigits.ElementAt(x)].OnInteract();
+				yield return new WaitForSeconds(0.1f);
+            }
+			submitSelectable.OnInteract();
+        }
+
+
+		yield break;
 	}
 }
