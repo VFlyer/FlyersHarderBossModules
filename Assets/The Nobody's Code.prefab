@@ -3527,7 +3527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ModuleType: nobodysCodeModule
-  ModuleDisplayName: The Nobody's Code
+  ModuleDisplayName: "The Nobody\u2019s Code"
   RequiresTimerVisibility: 0
 --- !u!114 &114453792678897142
 MonoBehaviour:
