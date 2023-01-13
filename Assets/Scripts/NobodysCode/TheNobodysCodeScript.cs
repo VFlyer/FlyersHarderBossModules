@@ -33,11 +33,11 @@ public class TheNobodysCodeScript : MonoBehaviour {
 	IEnumerator curFlickerAnim;
 	void QuickLog(string value, params object[] args)
 	{
-		Debug.LogFormat("[The Nobody's Code #{0}]: {1}", moduleID, string.Format(value, args));
+		Debug.LogFormat("[The Nobody’s Code #{0}]: {1}", moduleID, string.Format(value, args));
 	}
 	void QuickLogDebug(string value, params object[] args)
 	{
-		Debug.LogFormat("<The Nobody's Code #{0}>: {1}", moduleID, string.Format(value, args));
+		Debug.LogFormat("<The Nobody’s Code #{0}>: {1}", moduleID, string.Format(value, args));
 	}
 
 	// Use this for initialization

@@ -46,6 +46,6 @@ MonoBehaviour:
     In Order: inOrderModule
 
 '
-  version: 1.1.1
+  version: 1.1.2_01
   outputFolder: build
   previewImage: {fileID: 2800000, guid: b0258a5a803644a46b5485104b7b5c33, type: 3}
