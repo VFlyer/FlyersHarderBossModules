@@ -17,7 +17,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
 
 	string[] ignoreModuleIDsList;
 	List<string> allStageDisplays;
-	bool interactable = false, recovering, readyToSolve, solveOnPressAny, started;
+	bool interactable = false, recovering, readyToSolve, solveOnPressAny, started, autosolveRequest;
 
 	static int modIDCnt;
 	int moduleID;
@@ -550,7 +550,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
 	void Update () {
 		if (!started || readyToSolve) return;
 		if (curCooldown > 0f)
-			curCooldown -= Time.deltaTime;
+			curCooldown -= Time.deltaTime * (autosolveRequest ? 5f : 1f);
 		else
         {
 			var nonIgnoredSolveCount = bombInfo.GetSolvedModuleIDs().Count(a => !ignoreModuleIDsList.Contains(a));
@@ -574,6 +574,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
 	IEnumerator TwitchHandleForcedSolve()
 	{
 		QuickLogDebug("Autosolve requested via TP Handler.");
+		autosolveRequest = true;
 		while (!readyToSolve)
 			yield return true;
 		if (inputtedAnswer.Any())

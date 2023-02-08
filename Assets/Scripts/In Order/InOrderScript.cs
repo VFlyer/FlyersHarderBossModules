@@ -346,7 +346,7 @@ public class InOrderScript : MonoBehaviour {
 
 			stageNumText.color = Color.black * curEase;
 			phraseText.color = Color.black * curEase;
-			phraseText.text = phraseSelected.Substring(0, Mathf.Min(phraseSelected.Length, Mathf.RoundToInt(phraseSelected.Length * t)));
+			phraseText.text = phraseSelected.Substring(0, Mathf.Max(Mathf.Min(phraseSelected.Length, Mathf.RoundToInt(phraseSelected.Length * t)), 0));
 			if (lastColorblindState ^ colorblindActive)
             {
 				lastColorblindState = colorblindActive;

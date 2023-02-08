@@ -862,10 +862,8 @@ public class PointerPointerScript : MonoBehaviour {
             }
 		}
 	}
-	IEnumerator TwitchHandleForcedSolve()
-	{
-		disableStrike = true;
-		QuickLog("Requesting autosolve via TP. Disabling strike handling on skipped stages.");
+	IEnumerator AutosolveHandler()
+    {
 		while (!moduleSolved)
 		{
 			while (!inputting)
@@ -873,6 +871,13 @@ public class PointerPointerScript : MonoBehaviour {
 			var curStage = allPointerStages[curStageIdx];
 			screenSelectables[curStage.endIdx].OnInteract();
 		}
+	}
+
+	void TwitchHandleForcedSolve()
+	{
+		disableStrike = true;
+		QuickLog("Requesting autosolve via TP. Disabling strike handling on skipped stages.");
+		StartCoroutine(AutosolveHandler());
 	}
 	readonly static string TwitchHelpMessage = "Press that button in the specified coordinate with \"!{0} X#\", \"press\" or \"submit\" is optional. Rows are labeled 1-6 from top to bottom; columns are labeled A-F from left to right. Toggle colorblind mode with \"!{0} colorblind/colourblind\".";
 	IEnumerator ProcessTwitchCommand(string cmd)
