@@ -185,7 +185,7 @@ Prefab:
         type: 2}
       propertyPath: AudioClips.Array.data[2]
       value: 
-      objectReference: {fileID: 8300000, guid: d88bc2c5341a94748a87e920b06e5328, type: 3}
+      objectReference: {fileID: 8300000, guid: 948ffc8c766255441a07d0891f3c7afa, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioVolume
@@ -306,6 +306,16 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114243551623993792, guid: 53ff32eb65f5997468ef111a7d113f7a,
+        type: 2}
+      propertyPath: debugIdxStageIdx
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114243551623993792, guid: 53ff32eb65f5997468ef111a7d113f7a,
+        type: 2}
+      propertyPath: mArrowsTextProgress
+      value: 
+      objectReference: {fileID: 1538947209}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 53ff32eb65f5997468ef111a7d113f7a, type: 2}
   m_IsPrefabParent: 0

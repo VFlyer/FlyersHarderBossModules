@@ -33,7 +33,7 @@ public class EverchangingCore : MonoBehaviour {
 	public CubeDisplayer alphaForgetCube;
 	public MeshRenderer[] colorblindTextRenderers;
 	public TextMesh[] cubeDigits;
-	public TextMesh statusDisplay, timerDisplay, colorblindLEDText, colorblindDigitText;
+	public TextMesh statusDisplay, timerDisplay, colorblindLEDText, colorblindDigitText, mArrowsTextProgress;
 	public Transform cubeTransform, sevenSegmentSet;
 	public DoorAnimScript doorAnim;
 	public ProgressBarHandler barHandler;
@@ -128,7 +128,7 @@ public class EverchangingCore : MonoBehaviour {
 			QuickLog("Enforcing Exhibition Mode due to a missing list of ignored modules. This is done to prevent softlocks.");
 		modSelf.OnActivate += delegate {
 			totalPossibleStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreIds.Contains(a));
-			mAudio.PlaySoundAtTransform("181Faded", transform);
+			mAudio.PlaySoundAtTransform("181FadedExtended", transform);
 			StartCoroutine(StartBossModuleHandling());
 			hasStarted = true;
 		};
@@ -211,6 +211,18 @@ public class EverchangingCore : MonoBehaviour {
 					return false;
 				};
             }
+			var wireSelectables = wireSequencesCore.wiresAllCompact;
+			for (var x = 0; x < wireSelectables.Length; x++)
+            {
+				var y = x;
+				wireSelectables[x].wireSelectable.OnInteract += delegate
+				{
+					arrowSelectables[y].AddInteractionPunch(0.1f);
+					mAudio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, arrowSelectables[y].transform);
+					ProcessMonochromeArrowsInput(y);
+					return false;
+				};
+            }
         }
 		tenDigitKeypadCore.bombInfo = bombInfo;
 		alphaForgetCube.gameObject.SetActive(false);
@@ -262,6 +274,7 @@ public class EverchangingCore : MonoBehaviour {
 				QuickLog("Monochrome Arrows Input Procedure has been completed.");
 				HandleCompleteInputProcedure();
 			}
+			mArrowsTextProgress.text = string.Format("{0}/{1}", mArrowsCore.currentInputIdx, revealProgress || mArrowsCore.currentInputIdx >= allSubmissionValue.Count ? allSubmissionValue.Count().ToString() : "?");
 		}
 		else if (curIdxInput >= allSubmissionValue.Count)
         {
@@ -381,6 +394,7 @@ public class EverchangingCore : MonoBehaviour {
 						newStage.fixedRotationIdx = new[] { fixedIndexRotation };
 						newStage.ledColorIdx = ledIndex;
 						QuickLog("Color of the LED: {0}", colorNames[ledIndex]);
+						QuickLogDebug("{0} ({1},{2})" ,fixedIndexRotation, fixedIndexRotation % 3, fixedIndexRotation / 3);
 						QuickLog("Rotation applied: {0}{1}", "XYZ"[fixedIndexRotation % 3], "XYZ"[fixedIndexRotation / 3]);
 						switch (fixedIndexRotation)
                         {
@@ -388,19 +402,19 @@ public class EverchangingCore : MonoBehaviour {
 								stageCalculatedValue = curStageIdx + 1 - ledValue;
 								goto default;
 							case 2:
-								stageCalculatedValue = serialNoNumbers.FirstOrDefault() - (curStageIdx + 1);
+								stageCalculatedValue = curStageIdx + 1 + serialNoNumbers.FirstOrDefault();
 								goto default;
 							case 3:
                                 stageCalculatedValue = ledValue + curStageIdx + 1;
 								goto default;
 							case 5:
-								stageCalculatedValue = ledValue + serialNoNumbers.ElementAtOrDefault(1);
+								stageCalculatedValue = serialNoNumbers.ElementAtOrDefault(1) - ledValue;
 								goto default;
 							case 6:
-								stageCalculatedValue = curStageIdx + 1 + serialNoNumbers.FirstOrDefault();
+								stageCalculatedValue = serialNoNumbers.FirstOrDefault() - (curStageIdx + 1);
 								goto default;
 							case 7:
-								stageCalculatedValue = serialNoNumbers.ElementAtOrDefault(1) - ledValue;
+								stageCalculatedValue = ledValue + serialNoNumbers.ElementAtOrDefault(1);
 								goto default;
 							default:
 								stageCalculatedValue = (stageCalculatedValue % 10 + 10) % 10;
@@ -492,14 +506,15 @@ public class EverchangingCore : MonoBehaviour {
                         var ledColorIdxesAll = new[] { 1, 2, 0, 4, 7, 8 };
 						finalValue = ledValuesAll[selectedLEDColorIdx];
 						newStage.ledColorIdx = ledColorIdxesAll[selectedLEDColorIdx];
-
-						var idxCubeValuesObtained = new[] { 4, 1, 5, 0, 2, 3 };
+						QuickLog("Value associated with the LED: {0}", ledValuesAll[selectedLEDColorIdx]);
+						var idxCubeValuesObtained = new[] { 4, 1, 5, 0, 3, 2 };
+						var rotationNames = new[] { "Rotate CW", "Rotate CCW", "Tilt Down", "Tilt Up", "Tip Left", "Tip Right" };
 						var selectedIdxRotation = Random.Range(0, 6);
                         var selectedIdxNonUniqueRotation = selectedIdxRotation <= 1 ? Enumerable.Range(2, 4).PickRandom() : Enumerable.Range(0, 6).Where(a => a != selectedIdxRotation).PickRandom();
 
 						newStage.fixedRotationIdx = Enumerable.Repeat(selectedIdxNonUniqueRotation, 4).Concat(new[] { selectedIdxRotation }).ToArray().Shuffle();
 						//var determinedRotation = new[] { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
-						QuickLog("Distinct Rotation Selected: {0}", new[] { "Rotate CW", "Rotate CCW", "Tilt Down", "Tilt Up", "Tip Left", "Tip Right" }[selectedIdxRotation]);
+						QuickLog("Distinct Rotation Selected: {0}", rotationNames[selectedIdxRotation]);
 						finalValue += determinedCubeValues[idxCubeValuesObtained[selectedIdxRotation]];
 						QuickLog("Value after adding LED value and rotation value: {0}", finalValue);
 						var stageNumMod10 = (curStageIdx + 1) % 10;
@@ -508,7 +523,7 @@ public class EverchangingCore : MonoBehaviour {
 						var selectedRandomValue = Random.Range(0, 10);
 						var selectedNums = cubeLitePairPossibleValues[selectedRandomValue].PickRandom();
 						newStage.displayedNumbers = selectedNums.ToArray().Shuffle();
-						QuickLog("Selected Displayed Digits (Sum of {1} after mod 10): {0}", selectedNums.Join(", "), selectedRandomValue);
+						QuickLog("Displayed Digits (Sum of {1} after mod 10): {0}", selectedNums.Join(", "), selectedRandomValue);
 						finalValue += selectedNums.Sum();
 
 						calculatedValues.Add(finalValue % 10);

@@ -6162,8 +6162,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1991386419638998}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.03}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.0575}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4563948973181702}
   - {fileID: 4235589880750598}
@@ -6721,8 +6721,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1185111493534748}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.06}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.0025}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4409173803907676}
   - {fileID: 4769681007085578}
@@ -6942,8 +6942,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1392783136068800}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.045}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.0325}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4520424414758912}
   - {fileID: 4496868127276982}
@@ -7238,8 +7238,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1299159172975694}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.0425}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4462762794742888}
   - {fileID: 4486632663111128}
@@ -7473,8 +7473,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1248883663453328}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.015}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.0275}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4398483595471396}
   - {fileID: 4735638211435346}
@@ -8937,8 +8937,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1462864478467542}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.03}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.0175}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4291373976187438}
   - {fileID: 4753763563663906}
@@ -9658,8 +9658,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1264182157460140}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.015}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.0725}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4437136988407886}
   - {fileID: 4180118345232200}
@@ -9896,8 +9896,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1361402919919866}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.045}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.0125}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4661517917088810}
   - {fileID: 4946407508506480}
@@ -10078,8 +10078,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1731441599582034}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.055, y: 0.0156, z: 0.075}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: -0.055, y: 0.0156, z: -0.0475}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.0125}
   m_Children:
   - {fileID: 4787890317909644}
   - {fileID: 4673145680742872}
@@ -23596,15 +23596,15 @@ MonoBehaviour:
   - {fileID: 23412351842624722}
   - {fileID: 23671358808408922}
   displayTexts:
-  - {fileID: 102385072483330050}
-  - {fileID: 102021392824331946}
-  - {fileID: 102926001520247624}
-  - {fileID: 102033991371232412}
   - {fileID: 102709471158173288}
+  - {fileID: 102033991371232412}
   - {fileID: 102322311565990248}
   - {fileID: 102212418479394520}
+  - {fileID: 102926001520247624}
+  - {fileID: 102021392824331946}
   - {fileID: 102800460712122618}
   - {fileID: 102347057736425232}
+  - {fileID: 102385072483330050}
   boolAOutAnim:
   - {fileID: 114735141469285016}
   - {fileID: 114102681812727714}

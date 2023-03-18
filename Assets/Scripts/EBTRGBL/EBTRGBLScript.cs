@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using KeepCoding;
 using Random = UnityEngine.Random;
 
 public class EBTRGBLScript : MonoBehaviour {
@@ -19,12 +20,14 @@ public class EBTRGBLScript : MonoBehaviour {
 	public DividerModifierAnim dividerHandler;
 	public KMSelectable[] arrowSelectables, logicSelectables, grid;
 
+	static readonly float[] authorDynamicBoardScaling = new[] { 2.0f, 2.0f, 2.0f, 1.5f, 1.0f, 0.75f, 0.5f, 0.25f }; // Dynamic scorings for 8x8 to 2x2
+
 	static int modIDCnt;
 	int moduleID;
 	int stageIdx;
 	int squareLength, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored, strSub;
-	float cooldown = 10f;
-	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton, enforceAutosolve;
+	float cooldown = 10f, currentDynamicScale;
+	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton, enforceAutosolve, playCamelliaTracks;
 	[SerializeField]
 	private bool debugBossMode; // Meant for testing, without Boss Module Manager.
 	int[] initialBoard, currentBoard, expectedBoard;
@@ -32,6 +35,7 @@ public class EBTRGBLScript : MonoBehaviour {
 	List<int> logicOper, allChannels, requiredStages, stgodr;
 	List<bool> invertA, invertB, vld;
 	string[] ignoreList;
+	float[] scalingUsed;
     readonly Dictionary<int, Color32> clr = new Dictionary<int, Color32>
 	{
 		{0, Color.black },
@@ -81,6 +85,8 @@ public class EBTRGBLScript : MonoBehaviour {
 			enforceExhibiton = globalSettings.SGTExhibitionMode;
 			maxStageAhd = globalSettings.SGTMaxStagesAhead;
 			maxStageBhd = globalSettings.SGTMaxStagesBehind;
+			scalingUsed = globalSettings.UseAuthorDynamicScoring ? authorDynamicBoardScaling : globalSettings.SGTDynamicScalingRanges;
+			playCamelliaTracks = globalSettings.SGTPlayCamelliaTracks;
         }
 		catch
         {
@@ -133,8 +139,47 @@ public class EBTRGBLScript : MonoBehaviour {
 			Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[expectedBoard[a * squareLength + b]]).Join("")).Join(","));
         else QuickLog("Expected board to submit (from left to right, top to bottom): {0}",
             Enumerable.Range(0, squareLength).Select(a => Enumerable.Range(0, squareLength).Select(b => clrAbrev[expectedBoard[a * squareLength + b]]).Join("")).Join(","));
-
     }
+	bool TryOverrideSettings()
+    {
+		var successful = false;
+		var missionID = Game.Mission.ID ?? "freeplay";
+		switch (missionID)
+        {
+			case "freeplay":
+			case "custom":
+				QuickLogDebug("Mission detected as freeplay/custom bomb. Not allowed to override settings.");
+				return false;
+        }
+		var description = Game.Mission.Description ?? "";
+		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false)");
+		if (regexSGTOverride.Success)
+        {
+			try
+			{
+				successful = true;
+				var valuedMatched = regexSGTOverride.Value;
+				var lastPartOnly = valuedMatched.Split().Last();
+				var spliitedLastPart = lastPartOnly.Split(',');
+				squareLength = int.Parse(spliitedLastPart[0]);
+				int stgAhdChk;
+				if (int.TryParse(spliitedLastPart[1], out stgAhdChk))
+					maxStageAhd = stgAhdChk;
+				int stgBhdChk;
+				if (int.TryParse(spliitedLastPart[2], out stgBhdChk))
+					maxStageBhd = stgBhdChk;
+				bossActive = !bool.Parse(spliitedLastPart[3]);
+				playCamelliaTracks = bool.Parse(spliitedLastPart[4]);
+			}
+			catch
+            {
+				successful = false;
+				QuickLogDebug("EXCEPTION THROWN, OVERRIDE COUNTED AS FAILURE.");
+            }
+		}
+		return successful;
+    }
+
 	void Start()
     {
         moduleID = ++modIDCnt;
@@ -144,6 +189,7 @@ public class EBTRGBLScript : MonoBehaviour {
         ignoreList = bossHandler.GetAttachedIgnoredModuleIDs(modSelf,
 			Application.isEditor ? new[] { "slightGibberishTwistModule" } : new string[0]);
 		var maxExtraStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreList.Contains(a)) - 1;
+		if (!TryOverrideSettings())
         if (ignoreList != null && ignoreList.Any())
         {
             bossActive = true;
@@ -170,6 +216,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			recoverable = true;
 			QuickLog("Disabling boss mode due to settings preventing this.");
 		}
+		currentDynamicScale = scalingUsed.Length <= p.Count(a => maxExtraStages >= a) ? scalingUsed.Last() : scalingUsed[p.Count(a => maxExtraStages >= a)];
 		QuickLog("Allocating board size {0} by {0}.", squareLength);
 		squareResizer.HandleResize(squareLength);
 		dividerHandler.HandleResize(squareLength);
@@ -378,6 +425,7 @@ public class EBTRGBLScript : MonoBehaviour {
 	}
 	IEnumerator TickDelayStg(int lastStageIdx)
     {
+		var countStagesBeforeIncrease = 5;
 		while (cooldown > 0f)
 		{
 			yield return null;
@@ -386,7 +434,9 @@ public class EBTRGBLScript : MonoBehaviour {
             {
 				stageIdx = (stageIdx + (hldIdx == 0 ? -1 : 1) + logicOper.Count) % logicOper.Count;
 				mAudio.PlaySoundAtTransform("BlipSelect", arrowSelectables[hldIdx].transform);
-				cooldown = 1.6f;
+				if (countStagesBeforeIncrease > 0)
+					countStagesBeforeIncrease--;
+				cooldown = countStagesBeforeIncrease <= 0 ? 1.55f : 1.6f;
 			}
             yield return AnimateASet(Enumerable.Range(-4, 9).Select(a => string.Format( a == 0 ? ">{0}<" : "{0}", (stageIdx + a + logicOper.Count) % logicOper.Count + 1)).ToArray());
 		}
@@ -545,18 +595,14 @@ public class EBTRGBLScript : MonoBehaviour {
             }
 			strSub++;
 			QuickLog("STRIKE. Correct cells filled: {0} / {1}", correct.Count(), squareLength * squareLength);
-			QuickLog("With the current displayed stages in order, the user has struck {0} time(s).", strSub);
+			QuickLogDebug("With the current displayed stages in order, the user has struck {0} time(s).", strSub);
 			mAudio.HandlePlaySoundAtTransform("249300__suntemple__access-denied", transform);
 			modSelf.HandleStrike();
 			xoring = false;
 			recoverable = true;
 			if (strSub >= 2)
 				for (var y = 0; y < squareLength * squareLength; y++)
-				{
-					var p = y % squareLength;
-					var invertB = y / squareLength;
 					currentBoard[y] = expectedBoard[y] != currentBoard[y] ? 0 : currentBoard[y];
-				}
 			yield return new WaitForSeconds(2f);
 			UpdateInputBoard();
 			for (var x = 0; x < combinedX.Count(); x++)
@@ -619,43 +665,124 @@ public class EBTRGBLScript : MonoBehaviour {
         }
 		return a;
     }
+	IEnumerator FadeOutGrid(float speed = 1f)
+    {
+		var relevantIdxes = Enumerable.Range(0, squareLength * squareLength).Select(a => a / squareLength + a % squareLength * 8);
+		var lastColorsSpecific = relevantIdxes.Select(b => gridRenderers[b].material.color).ToArray();
+		for (float t = 0;t < 1f;t += Time.deltaTime * speed)
+        {
+			yield return null;
+			for (var x = 0; x < relevantIdxes.Count(); x++)
+				gridRenderers[relevantIdxes.ElementAt(x)].material.color = lastColorsSpecific[x] * (1f - t) + Color.black * t;
+        }
+		for (var x = 0; x < relevantIdxes.Count(); x++)
+			gridRenderers[relevantIdxes.ElementAt(x)].material.color = Color.black;
+	}
 
 	IEnumerator BigAnim()
     {
 		animating = true;
         yield return null;
-		mAudio.PlaySoundAtTransform("Simpletonic", transform);
+		
 		StartCoroutine(AnimateASet(0.1f, 0, "A", "D", "V", "A", "N", "C", "I", "N", "G"));
 		if (stageIdx >= logicOper.Count)
 			StartCoroutine(ColorizePallete());
 		for (var x = 0; x < arrowOutAnim.Length; x++)
-		{
 			arrowOutAnim[x].filled = false;
-		}
-		for (var x = 0; x < 8; x++)
-        {
-            for (var y = 0; y < squareLength * squareLength; y++)
-            {
-				var p = y % squareLength;
-				var invertB = y / squareLength;
-				var curStg = !bossActive || recoverable ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
-				gridRenderers[8 * p + invertB].material.color = curStg == 0 || stageIdx >= logicOper.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
-			}
-            for (var y = 0; y < boolAOutAnim.Length; y++)
-            {
-				boolAOutAnim[y].filled = Random.value < 0.5f;
-			}
-            for (var y = 0; y < boolBOutAnim.Length; y++)
-            {
-				boolBOutAnim[y].filled = Random.value < 0.5f;
-			}
-            for (var y = 0; y < logicOutAnim.Length; y++)
-            {
-				logicOutAnim[y].filled = Random.value < 0.5f;
-			}
-			yield return new WaitForSeconds(0.25f);
-        }
 
+		if (playCamelliaTracks)
+		{
+			var currentGridCoroutine = StartCoroutine(FadeOutGrid());
+			var setsTexts = new string[][] { new[] { "" ,"" ," FFFF", "L    ", " AAA ", "    S", "HHHH ", "", "" }, new[] { "", ""," MMMM", "M    ", "M MMM", "E   E", " EEE ", "", "" }, new[] { "", "", "BBBBB", "  A  ", "  C  ", "  K  ", "  !  ", "", "" } };
+			var curStg = !bossActive || recoverable ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+			mAudio.PlaySoundAtTransform(curStg == 0 || stageIdx >= logicOper.Count ? "Flash Me Back Transition Snippet ALT" : "Flash Me Back Transition Snippet", transform);
+			for (var y = 0; y < boolAOutAnim.Length; y++)
+			{
+				boolAOutAnim[y].filled = false;
+			}
+			for (var y = 0; y < boolBOutAnim.Length; y++)
+			{
+				boolBOutAnim[y].filled = false;
+			}
+			for (var y = 0; y < logicOutAnim.Length; y++)
+			{
+				logicOutAnim[y].filled = false;
+			}
+			yield return new WaitForSecondsRealtime(1.2f);
+			for (var t = 0; t < 3; t++)
+            {
+				for (var y = 0; y < squareLength * squareLength; y++)
+				{
+					var p = y % squareLength;
+					var idxy = y / squareLength;
+					gridRenderers[8 * p + idxy].material.color = curStg == 0 || stageIdx >= logicOper.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
+				}
+				for (var y = 0; y < boolAOutAnim.Length; y++)
+				{
+					boolAOutAnim[y].filled = Random.value < 0.5f;
+				}
+				for (var y = 0; y < boolBOutAnim.Length; y++)
+				{
+					boolBOutAnim[y].filled = Random.value < 0.5f;
+				}
+				for (var y = 0; y < logicOutAnim.Length; y++)
+				{
+					logicOutAnim[y].filled = Random.value < 0.5f;
+				}
+				StopCoroutine(currentGridCoroutine);
+				currentGridCoroutine = StartCoroutine(FadeOutGrid(2.5f));
+				StartCoroutine(AnimateASet(0f, 0, setsTexts[t]));
+				yield return new WaitForSecondsRealtime(0.4f);
+			}
+			StopCoroutine(currentGridCoroutine);
+			StartCoroutine(AnimateASet(0f, 0, Enumerable.Repeat("", 9).ToArray()));
+			var randomColorIdxSelected = curStg == 0 || stageIdx >= logicOper.Count ? clr[7] : clr[1 << Random.Range(0, 3)];
+			for (var y = 0; y < squareLength * squareLength; y++)
+			{
+				var p = y % squareLength;
+				var idxy = y / squareLength;
+				gridRenderers[8 * p + idxy].material.color = (p == 0 || p == squareLength - 1) ^ (idxy == 0 || idxy == squareLength - 1) ?
+					randomColorIdxSelected :
+					clr[0];
+			}
+			yield return new WaitForSecondsRealtime(0.1f);
+			for (var y = 0; y < squareLength * squareLength; y++)
+			{
+				var p = y % squareLength;
+				var idxy = y / squareLength;
+				gridRenderers[8 * p + idxy].material.color = idxy == 0 || ((squareLength - 1) / 2 == p && idxy <= (squareLength - 1) / 2) || (p >= (squareLength - 1) / 2 && p == idxy) || (idxy > (squareLength - 1) / 2 && squareLength - 1 - p == idxy) ?
+					randomColorIdxSelected :
+					clr[0];
+			}
+			yield return new WaitForSecondsRealtime(0.1f);
+		}
+		else
+		{
+			mAudio.PlaySoundAtTransform("Simpletonic", transform);
+			for (var x = 0; x < 8; x++)
+			{
+				for (var y = 0; y < squareLength * squareLength; y++)
+				{
+					var p = y % squareLength;
+					var idxy = y / squareLength;
+					var curStg = !bossActive || recoverable ? stageIdx : stgodr.ElementAtOrDefault(stageIdx);
+					gridRenderers[8 * p + idxy].material.color = curStg == 0 || stageIdx >= logicOper.Count ? clr[Random.Range(0, 8)] : Random.value < 0.5f ? clr[1 << Random.Range(0, 3)] : clr[0];
+				}
+				for (var y = 0; y < boolAOutAnim.Length; y++)
+				{
+					boolAOutAnim[y].filled = Random.value < 0.5f;
+				}
+				for (var y = 0; y < boolBOutAnim.Length; y++)
+				{
+					boolBOutAnim[y].filled = Random.value < 0.5f;
+				}
+				for (var y = 0; y < logicOutAnim.Length; y++)
+				{
+					logicOutAnim[y].filled = Random.value < 0.5f;
+				}
+				yield return new WaitForSeconds(0.25f);
+			}
+		}
 		if (IsInSubmission())
 		{
 			for (var y = 0; y < squareLength * squareLength; y++)
@@ -856,7 +983,8 @@ public class EBTRGBLScript : MonoBehaviour {
 		HelpSubmission = "Toggle that channel with \"!{0} R/G/B\" or the XOR operator with \"!{0} X\" or both a channel and the XOR operator with \"!{0} [R/G/B]X\" Press that button in the specified coordinate with \"!{0} X#\". Rows are labeled 1-8 from top to bottom; columns are labeled A-H from left to right (dependent on board size)." +
 		" The previous 2 can be chained with spaces, I.E. \"!{0} R A1 X G G7 F5 D3 B B2\"... Submit the ENTIRE board with \"!{0} submit RGBCMYWKRGBCMYWK\" (dependent on board size). Enter stage recovery with \"!{0} recover\"",
 		HelpAppend = " This help message will change upon entering/exiting submission.";
-	string TwitchHelpMessage = "Go to the specified stage with \"!{0} stage ###\"; enter submission with \"!{0} submit\". This help message will change upon entering/exiting submission.";
+	string TwitchHelpMessage = "Go to the specified stage with \"!{0} stage ###\"; enter submission with \"!{0} submit\"." + " Toggle that channel with \"!{0} R/G/B\" or the XOR operator with \"!{0} X\" or both a channel and the XOR operator with \"!{0} [R/G/B]X\" Press that button in the specified coordinate with \"!{0} X#\". Rows are labeled 1-8 from top to bottom; columns are labeled A-H from left to right (dependent on board size)." +
+		" The previous 2 can be chained with spaces, I.E. \"!{0} R A1 X G G7 F5 D3 B B2\"... Submit the ENTIRE board with \"!{0} submit RGBCMYWKRGBCMYWK\" (dependent on board size). Enter stage recovery with \"!{0} recover\"" + " This help message will change upon entering/exiting submission.";
 	IEnumerator ProcessTwitchCommand(string command)
     {
 		if (!started || animating)
@@ -1003,6 +1131,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			}
 			yield return "solve";
 			yield return "strike";
+			yield return "awardpointsonsolve " + Mathf.FloorToInt((logicOper.Count + 1) * currentDynamicScale).ToString();
 		}
 		else
         {
@@ -1056,6 +1185,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			{
 				yield return "solve";
 				yield return "strike";
+				yield return "awardpointsonsolve " + Mathf.FloorToInt((logicOper.Count + 1) * currentDynamicScale).ToString();
 			}
 		}
 
