@@ -620,7 +620,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
         }
 		else if (matchSubmitDigitsOrPlain.Success)
         {
-			var detectedCmd = matchPressDigits.Value.Split();
+			var detectedCmd = matchSubmitDigitsOrPlain.Value.Split();
 			if (detectedCmd.Count() == 1)
             {
 				yield return null;

@@ -152,7 +152,7 @@ public class EBTRGBLScript : MonoBehaviour {
 				return false;
         }
 		var description = Game.Mission.Description ?? "";
-		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false)");
+		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false|null)");
 		if (regexSGTOverride.Success)
         {
 			try
@@ -168,8 +168,10 @@ public class EBTRGBLScript : MonoBehaviour {
 				int stgBhdChk;
 				if (int.TryParse(spliitedLastPart[2], out stgBhdChk))
 					maxStageBhd = stgBhdChk;
-				bossActive = !bool.Parse(spliitedLastPart[3]);
-				playCamelliaTracks = bool.Parse(spliitedLastPart[4]);
+				bossActive = bool.Parse(spliitedLastPart[3]);
+				bool allowCamelliaTracks;
+				if (bool.TryParse(spliitedLastPart[4], out allowCamelliaTracks))
+					playCamelliaTracks = allowCamelliaTracks;
 			}
 			catch
             {
