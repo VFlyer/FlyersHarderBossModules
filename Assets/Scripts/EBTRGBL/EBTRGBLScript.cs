@@ -20,14 +20,14 @@ public class EBTRGBLScript : MonoBehaviour {
 	public DividerModifierAnim dividerHandler;
 	public KMSelectable[] arrowSelectables, logicSelectables, grid;
 
-	static readonly float[] authorDynamicBoardScaling = new[] { 2.0f, 2.0f, 2.0f, 1.5f, 1.0f, 0.75f, 0.5f, 0.25f }; // Dynamic scorings for 8x8 to 2x2
+	static readonly float[] authorDynamicBoardScaling = new[] { 2.5f, 2.0f, 2.0f, 1.5f, 1.25f, 1f, 0.5f }; // Dynamic scorings for 8x8 to 2x2
 
 	static int modIDCnt;
 	int moduleID;
 	int stageIdx;
 	int squareLength, clrCur, hldIdx, maxStageAhd, maxStageBhd, solveCountNonIgnored, strSub;
 	float cooldown = 10f, currentDynamicScale;
-	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton, enforceAutosolve, playCamelliaTracks;
+	private bool animating, tickCooldown, bossActive, started = false, xoring, recoverable, enforceExhibiton, enforceAutosolve, playCamelliaTracks, calculateAllStages;
 	[SerializeField]
 	private bool debugBossMode; // Meant for testing, without Boss Module Manager.
 	int[] initialBoard, currentBoard, expectedBoard;
@@ -66,11 +66,11 @@ public class EBTRGBLScript : MonoBehaviour {
 	// Use this for initialization
 	void QuickLog(string value, params object[] args)
     {
-		Debug.LogFormat("[Slight Gibberish Twist #{0}]: {1}", moduleID, string.Format(value, args));
+		Debug.LogFormat("[Slight Gibberish Twist #{0}] {1}", moduleID, string.Format(value, args));
     }
 	void QuickLogDebug(string value, params object[] args)
     {
-		Debug.LogFormat("<Slight Gibberish Twist #{0}>: {1}", moduleID, string.Format(value, args));
+		Debug.LogFormat("<Slight Gibberish Twist #{0}> {1}", moduleID, string.Format(value, args));
     }
 	void Awake()
     {
@@ -97,14 +97,18 @@ public class EBTRGBLScript : MonoBehaviour {
     }
 	void CalculateExpectedBoard(bool recalcing = false)
     {
+		if (recalcing && calculateAllStages) return;
 		if (!recalcing) requiredStages = new List<int>();
 		else requiredStages.Clear();
 		strSub = 0;
-		for (var x = 0; x < 3; x++)
+		if (!calculateAllStages)
 		{
-			requiredStages.AddRange(Enumerable.Range(1, stageGrids.Count).Where(a => allChannels[a - 1] == x).ToArray().Shuffle().Take(3));
+			for (var x = 0; x < 3; x++)
+				requiredStages.AddRange(Enumerable.Range(1, stageGrids.Count).Where(a => allChannels[a - 1] == x).ToArray().Shuffle().Take(3));
+			requiredStages.Shuffle();
 		}
-		requiredStages.Shuffle();
+		else
+			requiredStages.AddRange(Enumerable.Range(1, stageGrids.Count));
 		if (recalcing)
 			QuickLog("WARNING! Activating Recovery Mode changed the required stages to disarm the module in the particular order: {0}", requiredStages.Select(a => a + 1).Join(", "));
 		else
@@ -152,7 +156,7 @@ public class EBTRGBLScript : MonoBehaviour {
 				return false;
         }
 		var description = Game.Mission.Description ?? "";
-		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false|null)");
+		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false)");
 		if (regexSGTOverride.Success)
         {
 			try
@@ -169,9 +173,9 @@ public class EBTRGBLScript : MonoBehaviour {
 				if (int.TryParse(spliitedLastPart[2], out stgBhdChk))
 					maxStageBhd = stgBhdChk;
 				bossActive = bool.Parse(spliitedLastPart[3]);
-				bool allowCamelliaTracks;
-				if (bool.TryParse(spliitedLastPart[4], out allowCamelliaTracks))
-					playCamelliaTracks = allowCamelliaTracks;
+				bool requireAllStages;
+				if (bool.TryParse(spliitedLastPart[4], out requireAllStages))
+					calculateAllStages = requireAllStages;
 			}
 			catch
             {
@@ -220,6 +224,57 @@ public class EBTRGBLScript : MonoBehaviour {
 		}
 		currentDynamicScale = scalingUsed.Length <= p.Count(a => maxExtraStages >= a) ? scalingUsed.Last() : scalingUsed[p.Count(a => maxExtraStages >= a)];
 		QuickLog("Allocating board size {0} by {0}.", squareLength);
+		QuickLog("--------------- Stage Ordering ---------------");
+		if (bossActive)
+		{
+			stgodr = new List<int>();
+			stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
+			if (maxStageBhd > 0 && maxStageAhd > 0)
+			{
+				var allStages = new List<int>();
+				allStages.AddRange(stgodr);
+				stgodr.Clear();
+				var why = new int[allStages.Count];
+				for (var x = 0; x < why.Length; x++)
+				{
+					var min = x - maxStageAhd;
+					var stgIdxes = allStages.Where(a => a <= x + maxStageBhd && a >= x - maxStageAhd).ToList();
+					if (!stgIdxes.Any())
+					{
+						var low = -1;
+						var high = -1;
+						foreach (var sidx in stgIdxes)
+							if (sidx < x) low = Mathf.Max(low, sidx);
+							else high = Mathf.Min(high, sidx);
+						if (low != -1) stgIdxes.Add(low);
+						if (high != -1) stgIdxes.Add(high);
+					}
+					var newStg = stgIdxes.PickRandom();
+					if (stgIdxes.Contains(min)) newStg = min;
+					why[x] = newStg;
+					allStages.Remove(newStg);
+				}
+				stgodr = why.ToList();
+
+				QuickLog("Stages will be displayed in this order according to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
+			}
+			else if (maxStageAhd <= 0 && maxStageBhd > 0)
+			{
+				stgodr.Reverse();
+				QuickLog("Stages will be displayed in this order according to the settings, max {1} stage(s) behind, 1 stage ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
+			}
+			else if (maxStageAhd <= 0 && maxStageBhd <= 0)
+			{
+				stgodr.Shuffle();
+				QuickLog("Stages will be displayed in this order according to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
+			}
+			else
+			{
+				QuickLog("Stages will be displayed in this order according to the settings, max 1 stage behind, {1} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
+			}
+		}
+		else
+			QuickLog("Not available due to the module not activating boss handling.");
 		squareResizer.HandleResize(squareLength);
 		dividerHandler.HandleResize(squareLength);
 		initialBoard = new int[squareLength * squareLength];
@@ -276,60 +331,9 @@ public class EBTRGBLScript : MonoBehaviour {
 			QuickLog("Validity on current stage: {0}", curVld ? "VALID" : "INVALID");
 			vld.Add(curVld);
 		}
-		QuickLog("--------------- Stage Ordering ---------------");
+		
 		for (var x = 0; x < displayTexts.Length; x++)
 			displayTexts[x].text = "";
-
-		if (bossActive)
-		{
-			stgodr = new List<int>();
-			stgodr.AddRange(Enumerable.Range(0, maxExtraStages + 1));
-			if (maxStageBhd > 0 && maxStageAhd > 0)
-			{
-				var allStages = new List<int>();
-				allStages.AddRange(stgodr);
-				stgodr.Clear();
-				var why = new int[allStages.Count];
-                for (var x = 0; x < why.Length; x++)
-                {
-					var min = x - maxStageAhd;
-					var stgIdxes = allStages.Where(a => a <= x + maxStageBhd && a >= x - maxStageAhd).ToList();
-					if (!stgIdxes.Any())
-                    {
-						var low = -1;
-						var high = -1;
-						foreach (var sidx in stgIdxes)
-							if (sidx < x) low = Mathf.Max(low, sidx);
-							else high = Mathf.Min(high, sidx);
-						if (low != -1) stgIdxes.Add(low);
-						if (high != -1) stgIdxes.Add(high);
-					}
-					var newStg = stgIdxes.PickRandom();
-					if (stgIdxes.Contains(min)) newStg = min;
-					why[x] = newStg;
-					allStages.Remove(newStg);
-                }
-				stgodr = why.ToList();
-
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, max {2} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd, maxStageAhd);
-			}
-			else if (maxStageAhd <= 0 && maxStageBhd > 0)
-			{
-				stgodr.Reverse();
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max {1} stage(s) behind, 1 stage ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageBhd);
-			}
-			else if (maxStageAhd <= 0 && maxStageBhd <= 0)
-			{
-				stgodr.Shuffle();
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, as many stages behind, as many stages ahead: {0}", stgodr.Select(a => a + 1).Join(", "));
-			}
-			else
-			{
-				QuickLog("Stages will be displayed in this order in accordiance to the settings, max 1 stage behind, {1} stage(s) ahead: {0}", stgodr.Select(a => a + 1).Join(", "), maxStageAhd);
-			}
-		}
-		else
-			QuickLog("Not available due to the module not activating boss handling.");
 		QuickLog("--------------- Submission ---------------");
 		CalculateExpectedBoard();
 		QuickLog("--------------- User Interactions ---------------");
@@ -615,7 +619,7 @@ public class EBTRGBLScript : MonoBehaviour {
 			{
 				arrowOutAnim[x].filled = recoverable;
 			}
-			StartCoroutine(AnimateASet(delay: 0.1f, txt: requiredStages.Select(a => (a + 1).ToString("000")).ToArray()));
+			StartCoroutine(AnimateASet(delay: 0.1f, txt: calculateAllStages ? new[] { "ALL", "STAGES", "NEEDED" } : requiredStages.Select(a => (a + 1).ToString("000")).ToArray()));
 			animating = false;
 		}
 		else
@@ -793,7 +797,7 @@ public class EBTRGBLScript : MonoBehaviour {
 				var invertB = y / squareLength;
 				gridRenderers[8 * invertB + p].material.color = clr[currentBoard[y]];
 			}
-			StartCoroutine(AnimateASet(delay: 0.1f, txt: requiredStages.Select(a => (a + 1).ToString("000")).Concat(Enumerable.Repeat("", 9 - requiredStages.Count())).ToArray()));
+			StartCoroutine(AnimateASet(delay: 0.1f, txt: calculateAllStages ? new[] { "ALL", "STAGES", "NEEDED" } : requiredStages.Select(a => (a + 1).ToString("000")).Concat(Enumerable.Repeat("", 9 - requiredStages.Count())).ToArray()));
 			for (var y = 0; y < boolAOutAnim.Length; y++)
 			{
 				boolAOutAnim[y].filled = true;
