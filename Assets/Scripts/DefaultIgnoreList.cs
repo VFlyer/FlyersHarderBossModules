@@ -1,10 +1,6 @@
 ﻿public class DefaultIgnoreList {
     public static readonly string[] ignoreListIDs = {
-        "slightGibberishTwistModule",
-        "EverchangingModule",
-        "pointerPointerModule",
-        "inOrderModule",
-        "nobodysCodeModule",
+        "slightGibberishTwistModule", "EverchangingModule", "pointerPointerModule", "inOrderModule", "nobodysCodeModule", "clearanceCodeModule","obscureRacesModule",
         "MemoryV2", "SouvenirModule", "HexiEvilFMN", "simonsStages",
         "forgetThis", "PurgatoryModule", "troll", "forgetThemAll",
         "tallorderedKeys", "forgetEnigma", "forgetUsNot", "qkForgetPerspective",
@@ -22,7 +18,7 @@
         "KritGrandPrix", "ForgetMeMaybeModule", "simonSonundrum", "HyperForget",
         "qkBitwiseOblivion", "damoclesLumber", "top10nums", "squadsShadow",
         "queensWarModule", "forget_fractal", "memorysShadow", "PianoParadoxModule",
-        "Omission",
+        "Omission", "BlackoutModule", "fizzBoss", "ActionsAndConsequences", "forgetle", "perspectiveStackingModule",
 
         "TurnTheKeyAdvanced", "theSwan", "DividedSquaresModule", "HogwartsModule", "cookieJars", "Krit4CardMonte", "encryptionBingo", "forgetInfinity", "mysterymodule", "multitask", "Amnesia", "FourtyTwo", "FiveZeroOne", "qkButtonMesser", "xelBMachine", "klaxon", "RemoteTurnTheKeys", "simonSemiboss", "scrabbleScramble", "speed", "peeky", "channelSurfing", "binary_memory", "damoclesLumber", "moduleManeuvers",
         "encryptedHangman", "TheHeart", "GSAccessCodes", "susadmin", "Mystery Widget",
@@ -34,7 +30,7 @@
         "Everchanging",
         "Pointer Pointer",
         "In Order",
-        "The Nobody's Code",
+        "The Nobody's Code", "Clearance Code", "Obscure Races",
         "Forget Me Not",
         "Souvenir",
         "Forget Everything",
