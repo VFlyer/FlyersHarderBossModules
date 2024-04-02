@@ -2,33 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using KeepCoding;
 using System.Text.RegularExpressions;
 using Random = UnityEngine.Random;
 
 public class PointerPointerScript : MonoBehaviour {
 	public KMBossModule bossHandler;
 	public KMAudio mAudio;
-	public KMSelectable[] screenSelectables;
+	public KMSelectable mainSelectable;
+	public KMSelectable[] screenSelectables, screenSelectables_4x4;
+	public GameObject _6x6Board, _4x4Board;
 	public KMBombModule modSelf;
 	public KMBombInfo bombInfo;
 	public KMColorblindMode colorblindMode;
-	public MeshRenderer[] screenRenderers, arrowRenderers, ledRenderers;
-	public TextMesh[] colorblindTextMeshes;
+	public MeshRenderer[] screenRenderers, arrowRenderers, ledRenderers, screenRenderers_4x4, arrowRenderers_4x4;
+	public TextMesh[] colorblindTextMeshes, colorblindTextMeshes_4x4;
 	static int moduleIDCnt;
 	int moduleID;
 
 	IEnumerable<string> ignoredModules;
 	int curStageIdx, reachableStageIdx, lastSolveCount, PPAToGive;
 
-	
+	MeshRenderer[] usedScreenRenderers, usedArrowRenderers;
+	TextMesh[] usedCBTextMeshes;
 
 	readonly static Color[] refColors = { Color.black, Color.red, Color.green, Color.blue, Color.white, Color.yellow, Color.magenta, Color.cyan };
 	readonly static string[] directionRefAbbrev = { "U", "UR", "R", "DR", "D", "DL", "L", "UL" },
 		colorRefAbbrev = { "K", "R", "G", "B", "W", "Y", "M", "C", };
 
 	const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	const int authorPPAScore = 2, maxTilesVisit = 15, minTilesVisit = 9;
-	const int squareLength = 6;
+	const int authorPPAScore = 2;
+	int squareLength = 6, maxTilesVisit = 15, minTilesVisit = 9;
 
 	List<StagePointerPointer> allPointerStages;
 
@@ -40,6 +44,41 @@ public class PointerPointerScript : MonoBehaviour {
     {
 		Debug.LogFormat("[{0} #{1}] {2}", modSelf.ModuleDisplayName, moduleID, string.Format(message, args));
     }
+	void QuickLogDebug(string message, params object[] args)
+    {
+		Debug.LogFormat("<{0} #{1}> {2}", modSelf.ModuleDisplayName, moduleID, string.Format(message, args));
+    }
+	bool TryOverrideMission()
+    {
+		var successful = false;
+		var missionID = Game.Mission.ID ?? "freeplay";
+		switch (missionID)
+		{
+			case "freeplay":
+			case "custom":
+				QuickLogDebug("Mission detected as freeplay/custom bomb. Not allowed to override settings.");
+				return false;
+		}
+		var description = Game.Mission.Description ?? "";
+		var regexPPOverride = Regex.Match(description, @"\[PPOverride\]\s(true|false)");
+		if (regexPPOverride.Success)
+		{
+			try
+			{
+				successful = true;
+				var valuedMatched = regexPPOverride.Value;
+				var lastPartOnly = valuedMatched.Split().Last();
+				squareLength = bool.Parse(lastPartOnly) ? 6 : 4;
+			}
+			catch
+			{
+				successful = false;
+				QuickLogDebug("EXCEPTION THROWN, OVERRIDE COUNTED AS FAILURE.");
+			}
+		}
+		return successful;
+	}
+
 	void Awake()
     {
 		try
@@ -49,11 +88,13 @@ public class PointerPointerScript : MonoBehaviour {
 			obtainedSettings.Settings = globalSettings;
 			altGen = globalSettings.PPUseAlternativeGen;
 			PPAToGive = globalSettings.UseAuthorDynamicScoring ? authorPPAScore : globalSettings.PPPointsPerActivation;
+			squareLength = globalSettings.PPUse6x6Board ? 6 : 4;
 		}
 		catch
 		{
 			altGen = false;
 			PPAToGive = authorPPAScore;
+			squareLength = 4;
 		}
 		finally
 		{
@@ -70,6 +111,27 @@ public class PointerPointerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moduleID = ++moduleIDCnt;
+		TryOverrideMission();
+		if (squareLength == 4)
+        {
+			usedScreenRenderers = screenRenderers_4x4;
+			usedArrowRenderers = arrowRenderers_4x4;
+			usedCBTextMeshes = colorblindTextMeshes_4x4;
+			mainSelectable.Children = screenSelectables_4x4;
+			minTilesVisit = 4;
+			maxTilesVisit = 6;
+			_6x6Board.SetActive(false);
+		}
+		else
+        {
+			usedScreenRenderers = screenRenderers;
+			usedArrowRenderers = arrowRenderers;
+			usedCBTextMeshes = colorblindTextMeshes;
+			mainSelectable.Children = screenSelectables;
+			_4x4Board.SetActive(false);
+		}
+		mainSelectable.ChildRowLength = squareLength;
+		mainSelectable.UpdateChildrenProperly();
 		//var detectedIgnoredModules = bossHandler.GetIgnoredModules(modSelf);
 		ignoredModules = bossHandler.GetIgnoredModules(modSelf, DefaultIgnoreList.ignoreListNames);
 		modSelf.OnActivate += delegate {
@@ -84,6 +146,10 @@ public class PointerPointerScript : MonoBehaviour {
 			arrowRenderers[x].enabled = false;
 		for (var x = 0; x < colorblindTextMeshes.Length; x++)
 			colorblindTextMeshes[x].text = "";
+		for (var x = 0; x < arrowRenderers_4x4.Length; x++)
+			arrowRenderers_4x4[x].enabled = false;
+		for (var x = 0; x < colorblindTextMeshes_4x4.Length; x++)
+			colorblindTextMeshes_4x4[x].text = "";
 
 		for (var x = 0; x < screenSelectables.Length; x++)
         {
@@ -93,8 +159,19 @@ public class PointerPointerScript : MonoBehaviour {
 				mAudio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonRelease, screenSelectables[y].transform);
 				CheckIdxPressed(y);
 				return false; };
-
+			screenSelectables[x].gameObject.SetActive(squareLength == 6);
         }
+
+		for (var x = 0; x < screenSelectables_4x4.Length; x++)
+        {
+			int y = x;
+			screenSelectables_4x4[x].OnInteract += delegate {
+				screenSelectables_4x4[y].AddInteractionPunch(0.1f);
+				mAudio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonRelease, screenSelectables_4x4[y].transform);
+				CheckIdxPressed(y);
+				return false; };
+			screenSelectables_4x4[x].gameObject.SetActive(squareLength == 4);
+		}
 
 	}
 
@@ -160,6 +237,7 @@ public class PointerPointerScript : MonoBehaviour {
     {
 		QuickLog("Total Stages Generatable: {0}", reachableStageIdx + 1);
 		QuickLog("Using an alternative stage generation algorithm to generate stages. This may create short paths that can make the module quick.");
+		QuickLog("Selected board size: {0}x{0}", squareLength);
 		var gridSize = squareLength * squareLength;
 		for (var x = 0; x <= reachableStageIdx; x++)
 		{
@@ -259,6 +337,7 @@ public class PointerPointerScript : MonoBehaviour {
 	void GenerateStages()
     {
 		QuickLog("Total Stages Generatable: {0}", reachableStageIdx + 1);
+		QuickLog("Selected board size: {0}x{0}", squareLength);
 		var gridSize = squareLength * squareLength;
 		// Generate a node grid of all of the connected cells.
 		var idxConnectedCells = new List<List<int>>();
@@ -503,8 +582,8 @@ public class PointerPointerScript : MonoBehaviour {
 		{
 			var y = values.ElementAt(x);
 			var colorModifier = 8 - curStage.colorDisplayIdxes[y];
-			arrowRenderers[y].enabled = true;
-			arrowRenderers[y].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[y] + colorModifier), 0);
+			usedArrowRenderers[y].enabled = true;
+			usedArrowRenderers[y].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[y] + colorModifier), 0);
 			colorblindTextMeshes[y].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[y]] : "";
 		}
 
@@ -513,9 +592,9 @@ public class PointerPointerScript : MonoBehaviour {
 			for (var x = 0; x < values.Count(); x++)
 			{
 				var y = values.ElementAt(x);
-				arrowRenderers[y].material.color = refColors[curStage.colorDisplayIdxes[y]] * t;
+				usedArrowRenderers[y].material.color = refColors[curStage.colorDisplayIdxes[y]] * t;
 				colorblindTextMeshes[y].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
-				screenRenderers[y].material.color = new Color(0.5f * t, 0.25f * t, 0.25f * t);
+				usedScreenRenderers[y].material.color = new Color(0.5f * t, 0.25f * t, 0.25f * t);
 			}
 			yield return null;
         }
@@ -528,34 +607,34 @@ public class PointerPointerScript : MonoBehaviour {
 		if (specificTileFlasher != null)
 			StopCoroutine(specificTileFlasher);
 		specificTileFlasher = FlashSpecificTile(curStage.startIdx, !inputting);
-		for (var x = 0; x < arrowRenderers.Length; x++)
-			arrowRenderers[x].enabled = true;
+		for (var x = 0; x < Mathf.Min(usedArrowRenderers.Length, curStage.colorDisplayIdxes.Length); x++)
+			usedArrowRenderers[x].enabled = true;
 
 		StartCoroutine(PlaySoundXTimes("dial", 1 / speed / 8, 8));
 		for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
         {
 			var timeModifier = Mathf.FloorToInt( (1 - t) * 32) % 8;
-			for (var x = 0; x < arrowRenderers.Length; x++)
+			for (var x = 0; x < Mathf.Min(usedArrowRenderers.Length, curStage.colorDisplayIdxes.Length); x++)
             {
 				var colorModifier = 8 - curStage.colorDisplayIdxes[x];
-				arrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]] * t;
-				arrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (timeModifier + curStage.truthDirectionIdxes[x] + colorModifier), 0);
+				usedArrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]] * t;
+				usedArrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (timeModifier + curStage.truthDirectionIdxes[x] + colorModifier), 0);
 				colorblindTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
                 colorblindTextMeshes[x].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
 			}
-			foreach (var renderer in screenRenderers)
+			foreach (var renderer in usedScreenRenderers)
 				renderer.material.color = Color.gray * t;
 			yield return null;
         }
-		for (var x = 0; x < arrowRenderers.Length; x++)
+		for (var x = 0; x < Mathf.Min(usedArrowRenderers.Length, curStage.colorDisplayIdxes.Length); x++)
 		{
 			var colorModifier = 8 - curStage.colorDisplayIdxes[x];
-			arrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]];
-			arrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[x] + colorModifier), 0);
+			usedArrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]];
+			usedArrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[x] + colorModifier), 0);
 			colorblindTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
 			colorblindTextMeshes[x].color = new Color(0.8f, 0.8f, 0.8f);
 		}
-		foreach (var renderer in screenRenderers)
+		foreach (var renderer in usedScreenRenderers)
 			renderer.material.color = Color.gray;
 		if (curStageIdx == 0)
 			StartCoroutine(specificTileFlasher);
@@ -564,24 +643,24 @@ public class PointerPointerScript : MonoBehaviour {
     {
 		yield return HideBoard(5f);
 		mAudio.PlaySoundAtTransform("UI_Numpad_Affirm_Amp_Trimmed", transform);
-		var idxesToGreen = new[] { 1, 2, 3, 4, 6, 12, 18, 20, 21, 22, 23, 24, 29, 31, 32, 33, 34 };
+		var idxesToGreen = squareLength == 6 ? new[] { 1, 2, 3, 4, 6, 12, 18, 20, 21, 22, 23, 24, 29, 31, 32, 33, 34 } : Enumerable.Range(0, squareLength * squareLength).Where(a => a % squareLength % 2 != 1 && (a / squareLength) != squareLength - 2);
 		var allVals = Enumerable.Range(0, squareLength * squareLength).Where(a => idxesToGreen.Contains(a));
 		for (var x = 0; x < 2; x++)
 		{
 			for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 			{
 				foreach (var idx in allVals)
-					screenRenderers[idx].material.color = Color.green * t;
+					usedScreenRenderers[idx].material.color = Color.green * t;
 				yield return null;
 			}
 			for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 			{
 				foreach (var idx in allVals)
-					screenRenderers[idx].material.color = Color.green * (1f - t);
+					usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 				yield return null;
 			}
 			foreach (var idx in allVals)
-				screenRenderers[idx].material.color = Color.black;
+				usedScreenRenderers[idx].material.color = Color.black;
 		}
 		modSelf.HandlePass();
 		yield return FlashScreensRandomly(moduleSolved, speed);
@@ -605,17 +684,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 1:
@@ -625,17 +704,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 2:
@@ -645,17 +724,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 3:
@@ -665,17 +744,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 4:
@@ -685,17 +764,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 5:
@@ -705,17 +784,17 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				case 6:
@@ -725,34 +804,34 @@ public class PointerPointerScript : MonoBehaviour {
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * t;
+								usedScreenRenderers[idx].material.color = Color.green * t;
 							yield return null;
 						}
 						for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 						{
 							foreach (var idx in selectedIdxes)
-								screenRenderers[idx].material.color = Color.green * (1f - t);
+								usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 							yield return null;
 						}
 						foreach (var idx in selectedIdxes)
-							screenRenderers[idx].material.color = Color.black;
+							usedScreenRenderers[idx].material.color = Color.black;
 					}
 					break;
 				default:
 					for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 					{
 						foreach (var idx in allVals)
-							screenRenderers[idx].material.color = Color.green * t;
+							usedScreenRenderers[idx].material.color = Color.green * t;
 						yield return null;
 					}
 					for (float t = 0; t < 1f; t += Time.deltaTime * speed)
 					{
 						foreach (var idx in allVals)
-							screenRenderers[idx].material.color = Color.green * (1f - t);
+							usedScreenRenderers[idx].material.color = Color.green * (1f - t);
 						yield return null;
 					}
 					foreach (var idx in allVals)
-						screenRenderers[idx].material.color = Color.black;
+						usedScreenRenderers[idx].material.color = Color.black;
 					break;
 			}
 			reversed = modificationType == 2 ? Random.value < 0.5f : reversed ^ modificationType == 1;
@@ -769,12 +848,12 @@ public class PointerPointerScript : MonoBehaviour {
 
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, 1f - t);
+				usedArrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, 1f - t);
 				yield return null;
 			}
 			for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
 			{
-				arrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, t);
+				usedArrowRenderers[idx].material.color = new Color(referredColorCurTile.r, referredColorCurTile.g, referredColorCurTile.b, t);
 				yield return null;
 			}
 
@@ -783,30 +862,30 @@ public class PointerPointerScript : MonoBehaviour {
 	}
 	IEnumerator HideBoard(float speed = 2f)
     {
-		var lastColorsAllScreens = screenRenderers.Select(a => a.material.color).ToArray();
-		var lastColorsAllArrows = arrowRenderers.Select(a => a.material.color).ToArray();
-		var lastColorsAllColorblindDisplays = colorblindTextMeshes.Select(a => a.color).ToArray();
+		var lastColorsAllScreens = usedScreenRenderers.Select(a => a.material.color).ToArray();
+		var lastColorsAllArrows = usedArrowRenderers.Select(a => a.material.color).ToArray();
+		var lastColorsAllColorblindDisplays = usedCBTextMeshes.Select(a => a.color).ToArray();
 		for (float t = 1f; t >= 0f; t -= Time.deltaTime * speed)
 		{
-            for (int i = 0; i < screenRenderers.Length; i++)
+            for (int i = 0; i < usedScreenRenderers.Length; i++)
             {
-				screenRenderers[i].material.color = lastColorsAllScreens.ElementAt(i) * t;
+				usedScreenRenderers[i].material.color = lastColorsAllScreens.ElementAt(i) * t;
             }
-            for (int i = 0; i < arrowRenderers.Length; i++)
+            for (int i = 0; i < usedArrowRenderers.Length; i++)
             {
-				arrowRenderers[i].material.color = lastColorsAllArrows.ElementAt(i) * t;
-				colorblindTextMeshes[i].color = lastColorsAllColorblindDisplays[i] * t;
+				usedArrowRenderers[i].material.color = lastColorsAllArrows.ElementAt(i) * t;
+				usedCBTextMeshes[i].color = lastColorsAllColorblindDisplays[i] * t;
 			}
             yield return null;
 		}
-		for (int i = 0; i < screenRenderers.Length; i++)
-			screenRenderers[i].material.color = Color.black;
+		for (int i = 0; i < usedScreenRenderers.Length; i++)
+			usedScreenRenderers[i].material.color = Color.black;
 
-		for (int i = 0; i < arrowRenderers.Length; i++)
+		for (int i = 0; i < usedArrowRenderers.Length; i++)
 		{
-			arrowRenderers[i].material.color = Color.clear;
-			arrowRenderers[i].enabled = false;
-			colorblindTextMeshes[i].color = Color.clear;
+			usedArrowRenderers[i].material.color = Color.clear;
+			usedArrowRenderers[i].enabled = false;
+			usedCBTextMeshes[i].color = Color.clear;
 		}
 		
 	}
@@ -815,14 +894,14 @@ public class PointerPointerScript : MonoBehaviour {
 		if (!inputting)
         {
             var curStage = allPointerStages[curStageIdx];
-            for (var x = 0; x < colorblindTextMeshes.Length; x++)
-				colorblindTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
+            for (var x = 0; x < Mathf.Min(usedCBTextMeshes.Length, curStage.colorDisplayIdxes.Length); x++)
+				usedCBTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
 		}
 		else
         {
 			var curStage = allPointerStages[curStageIdx];
-			for (var x = 0; x < colorblindTextMeshes.Length; x++)
-				colorblindTextMeshes[x].text = colorblindDetected && revealed ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
+			for (var x = 0; x < Mathf.Min(usedCBTextMeshes.Length, curStage.colorDisplayIdxes.Length); x++)
+				usedCBTextMeshes[x].text = colorblindDetected && revealed ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
 		}
     }
 	// Update is called once per frame
@@ -890,13 +969,14 @@ public class PointerPointerScript : MonoBehaviour {
 
 		var regexColorblind = Regex.Match(cmd, @"^colou?rblind$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 		var regex6x6Press = Regex.Match(cmd, @"^((submit|press)\s)?[A-F][1-6]$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		var regex4x4Press = Regex.Match(cmd, @"^((submit|press)\s)?[A-D][1-4]$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 		if (regexColorblind.Success)
         {
 			yield return null;
 			colorblindDetected ^= true;
 			HandleColorblindModeToggle();
         }
-		else if (regex6x6Press.Success)
+		else if (regex6x6Press.Success && squareLength == 6)
         {
 			var expectedCoordinate = regex6x6Press.Value.Split().Last().ToUpper();
 			var expectedCol = alphabet.IndexOf(expectedCoordinate[0]);
@@ -909,6 +989,24 @@ public class PointerPointerScript : MonoBehaviour {
 			var lastStageCnt = curStageIdx * 1;
 			yield return null;
 			screenSelectables[6 * expectedRow + expectedCol].OnInteract();
+			if (curStageIdx != lastStageCnt && curStageIdx <= reachableStageIdx)
+				yield return string.Format("awardpoints {0}", PPAToGive);
+			else if (curStageIdx > reachableStageIdx)
+				yield return "solve";
+		}
+		else if (regex4x4Press.Success && squareLength == 4)
+        {
+			var expectedCoordinate = regex4x4Press.Value.Split().Last().ToUpper();
+			var expectedCol = alphabet.IndexOf(expectedCoordinate[0]);
+			var expectedRow = expectedCoordinate[1] - '1';
+			if (expectedCol < 0 || expectedRow < 0)
+			{
+				yield return "sendtochaterror The expected coordinate given \"" + expectedCoordinate + "\" is not valid!";
+				yield break;
+			}
+			var lastStageCnt = curStageIdx * 1;
+			yield return null;
+			screenSelectables_4x4[4 * expectedRow + expectedCol].OnInteract();
 			if (curStageIdx != lastStageCnt && curStageIdx <= reachableStageIdx)
 				yield return string.Format("awardpoints {0}", PPAToGive);
 			else if (curStageIdx > reachableStageIdx)

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -31,8 +32,5 @@ public class KMBossModuleExtensions : KMBossModule {
         string[] output = allSolvables.Where(a => modNamesIgnored.Contains(a.ModuleDisplayName)).Select(a => a.ModuleType).Distinct().ToArray();
         Debug.LogFormat("[KMBossModuleExtensions] Successfully grabbed ALL ignored module ids from the given bomb for “{0}”. Returning this: {1}", modSelf.ModuleDisplayName, output == null || !output.Any() ? "<null>" : output.Join(", "));
         return output;
-
-
     }
-
 }

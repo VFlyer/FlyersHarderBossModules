@@ -157,8 +157,9 @@ public class EBTRGBLScript : MonoBehaviour {
         }
 		var description = Game.Mission.Description ?? "";
 		var regexSGTOverride = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(true|false),(true|false)");
+		var regexSGTOverride2 = Regex.Match(description, @"\[SGTOverride\]\s[3-8],[0-9]+,[0-9]+,(Boss|Nonboss),(true|false)");
 		if (regexSGTOverride.Success)
-        {
+		{
 			try
 			{
 				successful = true;
@@ -178,10 +179,36 @@ public class EBTRGBLScript : MonoBehaviour {
 					calculateAllStages = requireAllStages;
 			}
 			catch
-            {
+			{
 				successful = false;
 				QuickLogDebug("EXCEPTION THROWN, OVERRIDE COUNTED AS FAILURE.");
-            }
+			}
+		}
+		else if (regexSGTOverride2.Success)
+        {
+			try
+			{
+				successful = true;
+				var valuedMatched = regexSGTOverride2.Value;
+				var lastPartOnly = valuedMatched.Split().Last();
+				var spliitedLastPart = lastPartOnly.Split(',');
+				squareLength = int.Parse(spliitedLastPart[0]);
+				int stgAhdChk;
+				if (int.TryParse(spliitedLastPart[1], out stgAhdChk))
+					maxStageAhd = stgAhdChk;
+				int stgBhdChk;
+				if (int.TryParse(spliitedLastPart[2], out stgBhdChk))
+					maxStageBhd = stgBhdChk;
+				bossActive = spliitedLastPart[3] == "Boss";
+				bool requireAllStages;
+				if (bool.TryParse(spliitedLastPart[4], out requireAllStages))
+					calculateAllStages = requireAllStages;
+			}
+			catch
+			{
+				successful = false;
+				QuickLogDebug("EXCEPTION THROWN, OVERRIDE COUNTED AS FAILURE.");
+			}
 		}
 		return successful;
     }
@@ -192,7 +219,7 @@ public class EBTRGBLScript : MonoBehaviour {
         QuickLog("This idea of a manual challenge for this module was given up due to the fact that it was too difficult to construct a manual even for a dedicated player. If anyone does want to attempt this as an actual manual challenge do let me know, as the creator.");
 
         var p = new[] { 4, 7, 10, 13 };
-        ignoreList = bossHandler.GetAttachedIgnoredModuleIDs(modSelf,
+        ignoreList = bossHandler.GetIgnoredModuleIDs(modSelf,
 			Application.isEditor ? new[] { "slightGibberishTwistModule" } : new string[0]);
 		var maxExtraStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreList.Contains(a)) - 1;
 		if (!TryOverrideSettings())

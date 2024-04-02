@@ -14,4 +14,5 @@ public class FlyersBossierSettings {
     public bool SGTRequireAllStages = false;
     public bool PPUseAlternativeGen = false;
     public int PPPointsPerActivation = 2;
+    public bool PPUse6x6Board = false;
 }

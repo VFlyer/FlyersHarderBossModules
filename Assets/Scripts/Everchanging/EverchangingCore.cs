@@ -44,7 +44,7 @@ public class EverchangingCore : MonoBehaviour {
 	private bool bossModeActive = false, requestNextStage = false, inputModeActive = false,
 		hasStarted = false, TwitchPlaysActive, dynamicStageGen,
 		allowTimerDrain = false, recoveryRequestNextStage = false, moduleSolved,
-		colorblindDetected, showingInputs, revealProgress;
+		colorblindDetected, showingInputs, revealProgress, useShorterIntro;
 	List<StageComponentInfoAll> allGeneratedStages;
 	List<int> calculatedValues, stageIdxCalcsVoids;
 	static int modIDCnt = 1;
@@ -128,7 +128,7 @@ public class EverchangingCore : MonoBehaviour {
 			QuickLog("Enforcing Exhibition Mode due to a missing list of ignored modules. This is done to prevent softlocks.");
 		modSelf.OnActivate += delegate {
 			totalPossibleStages = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreIds.Contains(a));
-			mAudio.PlaySoundAtTransform("181FadedExtended", transform);
+			mAudio.PlaySoundAtTransform(useShorterIntro ? "181Faded" : "181FadedExtended", transform);
 			StartCoroutine(StartBossModuleHandling());
 			hasStarted = true;
 		};

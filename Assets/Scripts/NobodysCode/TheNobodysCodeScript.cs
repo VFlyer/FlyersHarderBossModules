@@ -43,7 +43,7 @@ public class TheNobodysCodeScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moduleID = ++modIDCnt;
-		var obtainedIgnoreList = bossHandler.GetAttachedIgnoredModuleIDs(modSelf);
+		var obtainedIgnoreList = bossHandler.GetIgnoredModuleIDs(modSelf);
 		if (obtainedIgnoreList == null || !obtainedIgnoreList.Any())
 		{
 			QuickLogDebug("Using default ignore IDs! This is due to the result of Boss Module Manager being disabled or not present.");

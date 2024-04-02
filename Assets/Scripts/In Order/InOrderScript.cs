@@ -74,7 +74,7 @@ public class InOrderScript : MonoBehaviour {
 	void Start () {
 		moduleID = ++modIDCnt;
 		
-		var obtainedIgnoreIDs = bossHandlerExtended.GetAttachedIgnoredModuleIDs(modSelf);
+		var obtainedIgnoreIDs = bossHandlerExtended.GetIgnoredModuleIDs(modSelf);
 		if (obtainedIgnoreIDs == null || !obtainedIgnoreIDs.Any())
         {
 			QuickLogDebug("Using default ignore IDs! This is due to the result of Boss Module Manager being disabled or not present.");
