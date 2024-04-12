@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: ModConfig
   m_EditorClassIdentifier: 
   id: FlyersModMiscV2
-  title: Flyer's Bossier Modules
+  title: Flyer's Bossier/Harder Modules
   author: VFlyer
   description: '[i]The term "boss module" is used to describe a module that requires
     taking extensive notes; and require inputs, usually at the very end, or in-between

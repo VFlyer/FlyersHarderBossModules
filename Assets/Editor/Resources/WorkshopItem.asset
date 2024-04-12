@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Name: WorkshopItem
   m_EditorClassIdentifier: 
   WorkshopPublishedFileID: 2850158391
-  Title: Flyer's Bossier Modules
-  Tags: []
+  Title: Flyer's Bossier/Harder Modules
+  Tags:
+  - Regular Module
