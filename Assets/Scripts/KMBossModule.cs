@@ -34,7 +34,7 @@ public class KMBossModule : MonoBehaviour
     }
     public string[] GetIgnoredModuleIDs(KMBombModule module, string[] @default = null)
     {
-        return GetIgnoredModules(module.ModuleDisplayName, @default);
+        return GetIgnoredModuleIDs(module.ModuleDisplayName, @default);
     }
 
     public string[] GetIgnoredModuleIDs(string moduleDisplayName, string[] @default = null)

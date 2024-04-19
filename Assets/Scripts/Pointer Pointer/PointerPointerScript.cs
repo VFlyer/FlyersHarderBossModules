@@ -133,14 +133,14 @@ public class PointerPointerScript : MonoBehaviour {
 		mainSelectable.ChildRowLength = squareLength;
 		mainSelectable.UpdateChildrenProperly();
 		//var detectedIgnoredModules = bossHandler.GetIgnoredModules(modSelf);
-		ignoredModules = bossHandler.GetIgnoredModules(modSelf, DefaultIgnoreList.ignoreListNames);
+		ignoredModules = bossHandler.GetIgnoredModuleIDs(modSelf, DefaultIgnoreList.ignoreListNames);
 		modSelf.OnActivate += delegate {
 			if (altGen)
 				GenerateStagesAlt();
 			else
 				GenerateStages();
 		};
-		reachableStageIdx = bombInfo.GetSolvableModuleNames().Count(a => !ignoredModules.Contains(a)) - 1;
+		reachableStageIdx = bombInfo.GetSolvableModuleIDs().Count(a => !ignoredModules.Contains(a)) - 1;
 		allPointerStages = new List<StagePointerPointer>();
 		for (var x = 0; x < arrowRenderers.Length; x++)
 			arrowRenderers[x].enabled = false;
@@ -908,7 +908,7 @@ public class PointerPointerScript : MonoBehaviour {
 	void Update () {
 		if (started && !moduleSolved)
 		{
-			var curSolveCount = bombInfo.GetSolvedModuleNames().Count(a => !ignoredModules.Contains(a));
+			var curSolveCount = bombInfo.GetSolvedModuleIDs().Count(a => !ignoredModules.Contains(a));
 			if (lastSolveCount != curSolveCount)
             {
 				var differenceSolveCounts = curSolveCount - lastSolveCount;
