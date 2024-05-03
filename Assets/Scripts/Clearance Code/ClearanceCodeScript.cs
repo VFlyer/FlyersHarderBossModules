@@ -212,6 +212,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				yield return BrieflyFlashInputTextColor(Color.green, 20);
 				inputText.text = "";
 				SolveModule();
+				yield break;
 			}
 			else
 			{
@@ -333,9 +334,9 @@ public class ClearanceCodeScript : MonoBehaviour {
 		for (int n = 0; n < buttonOutlineRenders.Length; n++)
 		{
 			mAudio.PlaySoundAtTransform("BinMemSolve", transform);
-			var outRender = buttonOutlineRenders[hasLastStage ? allStages.Last().inputDigitsLayout.ToList().IndexOf(n) : n];
-			var ancilRender = ancilleryBtnRenders[hasLastStage ? allStages.Last().inputDigitsLayout.ToList().IndexOf(n) : n];
-			var txtMesh = digitsMesh[hasLastStage ? allStages.Last().inputDigitsLayout.ToList().IndexOf(n) : n];
+			var outRender = buttonOutlineRenders[hasLastStage ? allStages[reachableStageIdx - 1].inputDigitsLayout.ToList().IndexOf(n) : n];
+			var ancilRender = ancilleryBtnRenders[hasLastStage ? allStages[reachableStageIdx - 1].inputDigitsLayout.ToList().IndexOf(n) : n];
+			var txtMesh = digitsMesh[hasLastStage ? allStages[reachableStageIdx - 1].inputDigitsLayout.ToList().IndexOf(n) : n];
 			for (float t = 0; t < 1f; t += Time.deltaTime * 10)
 			{
 				outRender.material.color = Color.Lerp(lastColorsAllOutlineMats[n], Color.white, t);
@@ -379,10 +380,14 @@ public class ClearanceCodeScript : MonoBehaviour {
 			render.material.color = Color.white;
 		interactable = true;
 		if (allStages.Any())
+		{
+			mAudio.PlaySoundAtTransform("Blip", transform);
 			yield return HandleDisplayStage(allStages.First());
+		}
 		else
-        {
+		{
 			inputting = true;
+			mAudio.PlaySoundAtTransform("KPDScan", transform);
 			yield return HandleDisplayInputFake();
 		}
 	}
@@ -561,7 +566,7 @@ public class ClearanceCodeScript : MonoBehaviour {
             {
 				if (!inputting)
                 {
-					QuickLog("Solve detected, revealing layout for inputting for stage {0}", curStageIdx + 1);
+					QuickLog("Solve detected, revealing layout for inputting stage {0}", curStageIdx + 1);
 					inputting = true;
 					mAudio.PlaySoundAtTransform("KPDScan", transform);
 					if (animHandler != null)
@@ -580,7 +585,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 			if (requireStrike && !disableStrike)
             {
 				QuickLog("Strike! A stage is still waiting for input. The number of required stages to disarm the module has decreased by {0}.", countStagesRemoved);
-				mAudio.PlaySoundAtTransform("Error 2", transform);
+				mAudio.PlaySoundAtTransform("KPDError 2", transform);
 				StartCoroutine(BrieflyFlashInputTextColor(Color.red));
 				CauseStrikeMercy();
 			}
