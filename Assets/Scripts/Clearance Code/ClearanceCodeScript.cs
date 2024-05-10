@@ -326,7 +326,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 	}
 	IEnumerator HandleSolveAnim(bool hasLastStage = true)
 	{
-		var reversed = Random.value < 0.5f;
+		//var reversed = Random.value < 0.5f;
 		var lastColorsAllAncilleryMats = ancilleryBtnRenders.Select(a => a.material.color).ToArray();
 		var lastColorsAllOutlineMats = buttonOutlineRenders.Select(a => a.material.color).ToArray();
 		var lastColorsTexts = digitsMesh.Select(a => a.color).ToArray();
@@ -396,7 +396,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 		var reversed = Random.value < 0.5f;
 		for (float t = 0; t < 1f; t += Time.deltaTime * 2f)
 		{
-			aligner.percentOffset = 0.05f * (Easing.InOutSine(t + 0.25f, 0f, 1f, 0.5f) - 0.5f);
+			aligner.percentOffset = 0.05f * ((reversed ? Easing.InOutSine(t + 0.25f, 0f, 1f, 0.5f) : Easing.InOutSine(1.25f - t, 0f, 1f, 0.5f)) - 0.5f);
 			aligner.UpdatePositions();
 			yield return null;
 		}
@@ -648,16 +648,20 @@ public class ClearanceCodeScript : MonoBehaviour {
 			while (!interactable)
 			{
 				if (TPRequireDelayStrike)
-                {
+				{
 					yield return "strike";
 					yield break;
-                }
+				}
+				else if (moduleSolved)
+				{
+					yield return "solve";
+					yield break;
+				}
 				yield return null;
 			}
 			if (!inputting)
 				yield return string.Format("awardpoints {0}", authorPPAScore);
-			else if (moduleSolved)
-				yield return "solve";
+			
         }
 		yield break;
     }
