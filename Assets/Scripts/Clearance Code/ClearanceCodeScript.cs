@@ -25,12 +25,15 @@ public class ClearanceCodeScript : MonoBehaviour {
 	string curInput = "";
 
 	const int digitsToInput = 4, authorPPAScore = 2;
+	const string digits = "0123456789";
 
 	string[] ignoreListIDs = DefaultIgnoreList.ignoreListIDs;
 
-	bool activated = false, inputting = false, moduleSolved = false, interactable, disableStrike, TPRequireDelayStrike;
+	bool activated = false, inputting = false, moduleSolved = false, bigCrunchMode = false, interactable, disableStrike, TPRequireDelayStrike;
 	IEnumerator animHandler;
 	static readonly Color transWhite = new Color(1, 1, 1, 0);
+
+	FlyersBossierSettings bossSettings;
 
 	void QuickLog(string toLog = "", params object[] args)
     {
@@ -40,6 +43,21 @@ public class ClearanceCodeScript : MonoBehaviour {
     {
 		Debug.LogFormat("<{0} #{1}> {2}", modself.ModuleDisplayName, moduleID, string.Format(toLog, args));
     }
+	void Awake()
+    {
+		try
+		{
+			ModConfig<FlyersBossierSettings> settingsFile = new ModConfig<FlyersBossierSettings>("FlyersBossierSettings");
+			bossSettings = settingsFile.Settings;
+			settingsFile.Settings = bossSettings;
+			bigCrunchMode = !bossSettings.CCEasyMode;
+		}
+		catch
+		{
+
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
 		moduleID = ++modIDCnt;
@@ -48,7 +66,12 @@ public class ClearanceCodeScript : MonoBehaviour {
 			QuickLogDebug("Using default ignore list! This will cause issues when multiple bosses are present!");
 		else
 			ignoreListIDs = obtainedIds;
-		modself.OnActivate += ActivateModule;
+		modself.OnActivate += delegate {
+			if (bigCrunchMode)
+				ActivateModule();
+			else
+				ActivateModuleEasy();
+		};
 		inputText.text = "";
 		foreach (var render in buttonOutlineRenders)
 			render.enabled = false;
@@ -122,6 +145,82 @@ public class ClearanceCodeScript : MonoBehaviour {
 	}
 
 	void ActivateModule()
+    {
+		lockRenderer.enabled = false;
+		reachableStageIdx = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreListIDs.Contains(a));
+		allStages = new List<ClearCodeStage>();
+		QuickLog("Non-ignored modules detected: {0}", reachableStageIdx);
+		var lastDisplayedDigits = Enumerable.Range(0, 10).ToArray().Shuffle();
+		QuickLog("Initial digits in clockwise order, from top: {0}", lastDisplayedDigits.Join(","));
+		var lastFinalCode = "";
+		for (var x = 0; x < reachableStageIdx; x++)
+		{
+			QuickLog("--------------- Stage {0} ---------------", x + 1);
+			var newStage = new ClearCodeStage();
+			var pickedDigitIdxesCurStage = new List<int>();
+			while (pickedDigitIdxesCurStage.Count < digitsToInput)
+			{
+				var pickedDigitIdx = Random.Range(0, 10);
+				if (!pickedDigitIdxesCurStage.Contains(pickedDigitIdx))
+					pickedDigitIdxesCurStage.Add(pickedDigitIdx);
+			}
+			pickedDigitIdxesCurStage.Sort();
+			if (x % 4 >= 2)
+			{
+				pickedDigitIdxesCurStage = pickedDigitIdxesCurStage.Select(a => (10 - a) % 10).ToList();
+				QuickLog("Picked digits in counter-clockwise order: {0}", pickedDigitIdxesCurStage.Select(a => lastDisplayedDigits[a]).Join(","));
+			}
+			else
+				QuickLog("Picked digits in clockwise order: {0}", pickedDigitIdxesCurStage.Select(a => lastDisplayedDigits[a]).Join(","));
+			newStage.idxDigitsLit = pickedDigitIdxesCurStage.ToArray();
+			newStage.preInputDigitsLayout = lastDisplayedDigits.ToArray();
+
+			var newDisplayedDigits = Enumerable.Range(0, 10).ToList();
+			newDisplayedDigits.Shuffle();
+			newStage.inputDigitsLayout = newDisplayedDigits.ToArray();
+			// Stage calculation procedures
+			QuickLog("When inputting the digits will be shuffled to the following in clockwise order, from top: {0}", newDisplayedDigits.Join(","));
+			var distancesFromTargetCW = pickedDigitIdxesCurStage.Select(a => PMod(newDisplayedDigits.IndexOf(lastDisplayedDigits[a]) - a, 10)).ToArray();
+			QuickLog("Distances clockwise from previous position: {0}", distancesFromTargetCW.Join(","));
+			var inputStr = "";
+			if (x % 2 == 1)
+			{
+				for (var y = 0; y < digitsToInput; y++)
+				{
+					var idxPickedDigit = pickedDigitIdxesCurStage[y];
+					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] - (10 - distancesFromTargetCW[y]), 10).ToString();
+				}
+			}
+			else
+			{
+				for (var y = 0; y < digitsToInput; y++)
+				{
+					var idxPickedDigit = pickedDigitIdxesCurStage[y];
+					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] + distancesFromTargetCW[y], 10).ToString();
+				}
+			}
+			if (x > 0)
+            {
+				QuickLog("The last stage's code to input was {0}, subtracting each digit of this code from {1}.", lastFinalCode, inputStr);
+				var numsEachLast = lastFinalCode.Select(a => digits.IndexOf(a)).ToArray();
+				var newInputStr = "";
+				for (var n = 0; n < inputStr.Length; n++)
+					newInputStr += ((10 + digits.IndexOf(inputStr[n]) - numsEachLast[n]) % 10).ToString();
+				inputStr = newInputStr;
+            }
+			lastFinalCode = inputStr;
+			newStage.expectedInput = inputStr;
+			QuickLog("Expected code for stage {0}: {1}", x + 1, inputStr);
+			allStages.Add(newStage);
+			lastDisplayedDigits = newDisplayedDigits.ToArray();
+		}
+		QuickLog("--------------- User Interactions ---------------");
+		activated = true;
+		animHandler = HandleStartupAnim();
+		StartCoroutine(animHandler);
+	}
+
+	void ActivateModuleEasy()
     {
 		lockRenderer.enabled = false;
 		reachableStageIdx = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreListIDs.Contains(a));
@@ -490,6 +589,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 					digitsMesh[x].text = randomDigitsLayout[(int)Mathf.Lerp(0, 5, t)][x].ToString();
 				}
 				inputText.text = randomDigitsInput[(int)Mathf.Lerp(0, 5, t)];
+				inputText.color = bigCrunchMode ? Color.Lerp(Color.white, curStageIdx % 2 == 0 ? Color.cyan : Color.magenta, t) : Color.white;
 				yield return null;
 			}
 			for (var x = 0; x < buttonOutlineRenders.Length; x++)
@@ -508,6 +608,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				digitsMesh[x].text = specifiedStage.preInputDigitsLayout[x].ToString();
 			}
 			inputText.text = ((curStageIdx + 1) % 10000).ToString("0000");
+			inputText.color = bigCrunchMode ? curStageIdx % 2 == 0 ? Color.cyan : Color.magenta : Color.white;
 		}
 		else
         {
@@ -529,6 +630,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 					digitsMesh[x].text = randomDigitsLayout[(int)Mathf.Lerp(0, 5, t)][x].ToString();
 				}
 				inputText.text = randomDigitsInput[(int)Mathf.Lerp(0, 5, t)];
+				inputText.color = bigCrunchMode ? Color.Lerp(curStageIdx % 2 == 0 ? Color.cyan : Color.magenta, Color.white, t) : Color.white;
 				yield return null;
 			}
 			for (var x = 0; x < buttonOutlineRenders.Length; x++)
@@ -544,6 +646,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				digitsMesh[x].text = specifiedStage.inputDigitsLayout[x].ToString();
 			}
 			inputText.text = "----";
+			inputText.color = Color.white;
 		}
 		yield break;
     }
@@ -638,7 +741,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				yield return "sendtochaterror The module wants the code to not have that many digits. Check your command for typos.";
 				yield break;
 			}
-			var curStageDigitLayout = allStages.Any() ? allStages[curStageIdx].inputDigitsLayout.Join("") : "0123456789";
+			var curStageDigitLayout = allStages.Any() ? allStages[curStageIdx].inputDigitsLayout.Join("") : digits;
 			yield return null;
 			for (var x = 0; x < digits.Length; x++)
             {
