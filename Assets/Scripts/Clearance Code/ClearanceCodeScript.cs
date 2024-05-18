@@ -343,8 +343,16 @@ public class ClearanceCodeScript : MonoBehaviour {
 		interactable = true;
 		activated = true;
 	}
+	IEnumerator DelayDisplayTextLastInput()
+    {
+		yield return null;
+		inputText.text = allStages[curStageIdx - 1].expectedInput;
+	}
+
 	IEnumerator HandleMercyStage(ClearCodeStage curStage, bool altMercyColor = false)
 	{
+		if (bigCrunchMode && curStageIdx > 0)
+			StartCoroutine(DelayDisplayTextLastInput());
 		var stepCur = 0;
 		while (true)
         {
