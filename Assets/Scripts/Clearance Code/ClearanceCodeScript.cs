@@ -149,7 +149,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 		lockRenderer.enabled = false;
 		reachableStageIdx = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreListIDs.Contains(a));
 		allStages = new List<ClearCodeStage>();
-		QuickLog("Non-ignored modules detected: {0}", reachableStageIdx);
+		QuickLog("Using last stage's code as input. Non-ignored modules detected: {0}", reachableStageIdx);
 		var lastDisplayedDigits = Enumerable.Range(0, 10).ToArray().Shuffle();
 		QuickLog("Initial digits in clockwise order, from top: {0}", lastDisplayedDigits.Join(","));
 		var lastFinalCode = "";
@@ -183,21 +183,10 @@ public class ClearanceCodeScript : MonoBehaviour {
 			var distancesFromTargetCW = pickedDigitIdxesCurStage.Select(a => PMod(newDisplayedDigits.IndexOf(lastDisplayedDigits[a]) - a, 10)).ToArray();
 			QuickLog("Distances clockwise from previous position: {0}", distancesFromTargetCW.Join(","));
 			var inputStr = "";
-			if (x % 2 == 1)
+			for (var y = 0; y < digitsToInput; y++)
 			{
-				for (var y = 0; y < digitsToInput; y++)
-				{
-					var idxPickedDigit = pickedDigitIdxesCurStage[y];
-					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] - (10 - distancesFromTargetCW[y]), 10).ToString();
-				}
-			}
-			else
-			{
-				for (var y = 0; y < digitsToInput; y++)
-				{
-					var idxPickedDigit = pickedDigitIdxesCurStage[y];
-					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] + distancesFromTargetCW[y], 10).ToString();
-				}
+				var idxPickedDigit = pickedDigitIdxesCurStage[y];
+				inputStr += PMod(lastDisplayedDigits[idxPickedDigit] + distancesFromTargetCW[y], 10).ToString();
 			}
 			if (x > 0)
             {
@@ -253,24 +242,12 @@ public class ClearanceCodeScript : MonoBehaviour {
 			var distancesFromTargetCW = pickedDigitIdxesCurStage.Select(a => PMod(newDisplayedDigits.IndexOf(lastDisplayedDigits[a]) - a, 10)).ToArray();
 			QuickLog("Distances clockwise from previous position: {0}", distancesFromTargetCW.Join(","));
 			var inputStr = "";
-			if (x % 2 == 1)
-			{
-				for (var y = 0; y < digitsToInput; y++)
-				{
-					var idxPickedDigit = pickedDigitIdxesCurStage[y];
-					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] - (10 - distancesFromTargetCW[y]), 10).ToString();
-				}
-				newStage.expectedInput = inputStr;
-			}
-			else
+            for (var y = 0; y < digitsToInput; y++)
             {
-                for (var y = 0; y < digitsToInput; y++)
-                {
-					var idxPickedDigit = pickedDigitIdxesCurStage[y];
-					inputStr += PMod(lastDisplayedDigits[idxPickedDigit] + distancesFromTargetCW[y], 10).ToString();
-                }
-				newStage.expectedInput = inputStr;
-			}
+				var idxPickedDigit = pickedDigitIdxesCurStage[y];
+				inputStr += PMod(lastDisplayedDigits[idxPickedDigit] + distancesFromTargetCW[y], 10).ToString();
+            }
+			newStage.expectedInput = inputStr;
 			QuickLog("Expected code for stage {0}: {1}", x + 1, inputStr);
 			allStages.Add(newStage);
 			lastDisplayedDigits = newDisplayedDigits.ToArray();
