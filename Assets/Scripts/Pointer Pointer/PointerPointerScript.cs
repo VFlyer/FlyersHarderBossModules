@@ -485,7 +485,10 @@ public class PointerPointerScript : MonoBehaviour {
 		StartCoroutine(ledFlashAnim);
 		if (!revealed)
 		{
-			StartCoroutine(RevealTilesCurrentStage(Enumerable.Range(0, 36)));
+			if (squareLength == 6)
+				StartCoroutine(RevealTilesCurrentStage6x6(Enumerable.Range(0, 36)));
+			else
+				StartCoroutine(RevealTilesCurrentStage4x4(Enumerable.Range(0, 16)));
 			revealed = true;
 		}
 	}
@@ -574,7 +577,7 @@ public class PointerPointerScript : MonoBehaviour {
         }
     }
 
-	IEnumerator RevealTilesCurrentStage(IEnumerable<int> values, float speed = 2f)
+	IEnumerator RevealTilesCurrentStage4x4(IEnumerable<int> values, float speed = 2f)
     {
 		StopCoroutine(specificTileFlasher);
 		var curStage = allPointerStages[curStageIdx];
@@ -601,6 +604,33 @@ public class PointerPointerScript : MonoBehaviour {
 		specificTileFlasher = FlashSpecificTile(curStage.startIdx, true);
 		StartCoroutine(specificTileFlasher);
 	}
+	IEnumerator RevealTilesCurrentStage6x6(IEnumerable<int> values, float speed = 2f)
+    {
+		StopCoroutine(specificTileFlasher);
+		var curStage = allPointerStages[curStageIdx];
+		for (var x = 0; x < values.Count(); x++)
+		{
+			var y = values.ElementAt(x);
+			var colorModifier = 8 - curStage.colorDisplayIdxes[y];
+			usedArrowRenderers[y].enabled = true;
+			usedArrowRenderers[y].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[y] + colorModifier), 0);
+			usedCBTextMeshes[y].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[y]] : "";
+		}
+
+		for (float t = 0; t <= 1f; t += Time.deltaTime * speed)
+		{
+			for (var x = 0; x < values.Count(); x++)
+			{
+				var y = values.ElementAt(x);
+				usedArrowRenderers[y].material.color = refColors[curStage.colorDisplayIdxes[y]] * t;
+				usedCBTextMeshes[y].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
+				usedScreenRenderers[y].material.color = new Color(0.5f * t, 0.25f * t, 0.25f * t);
+			}
+			yield return null;
+        }
+		specificTileFlasher = FlashSpecificTile(curStage.startIdx, true);
+		StartCoroutine(specificTileFlasher);
+	}
 
 	IEnumerator AnimateDisplayedStage(StagePointerPointer curStage, float speed = 0.25f)
     {
@@ -619,8 +649,8 @@ public class PointerPointerScript : MonoBehaviour {
 				var colorModifier = 8 - curStage.colorDisplayIdxes[x];
 				usedArrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]] * t;
 				usedArrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (timeModifier + curStage.truthDirectionIdxes[x] + colorModifier), 0);
-				colorblindTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
-                colorblindTextMeshes[x].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
+				usedCBTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
+                usedCBTextMeshes[x].color = new Color(0.8f * t, 0.8f * t, 0.8f * t);
 			}
 			foreach (var renderer in usedScreenRenderers)
 				renderer.material.color = Color.gray * t;
@@ -631,8 +661,8 @@ public class PointerPointerScript : MonoBehaviour {
 			var colorModifier = 8 - curStage.colorDisplayIdxes[x];
 			usedArrowRenderers[x].material.color = refColors[curStage.colorDisplayIdxes[x]];
 			usedArrowRenderers[x].transform.localRotation = Quaternion.Euler(-90, 180 + 45 * (curStage.truthDirectionIdxes[x] + colorModifier), 0);
-			colorblindTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
-			colorblindTextMeshes[x].color = new Color(0.8f, 0.8f, 0.8f);
+			usedCBTextMeshes[x].text = colorblindDetected ? colorRefAbbrev[curStage.colorDisplayIdxes[x]] : "";
+			usedCBTextMeshes[x].color = new Color(0.8f, 0.8f, 0.8f);
 		}
 		foreach (var renderer in usedScreenRenderers)
 			renderer.material.color = Color.gray;
