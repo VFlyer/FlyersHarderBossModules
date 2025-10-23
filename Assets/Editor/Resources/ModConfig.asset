@@ -53,6 +53,6 @@ MonoBehaviour:
     PLEASE CHECK THE REPOSITORY FOR THEIR RESPECTIVE MANUALS.
 
     MANUALS ARE EXCLUDED FROM THIS MOD DUE TO STORAGE REASONS.'
-  version: 1.1.7.04
+  version: 1.1.8
   outputFolder: build
   previewImage: {fileID: 2800000, guid: b0258a5a803644a46b5485104b7b5c33, type: 3}

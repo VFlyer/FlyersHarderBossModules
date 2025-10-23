@@ -443,14 +443,14 @@ public class TheNobodysCodeScript : MonoBehaviour {
 		else
         {
 			QuickLog("[NUMBER 3] does not contain a 4.");
-			if (relevantNumbers.Any(a => digitString.Any(b => a.Count(c => c == b) == 1)))
+			if (relevantNumbers.Any(a => a.Distinct().Count() >= a.Length))
 			{
-				QuickLog("There is a relevant number whose digits appear only once. Modifier for fifth digit: {0}", lastDigitSerialEven ? 7 : 6);
+				QuickLog("There is a relevant number with no repeating digits. Modifier for fifth digit: {0}", lastDigitSerialEven ? 7 : 6);
 				convertedValues[4] += lastDigitSerialEven ? 7 : 6;
 			}
 			else
 			{
-				QuickLog("There are no relevant numbers whose digits appear only once. Modifier for fifth digit: {0}", lastDigitSerialEven ? 8 : 9);
+				QuickLog("There are no relevant numbers with no repeating digits. Modifier for fifth digit: {0}", lastDigitSerialEven ? 8 : 9);
 				convertedValues[4] += lastDigitSerialEven ? 8 : 9;
 			}
 		}
