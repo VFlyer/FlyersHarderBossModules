@@ -22,6 +22,10 @@ public class FlyersBossierSettings {
     public bool _1ll4AllowEarlySubmission = false;
     public int _1ll4EarlySubmissionStageCountDrought = 10;
     public bool CCEasyMode = false;
+    public int CCDigitsDisplayed = 10;
+    public int CCDigitsRequired = 4;
+    public int CCStagesPerSeqDirSwap = 2;
+    public int CCStagesPerDisDirSwap = 0;
     public bool EnableExperimentalStrikeRedirect = false;
     public bool ECExhibitionMode = false;
     public bool ECDynamicStageGen = true;
@@ -32,6 +36,7 @@ public class FlyersBossierSettings {
     public int SGTMaxStagesBehind = 5;
     public float[] SGTDynamicScalingRanges = new[] { 2.5f, 2, 2, 1.5f, 1.25f, 1f };
     public bool SGTRequireAllStages = false;
+    public bool SGTScaleRequiredStages = false;
     public bool PPUseAlternativeGen = false;
     public int PPPointsPerActivation = 2;
     public bool PPUse6x6Board = false;
