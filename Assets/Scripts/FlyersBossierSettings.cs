@@ -24,8 +24,11 @@ public class FlyersBossierSettings {
     public bool CCEasyMode = false;
     public int CCDigitsDisplayed = 10;
     public int CCDigitsRequired = 4;
+    public bool CCRequireLastStage = true;
+    public int CCStagesPerCodeOperSwap = 0;
     public int CCStagesPerSeqDirSwap = 2;
-    public int CCStagesPerDisDirSwap = 0;
+    public int CCStagesPerDisDirSwap = 1;
+    public int CCStagesPerDistOperSwap = 0;
     public bool EnableExperimentalStrikeRedirect = false;
     public bool ECExhibitionMode = false;
     public bool ECDynamicStageGen = true;
