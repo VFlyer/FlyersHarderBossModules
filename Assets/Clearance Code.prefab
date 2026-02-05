@@ -112,6 +112,7 @@ GameObject:
   - component: {fileID: 4769833611167374}
   - component: {fileID: 23594623315314024}
   - component: {fileID: 102208034817892044}
+  - component: {fileID: 114329762548578816}
   m_Layer: 0
   m_Name: Settings Text
   m_TagString: Untagged
@@ -5723,6 +5724,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - Unlit/Transparent Colored
+--- !u!114 &114329762548578816
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1046753142803104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text
 --- !u!114 &114336554978552202
 MonoBehaviour:
   m_ObjectHideFlags: 1

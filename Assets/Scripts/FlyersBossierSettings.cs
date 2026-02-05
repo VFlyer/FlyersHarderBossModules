@@ -22,6 +22,7 @@ public class FlyersBossierSettings {
     public bool _1ll4AllowEarlySubmission = false;
     public int _1ll4EarlySubmissionStageCountDrought = 10;
     public bool CCEasyMode = false;
+    public int CCColorsToCycle = 8;
     public int CCDigitsDisplayed = 10;
     public int CCDigitsRequired = 4;
     public bool CCRequireLastStage = true;
@@ -29,6 +30,7 @@ public class FlyersBossierSettings {
     public int CCStagesPerSeqDirSwap = 2;
     public int CCStagesPerDisDirSwap = 1;
     public int CCStagesPerDistOperSwap = 0;
+    public bool CCShuffleDigitsAlways = false;
     public bool EnableExperimentalStrikeRedirect = false;
     public bool ECExhibitionMode = false;
     public bool ECDynamicStageGen = true;

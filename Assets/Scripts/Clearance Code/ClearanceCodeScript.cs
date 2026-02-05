@@ -23,6 +23,9 @@ public class ClearanceCodeScript : MonoBehaviour {
 	MeshRenderer[] usedButtonOutlineRenders, usedAncilleryBtnRenders;
 	TextMesh[] usedDigitsMesh;
 
+	static List<string> overrideStrings = new List<string>();
+	static long lastModIDLoad = 0;
+
 	static int modIDCnt;
 	int moduleID;
 	int curStageIdx, lastNonignoredSolveCount, reachableStageIdx;
@@ -34,27 +37,28 @@ public class ClearanceCodeScript : MonoBehaviour {
 
 	string[] ignoreListIDs = DefaultIgnoreList.ignoreListIDs;
 
-	bool activated = false, inputting = false, moduleSolved = false, interactable, requireLastStage, disableStrike, TPRequireDelayStrike;
-	int digitsToDisplay, stagesPerCodeOperSwap, stagesPerDistOperSwap, stagesPerDistDirSwap, stagesPerSeqDirSwap;
+	bool activated = false, inputting = false, moduleSolved = false, interactable, requireLastStage, shuffleDigitsAlways, disableStrike, TPRequireDelayStrike;
+	int digitsToDisplay, stagesPerCodeOperSwap, stagesPerDistOperSwap, stagesPerDistDirSwap, stagesPerSeqDirSwap, colorCycleLimit;
 	IEnumerator animHandler;
 	static readonly Color transWhite = new Color(1, 1, 1, 0);
+	static readonly Color[] cyclingColors = new[] { Color.cyan, Color.magenta, new Color(.5f, 1, 1), new Color(1, .5f, 1), new Color(.1f, .1f, 1), new Color(.5f, .5f, 1), new Color(0, .5f, 1), new Color(.5f, 0, 1) };
 
 	static readonly Dictionary<int, string[]> possibleTextsWrong = new Dictionary<int, string[]> {
 		{ 2, new[] { "NO" } },
 		{ 3, new[] { "NON" } },
 		{ 4, new[] { "N0PE", "NONO", "FA1L" } },
 		{ 5, new[] { "NOPE1", "NOT1T" } },
-		{ 6, new[] { "NONONO" } },
+		{ 6, new[] { "UUR0N9" } },
 		{ 7, new[] { "NONONON" } },
 		{ 8, new[] { "NONONONO" } },
 		{ 9, new[] { "1NCORRECT" } },
 		{ 10, new[] { "NOTCORRECT" } },
 		{ 11, new[] { "NONONONONON" } },
-		{ 12, new[] { "NONONONONONO" } },
+		{ 12, new[] { "N0PEN0PEN0PE", "NONONONONONO" } },
 		{ 13, new[] { "NONONONONONON" } },
 		{ 14, new[] { "NONONONONONONO" } },
 		{ 15, new[] { "NONONONONONONON" } },
-		{ 16, new[] { "NONONONONONONONO" } },
+		{ 16, new[] { "ABS0LUTELYUUR0N9", "N0PEN0PEN0PEN0PE" } },
 	}, possibleTextsCorrect = new Dictionary<int, string[]> {
 		{ 2, new[] { "YO" } },
 		{ 3, new[] { "YES", "YEP" } },
@@ -126,6 +130,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 			settingsFile.Settings = bossSettings;
 			if (bossSettings.CCEasyMode)
             {
+				colorCycleLimit = Mathf.Clamp(bossSettings.CCColorsToCycle, 2, 8);
 				digitsToDisplay = 10;
                 digitsToInput = 4;
 				requireLastStage = false;
@@ -133,9 +138,11 @@ public class ClearanceCodeScript : MonoBehaviour {
 				stagesPerSeqDirSwap = 0;
 				stagesPerDistDirSwap = 0;
 				stagesPerDistOperSwap = 0;
+				shuffleDigitsAlways = false;
 			}
             else
 			{
+				colorCycleLimit = Mathf.Clamp(bossSettings.CCColorsToCycle, 2, 8);
 				digitsToDisplay = Mathf.Clamp(bossSettings.CCDigitsDisplayed, 3, 16);
 				digitsToInput = Mathf.Clamp(bossSettings.CCDigitsRequired, 2, digitsToDisplay);
 				requireLastStage = bossSettings.CCRequireLastStage;
@@ -143,10 +150,12 @@ public class ClearanceCodeScript : MonoBehaviour {
 				stagesPerSeqDirSwap = bossSettings.CCStagesPerSeqDirSwap;
 				stagesPerDistDirSwap = bossSettings.CCStagesPerDisDirSwap;
 				stagesPerDistOperSwap = bossSettings.CCStagesPerDistOperSwap;
+				shuffleDigitsAlways = bossSettings.CCShuffleDigitsAlways;
 			}
 		}
 		catch
 		{
+			Debug.LogWarning("Clearance Code settings do not work as intended! Using default settings!");
 			digitsToDisplay = 10;
 			digitsToInput = 4;
 			requireLastStage = true;
@@ -154,6 +163,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 			stagesPerSeqDirSwap = 2;
 			stagesPerDistDirSwap = 1;
 			stagesPerDistOperSwap = 0;
+			shuffleDigitsAlways = false;
 		}
 	}
 	bool TryOverrideMission()
@@ -168,14 +178,20 @@ public class ClearanceCodeScript : MonoBehaviour {
 				return false;
 		}
 		var description = Game.Mission.Description ?? "";
-		var regexCCOverride = Regex.Match(description, @"\[CCOverride\]\s\d+,\d+,(true|false),\-?\d+,\-?\d+,\-?\d+,\-?\d+");
-		if (regexCCOverride.Success)
+		var regexCCOverrideAll = Regex.Matches(description, @"\[CCOverride\]\s\d+,\d+,(true|false),\-?\d+,\-?\d+,\-?\d+,\-?\d+,(true|false)", RegexOptions.CultureInvariant);
+		if (!overrideStrings.Any())
+			foreach (Match match in regexCCOverrideAll)
+				overrideStrings.Add(match.Value);
+
+		var curIdxOverride = lastModIDLoad - moduleID;
+		var curOverrideString = overrideStrings.ElementAtOrDefault((int)curIdxOverride);
+		if (!string.IsNullOrEmpty(curOverrideString))
 		{
+			
 			try
 			{
 				successful = true;
-				var valuedMatched = regexCCOverride.Value;
-				var lastPartOnlySplit = valuedMatched.Split().Last().Split(',');
+				var lastPartOnlySplit = curOverrideString.Split().Last().Split(',');
 				digitsToDisplay = Mathf.Clamp(int.Parse(lastPartOnlySplit[0]), 3, 16);
 				digitsToInput = Mathf.Clamp(int.Parse(lastPartOnlySplit[1]), 2, digitsToDisplay);
 				requireLastStage = bool.Parse(lastPartOnlySplit[2]);
@@ -183,6 +199,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				stagesPerSeqDirSwap = int.Parse(lastPartOnlySplit[4]);
 				stagesPerDistDirSwap = int.Parse(lastPartOnlySplit[5]);
 				stagesPerDistOperSwap = int.Parse(lastPartOnlySplit[6]);
+				shuffleDigitsAlways = bool.Parse(lastPartOnlySplit[7]);
 			}
 			catch
 			{
@@ -195,6 +212,12 @@ public class ClearanceCodeScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moduleID = ++modIDCnt;
+		if (lastModIDLoad < moduleID)
+		{
+			//QuickLogDebug("Last ID loaded is later.");
+			lastModIDLoad = moduleID;
+			overrideStrings.Clear();
+		}
 		var obtainedIds = bossHandler.GetIgnoredModuleIDs(modself);
 		if (obtainedIds == null || !obtainedIds.Any())
 			QuickLogDebug("Using default ignore list! This will cause issues when multiple bosses are present!");
@@ -225,7 +248,6 @@ public class ClearanceCodeScript : MonoBehaviour {
 			var y = x;
 			btnSelectables[x].OnInteract += delegate { if (activated && interactable) HandleBtnPress(y); return false; };
         }
-
 	}
 	void HandleBtnPress(int idx)
     {
@@ -274,7 +296,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 		modself.HandleStrike();
 		if (animHandler != null)
 			StopCoroutine(animHandler);
-		animHandler = HandleMercyStage(allStages[curStageIdx], curStageIdx % 2 == 1);
+		animHandler = HandleMercyStage(allStages[curStageIdx], cyclingColors[curStageIdx % colorCycleLimit]);
 		StartCoroutine(animHandler);
 	}
 
@@ -312,6 +334,10 @@ public class ClearanceCodeScript : MonoBehaviour {
 				stagesPerCodeOperSwap == 0 ? " and all stages afterwards" : "",
 				stagesPerCodeOperSwap == 0 ? "" : stagesPerCodeOperSwap == 1 ? " Switch between adding/subtracting every stage after stage 2." : string.Format(" Switch between adding/subtracting every {0} stages after stage 2.", Mathf.Abs(stagesPerCodeOperSwap)));
 		}
+		if (shuffleDigitsAlways)
+			QuickLog("Digits will be shuffled every stage regardless if the module is ready to input or not.");
+		else
+			QuickLog("Digits will only be shuffled when the module is ready to input.");
 		QuickLog("Non-ignored modules detected: {0}", reachableStageIdx);
 
 
@@ -326,16 +352,21 @@ public class ClearanceCodeScript : MonoBehaviour {
 		for (var x = 0; x < reachableStageIdx; x++)
 		{
 			if (x > 0 && stagesPerSeqDirSwap != 0 && x % stagesPerSeqDirSwap == 0) // 2nd condition prevents division by 0.
-				ccwIntDigits ^= true;
+				ccwIntDigits ^= true; // If X is divisible by the no. of stages before swapping the direction of obtaining initial digits...
 			if (x > 0 && stagesPerDistDirSwap != 0 && x % stagesPerDistDirSwap == 0) // 2nd condition prevents division by 0.
-				ccwDistCalc ^= true;
+				ccwDistCalc ^= true; // If X is divisible by the no. of stages before swapping the direction of the distances between digits...
 			if (x > 0 && stagesPerDistOperSwap != 0 && x % stagesPerDistOperSwap == 0) // 2nd condition prevents division by 0.
-				subDistCalc ^= true;
+				subDistCalc ^= true; // If X is divisible by the no. of stages before swapping the operation of the distances between digits...
 			if (x > 1 && stagesPerCodeOperSwap != 0 && (x - 1) % stagesPerCodeOperSwap == 0) // 2nd condition prevents division by 0.
-				addCodeCalc ^= true;
+				addCodeCalc ^= true; // If X is divisible by the no. of stages before swapping final code operations...
 			QuickLog("--------------- Stage {0} ---------------", x + 1);
 			var newStage = new ClearCodeStage();
-            var pickedDigitIdxesCurStage = Enumerable.Range(0, digitsToDisplay).ToArray().Shuffle().Take(digitsToInput).ToList();
+			if (shuffleDigitsAlways)
+			{
+				lastDisplayedDigits = lastDisplayedDigits.ToArray().Shuffle();
+				QuickLog("The digits will be shuffled to the following in clockwise order, from top: {0}", lastDisplayedDigits.Select(a => base16Digits[a]).Join(","));
+			}
+			var pickedDigitIdxesCurStage = Enumerable.Range(0, digitsToDisplay).ToArray().Shuffle().Take(digitsToInput).ToList();
 			pickedDigitIdxesCurStage.Sort();
 			if (ccwIntDigits)
 			{
@@ -455,7 +486,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 		inputText.text = allStages[curStageIdx - 1].expectedInput;
 	}
 
-	IEnumerator HandleMercyStage(ClearCodeStage curStage, bool altMercyColor = false)
+	IEnumerator HandleMercyStage(ClearCodeStage curStage, Color markerColor)
 	{
 		if (requireLastStage && curStageIdx > 0)
 			StartCoroutine(DelayDisplayTextLastInput());
@@ -492,30 +523,30 @@ public class ClearanceCodeScript : MonoBehaviour {
 				{
 					for (var x = 0; x < usedButtonOutlineRenders.Length; x++)
 					{
-						usedButtonOutlineRenders[x].material.color = Color.Lerp(lastColorsOutlines[x], postInitCurStage == x ? transWhite : litInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : Color.white, t);
+						usedButtonOutlineRenders[x].material.color = Color.Lerp(lastColorsOutlines[x], postInitCurStage == x ? transWhite : litInitCurStage == x ? markerColor : Color.white, t);
 					}
 					for (var x = 0; x < usedAncilleryBtnRenders.Length; x++)
 					{
 						usedAncilleryBtnRenders[x].enabled = true;
-						usedAncilleryBtnRenders[x].material.color = Color.Lerp(lastColorsCenters[x], postInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : transWhite, t);
+						usedAncilleryBtnRenders[x].material.color = Color.Lerp(lastColorsCenters[x], postInitCurStage == x ? markerColor : transWhite, t);
 					}
 					for (var x = 0; x < usedDigitsMesh.Length; x++)
-						usedDigitsMesh[x].color = Color.Lerp(lastColorsTexts[x], postInitCurStage == x ? Color.black : litInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : Color.white, t);
+						usedDigitsMesh[x].color = Color.Lerp(lastColorsTexts[x], postInitCurStage == x ? Color.black : litInitCurStage == x ? markerColor : Color.white, t);
 					yield return null;
 				}
 				foreach (MeshRenderer x in usedButtonOutlineRenders)
                     x.material.color = Color.white;
 				for (int x = 0; x < usedButtonOutlineRenders.Length; x++)
 				{
-					usedButtonOutlineRenders[x].material.color = postInitCurStage == x ? transWhite : litInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : Color.white;
+					usedButtonOutlineRenders[x].material.color = postInitCurStage == x ? transWhite : litInitCurStage == x ? markerColor : Color.white;
 				}
 				for (var x = 0; x < usedAncilleryBtnRenders.Length; x++)
 				{
 					usedAncilleryBtnRenders[x].enabled = postInitCurStage == x;
-					usedAncilleryBtnRenders[x].material.color = postInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : transWhite;
+					usedAncilleryBtnRenders[x].material.color = postInitCurStage == x ? markerColor : transWhite;
 				}
 				for (var x = 0; x < usedDigitsMesh.Length; x++)
-					usedDigitsMesh[x].color = postInitCurStage == x ? Color.black : litInitCurStage == x ? (altMercyColor ? Color.magenta : Color.cyan) : Color.white;
+					usedDigitsMesh[x].color = postInitCurStage == x ? Color.black : litInitCurStage == x ? markerColor : Color.white;
 			}
 			stepCur = (stepCur + 1) % (digitsToInput + 1);
 			yield return new WaitForSeconds(1f);
@@ -673,14 +704,18 @@ public class ClearanceCodeScript : MonoBehaviour {
 	IEnumerator HandleDisplaySettingsTxt()
     {
 		var cyclingTxt = "0123456789abcdefhjlnoprtuy-";
-		var settingsTextEncoded = string.Format("{0}{1}{2}{3}{4}{5}{6}",
+		var settingsTextEncoded = string.Format("{0}{1}{2}{3}{7}{4}{8}{5}{9}{6}{10}",
 			cyclingTxt[digitsToDisplay - 1],
 			cyclingTxt[digitsToInput - 1],
-			requireLastStage ? "f" : "0",
+			requireLastStage ? "t" : "f",
 			Mathf.Clamp(stagesPerCodeOperSwap, -allStages.Count, allStages.Count).ToString(),
 			Mathf.Clamp(stagesPerSeqDirSwap, -allStages.Count, allStages.Count).ToString(),
 			Mathf.Clamp(stagesPerDistDirSwap, -allStages.Count, allStages.Count).ToString(),
-			Mathf.Clamp(stagesPerDistOperSwap, -allStages.Count, allStages.Count).ToString()
+			Mathf.Clamp(stagesPerDistOperSwap, -allStages.Count, allStages.Count).ToString(),
+			cyclingTxt[(digitsToDisplay + 2 * digitsToInput) % 15 + 10],
+			cyclingTxt[(Mathf.Clamp(Mathf.Abs(stagesPerCodeOperSwap), 0, allStages.Count) + 2 * Mathf.Clamp(Mathf.Abs(stagesPerSeqDirSwap), 0, allStages.Count)) % 15 + 10],
+			cyclingTxt[(Mathf.Clamp(Mathf.Abs(stagesPerDistDirSwap), 0, allStages.Count) + 2 * Mathf.Clamp(Mathf.Abs(stagesPerDistOperSwap), 0, allStages.Count)) % 15 + 10],
+			shuffleDigitsAlways ? "t" : "f"
 			);
 		var curString = "";
 		
@@ -706,6 +741,24 @@ public class ClearanceCodeScript : MonoBehaviour {
 			settingsTxt.text = lastText.Substring(0, lastText.Length - 1);
 			yield return new WaitForSeconds(0.02f);
 		}
+		while (!moduleSolved)
+			yield return null;
+		settingsTxt.color = Color.green;
+		curString = "";
+		while (curString != settingsTextEncoded)
+		{
+			var curStringPosIdx = 0;
+			while (cyclingTxt[curStringPosIdx] != settingsTextEncoded[curString.Length])
+			{
+				curStringPosIdx++;
+				settingsTxt.text = curString + cyclingTxt[curStringPosIdx];
+				yield return new WaitForSeconds(0.02f);
+			}
+			curString += cyclingTxt[curStringPosIdx];
+			settingsTxt.text = curString;
+			yield return new WaitForSeconds(0.02f);
+		}
+		settingsTxt.text = settingsTextEncoded;
 		yield break;
     }
 
@@ -748,7 +801,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 					usedDigitsMesh[x].text = randomDigitsLayout[(int)Mathf.Lerp(0, 5, t)][x].ToString();
 				}
 				inputText.text = randomDigitsInput[(int)Mathf.Lerp(0, 5, t)];
-				inputText.color = requireLastStage ? Color.Lerp(Color.white, curStageIdx % 2 == 0 ? Color.cyan : Color.magenta, t) : Color.white;
+				inputText.color = requireLastStage ? Color.Lerp(Color.white, cyclingColors[curStageIdx % colorCycleLimit], t) : Color.white;
 				yield return null;
 			}
 			for (var x = 0; x < usedButtonOutlineRenders.Length; x++)
@@ -767,7 +820,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 				usedDigitsMesh[x].text = base16Digits[specifiedStage.preInputDigitsLayout[x]].ToString();
 			}
 			inputText.text = ((curStageIdx + 1) % maxValueRNG).ToString(padded0s);
-			inputText.color = requireLastStage ? curStageIdx % 2 == 0 ? Color.cyan : Color.magenta : Color.white;
+			inputText.color = requireLastStage ? cyclingColors[curStageIdx % colorCycleLimit] : Color.white;
 		}
 		else
         {
@@ -789,7 +842,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 					usedDigitsMesh[x].text = randomDigitsLayout[(int)Mathf.Lerp(0, 5, t)][x].ToString();
 				}
 				inputText.text = randomDigitsInput[(int)Mathf.Lerp(0, 5, t)];
-				inputText.color = requireLastStage ? Color.Lerp(curStageIdx % 2 == 0 ? Color.cyan : Color.magenta, Color.white, t) : Color.white;
+				inputText.color = requireLastStage ? Color.Lerp(cyclingColors[curStageIdx % colorCycleLimit], Color.white, t) : Color.white;
 				yield return null;
 			}
 			for (var x = 0; x < usedButtonOutlineRenders.Length; x++)
