@@ -24,7 +24,7 @@ public class ClearanceCodeScript : MonoBehaviour {
 	TextMesh[] usedDigitsMesh;
 
 	static List<string> overrideStrings = new List<string>();
-	static long lastModIDLoad = 0;
+	static List<ClearanceCodeScript> loadedModules = new List<ClearanceCodeScript>();
 
 	static int modIDCnt;
 	int moduleID;
@@ -183,8 +183,8 @@ public class ClearanceCodeScript : MonoBehaviour {
 			foreach (Match match in regexCCOverrideAll)
 				overrideStrings.Add(match.Value);
 
-		var curIdxOverride = lastModIDLoad - moduleID;
-		var curOverrideString = overrideStrings.ElementAtOrDefault((int)curIdxOverride);
+		var curIdxOverride = loadedModules.IndexOf(this);
+		var curOverrideString = overrideStrings.ElementAtOrDefault(curIdxOverride);
 		if (!string.IsNullOrEmpty(curOverrideString))
 		{
 			
@@ -209,14 +209,20 @@ public class ClearanceCodeScript : MonoBehaviour {
 		}
 		return successful;
 	}
+	void OnDestroy()
+    {
+		loadedModules.Remove(this);
+		if (!loadedModules.Any())
+			overrideStrings.Clear();
+	}
+
 	// Use this for initialization
 	void Start () {
 		moduleID = ++modIDCnt;
-		if (lastModIDLoad < moduleID)
+		if (!loadedModules.Contains(this))
 		{
 			//QuickLogDebug("Last ID loaded is later.");
-			lastModIDLoad = moduleID;
-			overrideStrings.Clear();
+			loadedModules.Add(this);
 		}
 		var obtainedIds = bossHandler.GetIgnoredModuleIDs(modself);
 		if (obtainedIds == null || !obtainedIds.Any())
