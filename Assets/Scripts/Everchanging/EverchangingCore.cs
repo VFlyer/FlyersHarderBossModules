@@ -13,9 +13,10 @@ public class EverchangingCore : MonoBehaviour {
 		MonochromeArrows,
     }
 	static readonly InputProcedure[] rollableInputs = {
-		//InputProcedure.TenDigitKeypad,
+		InputProcedure.TenDigitKeypad,
 		//InputProcedure.WireSequences,
-		InputProcedure.MonochromeArrows, };
+		//InputProcedure.MonochromeArrows,
+	};
 	public KMSelectable debugButton;
 	public KMBombModule modSelf;
 	public KMBombInfo bombInfo;
@@ -23,7 +24,7 @@ public class EverchangingCore : MonoBehaviour {
 	public KMBossModuleExtensions bossHandler;
 	public KMColorblindMode colorblindMode;
 	// The input procedures.
-	public QuestionableWireSequencesCore wireSequencesCore;
+	//public QuestionableWireSequencesCore wireSequencesCore;
 	public TenDigitKeypadCore tenDigitKeypadCore;
 	public MonochromeArrowsCore mArrowsCore;
 	// The visuals responsible for each stage.
@@ -49,13 +50,12 @@ public class EverchangingCore : MonoBehaviour {
 	List<int> calculatedValues, stageIdxCalcsVoids;
 	static int modIDCnt = 1;
 	int modID, stagesSinceLastInput = 0, curStageIdx = -1, totalPossibleStages, idxStartStageInputsAll;
-	float timeBase = 15, curTimeLeft, animSpeedMultiplier = 0.5f;
-    string TwitchHelpMessage = "This module does nothing! Sorry about that.";
-	readonly string helpMessageBossAppend = " This help message changes every stage, so be on a lookout for when the stage changes!",
+	float timeBase = 15, curTimeLeft, animSpeedMultiplier = 1f;
+    string TwitchHelpMessage = "(Default TP Command) Tilt the module with \"!{0} tilt [direction/degrees from north]\" to get a better view of the given module.";
+	readonly string helpMessageBossAppend = " This help message may change upon a new stage!",
 		baseHelpMessage = "(Default TP Command) Tilt the module with \"!{0} tilt [direction/degrees from north]\" to get a better view of the given module.",
-		questionableWireSequenceHelpMessage = "",
-		_10DigitKeypadHelpMessage = "Input the digits 0,1,2,3,4,5,6,7,8,9 in that order with \"!{0} press 531820...\" or \"!{0} submit 531820...\"",
-		monochromicArrowsHelpMessage = "",
+		_10DigitKeypadHelpMessage = "Input the digits 0,1,2,3,4,5,6,7,8,9 in that order with \"!{0} press 0123456789...\" or \"!{0} submit 0123456789...\" You may use spaces in your command.",
+		monochromicArrowsHelpMessage = "Press the arrow in the specified direction using \"!{0} up/down/left/right\". ",
 		exhibitionModeMessageAppend = " Advance to the next stage with \"!{0} advance/next/n\"";
 	readonly static int[][] tableRefCubeDesyncValues = {
 							new[] { 5, 8, 4, 1, 0, 3, 9, 2, 6, 7 },
@@ -103,7 +103,7 @@ public class EverchangingCore : MonoBehaviour {
 	static readonly string[] debugDirections = { "Up", "Right", "Down", "Left", };
 	IEnumerable<int> lockFirstStageComponentsIdx, requiredStageIdxes;
 	FlyersBossierSettings modSelfSettings;
-	Vector3 storedCubeLocalPos, storedLEDLocalPos, storedSevenSegmentLocalPos, storedWireSeqLocalPos, storedMonochromeArrowsLocalPos;
+	Vector3 storedCubeLocalPos, storedLEDLocalPos, storedSevenSegmentLocalPos, storedKeypadLocalPos, storedMonochromeArrowsLocalPos;
 	public int debugIdxStageIdx = -1;
 	public bool debugBossMode, disableInputLinking;
 	InputProcedure currentInputSet;
@@ -148,12 +148,14 @@ public class EverchangingCore : MonoBehaviour {
 			else
 				QuickLog("Enforcing Exhibition Mode by settings.");
 			dynamicStageGen = modSelfSettings.ECDynamicStageGen;
+			useShorterIntro = modSelfSettings.ECQuickIntro;
         }
 		catch
         {
 			Debug.LogWarningFormat("<Everchanging #{0}> SETTINGS DO NOT WORK AS INTENDED, USING DEFAULT SETTINGS.", modID);
 			dynamicStageGen = false;
 			bossModeActive = canEnableBossMode;
+			useShorterIntro = true;
         }
         finally
         {
@@ -171,7 +173,7 @@ public class EverchangingCore : MonoBehaviour {
 		storedCubeLocalPos = cubeTransform.localPosition;
 		storedLEDLocalPos = ledRenderer.transform.localPosition;
 		storedSevenSegmentLocalPos = sevenSegmentSet.transform.localPosition;
-		storedWireSeqLocalPos = wireSequencesCore.transform.localPosition;
+		storedKeypadLocalPos = tenDigitKeypadCore.transform.localPosition;
 		storedMonochromeArrowsLocalPos = mArrowsCore.transform.localPosition;
 
 		debugButton.OnInteract += delegate {
@@ -211,6 +213,8 @@ public class EverchangingCore : MonoBehaviour {
 					return false;
 				};
             }
+			// Commented out due to ommitting Questionable Wire Sequences as input procedure.
+			/*
 			var wireSelectables = wireSequencesCore.wiresAllCompact;
 			for (var x = 0; x < wireSelectables.Length; x++)
             {
@@ -223,13 +227,14 @@ public class EverchangingCore : MonoBehaviour {
 					return false;
 				};
             }
+			*/
         }
 		tenDigitKeypadCore.bombInfo = bombInfo;
 		alphaForgetCube.gameObject.SetActive(false);
 		cubeTransform.gameObject.SetActive(false);
 		sevenSegmentSet.gameObject.SetActive(false);
 		ledRenderer.gameObject.SetActive(false);
-		wireSequencesCore.gameObject.SetActive(false);
+		//wireSequencesCore.gameObject.SetActive(false);
 		mArrowsCore.gameObject.SetActive(false);
 		tenDigitKeypadCore.gameObject.SetActive(false);
 		statusDisplay.text = "";
@@ -248,6 +253,7 @@ public class EverchangingCore : MonoBehaviour {
 				QuickLog("Ten Digit Keypad Input Procedure has been completed.");
 				HandleCompleteInputProcedure();
 			}
+			tenDigitKeypadCore.progressText.text = string.Format("{0}/{1}", tenDigitKeypadCore.currentInputIdx, allSubmissionValue.Count().ToString());
 		}
 		else if (curIdxInput >= allSubmissionValue.Count)
         {
@@ -274,7 +280,7 @@ public class EverchangingCore : MonoBehaviour {
 				QuickLog("Monochrome Arrows Input Procedure has been completed.");
 				HandleCompleteInputProcedure();
 			}
-			mArrowsTextProgress.text = string.Format("{0}/{1}", mArrowsCore.currentInputIdx, revealProgress || mArrowsCore.currentInputIdx >= allSubmissionValue.Count ? allSubmissionValue.Count().ToString() : "?");
+			mArrowsCore.progressText.text = string.Format("{0}/{1}", mArrowsCore.currentInputIdx, revealProgress || mArrowsCore.currentInputIdx >= allSubmissionValue.Count ? allSubmissionValue.Count().ToString() : "?");
 		}
 		else if (curIdxInput >= allSubmissionValue.Count)
         {
@@ -303,6 +309,7 @@ public class EverchangingCore : MonoBehaviour {
         }
 		else
         {
+			revealProgress = false;
 			idxStartStageInputsAll = curStageIdx;
             QuickLog("Completing this input procedure has knocked out the following stages from being included in future input procedures: {0}", requiredStageIdxes.Select(a => a + 1).Join(", "));
 		}
@@ -323,7 +330,7 @@ public class EverchangingCore : MonoBehaviour {
 		var newStage = new StageComponentInfoAll();
 		if (curStageIdx + (bossModeActive ? 6 : 1) >= totalPossibleStages)
 			stagesSinceLastInput = 0;
-		var idxInputs = Random.Range((stagesSinceLastInput >= (bossModeActive ? 6 : 3)) ? 0 : 1, 8);
+		var idxInputs = Random.Range((stagesSinceLastInput >= 6) && bossModeActive ? 0 : 1, 8);
 		if (curStageIdx >= totalPossibleStages)
 			idxInputs = 0;
 		else if (bossModeActive && curStageIdx < 3)
@@ -444,7 +451,7 @@ public class EverchangingCore : MonoBehaviour {
 						}
 						else
 							QuickLog("There is a parallel port and a lit NSA. Modifiers will not be used on this stage.");
-						stageCalculatedValue %= 10;
+						stageCalculatedValue = (10 + stageCalculatedValue) % 10;
 						QuickLog("Calculated Value for this stage: {0}", stageCalculatedValue);
 						calculatedValues.Add(stageCalculatedValue);
 					}
@@ -485,7 +492,7 @@ public class EverchangingCore : MonoBehaviour {
 						var nextValueExample = (tableRefCubeDesyncValues[rotationIdxSelected][exampleValue] + finalValue) % 10;
 						newStage.displayedNumbers = new[] { exampleValue };
 						newStage.fixedRotationIdx = new[] { rotationIdxSelected };
-						QuickLog("From that value to {0}, it should take {1} step(s).", nextValueExample, finalValue);
+						QuickLog("Subtracting that value from {0}, the result should be {1}, modulo 10.", nextValueExample, finalValue);
 					}
 					break;
 				case 7:
@@ -887,7 +894,7 @@ public class EverchangingCore : MonoBehaviour {
         {
 			case InputProcedure.MonochromeArrows:
 				
-                for (float t = -1; t < 1f; t += Time.deltaTime)
+                for (float t = -1; t < 1f; t += Time.deltaTime * animSpeedMultiplier)
                 {
 					mArrowsCore.transform.localPosition = new Vector3(storedMonochromeArrowsLocalPos.x, storedMonochromeArrowsLocalPos.y * t, storedMonochromeArrowsLocalPos.z);
 					yield return null;
@@ -896,7 +903,7 @@ public class EverchangingCore : MonoBehaviour {
 				do
 					yield return null;
 				while (inputModeActive);
-				for (float t = 1; t > -1f; t -= Time.deltaTime)
+				for (float t = 1; t > -1f; t -= Time.deltaTime * animSpeedMultiplier)
 				{
 					mArrowsCore.transform.localPosition = new Vector3(storedMonochromeArrowsLocalPos.x, storedMonochromeArrowsLocalPos.y * t, storedMonochromeArrowsLocalPos.z);
 					yield return null;
@@ -904,24 +911,24 @@ public class EverchangingCore : MonoBehaviour {
 				mArrowsCore.transform.localPosition = new Vector3(storedMonochromeArrowsLocalPos.x, storedMonochromeArrowsLocalPos.y * -1, storedMonochromeArrowsLocalPos.z);
 				mArrowsCore.gameObject.SetActive(false);
 				break;
-			case InputProcedure.WireSequences:
+			case InputProcedure.TenDigitKeypad:
 				
-                for (float t = -1; t < 1f; t += Time.deltaTime)
+                for (float t = -1; t < 1f; t += Time.deltaTime * animSpeedMultiplier)
                 {
-					wireSequencesCore.transform.localPosition = new Vector3(storedWireSeqLocalPos.x, storedWireSeqLocalPos.y * t, storedWireSeqLocalPos.z);
+					tenDigitKeypadCore.transform.localPosition = new Vector3(storedKeypadLocalPos.x, storedKeypadLocalPos.y * t, storedKeypadLocalPos.z);
 					yield return null;
                 }
-				wireSequencesCore.transform.localPosition = storedWireSeqLocalPos;
+				tenDigitKeypadCore.transform.localPosition = storedKeypadLocalPos;
 				do
 					yield return null;
 				while (inputModeActive);
-				for (float t = 1; t > -1f; t -= Time.deltaTime)
+				for (float t = 1; t > -1f; t -= Time.deltaTime * animSpeedMultiplier)
 				{
-					wireSequencesCore.transform.localPosition = new Vector3(storedWireSeqLocalPos.x, storedWireSeqLocalPos.y * t, storedWireSeqLocalPos.z);
+					tenDigitKeypadCore.transform.localPosition = new Vector3(storedKeypadLocalPos.x, storedKeypadLocalPos.y * t, storedKeypadLocalPos.z);
 					yield return null;
 				}
-				wireSequencesCore.transform.localPosition = new Vector3(storedWireSeqLocalPos.x, storedWireSeqLocalPos.y * -1, storedWireSeqLocalPos.z);
-				wireSequencesCore.gameObject.SetActive(false);
+				tenDigitKeypadCore.transform.localPosition = new Vector3(storedKeypadLocalPos.x, storedKeypadLocalPos.y * -1, storedKeypadLocalPos.z);
+				tenDigitKeypadCore.gameObject.SetActive(false);
 				break;
 			default:
 				yield break;
@@ -964,6 +971,8 @@ public class EverchangingCore : MonoBehaviour {
 					statusDisplay.text = string.Format("STAGE {0}\n", curStageIdx + 1);
 					HandleColorblindModeToggle();
 					yield return HandleRevealSelectedStage(curStage, false);
+					if (TwitchPlaysActive)
+						TwitchHelpMessage = baseHelpMessage + (!bossModeActive ? "" : exhibitionModeMessageAppend) + helpMessageBossAppend;
                 }
                 else
 				{
@@ -981,6 +990,7 @@ public class EverchangingCore : MonoBehaviour {
 							mArrowsCore.ResetInstance();
 							mArrowsCore.AssignObtainedValues(specifiedCalculatedValues);
 							mArrowsCore.MimicLogging(string.Format("[Everchanging #{0}] ", modID));
+							mArrowsCore.progressText.text = string.Format("{0}/{1}", mArrowsCore.currentInputIdx, "?");
 							for (var x = 0; x < mArrowsCore.arrowRenderers.Length; x++)
                             {
 								var directionIdx = mArrowsCore.arrowDirectionIdxes[x];
@@ -993,6 +1003,16 @@ public class EverchangingCore : MonoBehaviour {
 							QuickLog("Expected buttons to press: {0}", mArrowsCore.expectedPressIdxes.Select(a => a + 1).Join(", "));
 							break;
 						case InputProcedure.TenDigitKeypad:
+							QuickLog("Ten Digit Keypad has been selected as the input procedure for this stage.");
+							tenDigitKeypadCore.gameObject.SetActive(true);
+							tenDigitKeypadCore.ResetInstance();
+							tenDigitKeypadCore.AssignObtainedValues(specifiedCalculatedValues);
+							var missingKeyValue = tenDigitKeypadCore.missingKeyValue;
+							tenDigitKeypadCore.progressText.text = string.Format("{0}/{1}", tenDigitKeypadCore.currentInputIdx, tenDigitKeypadCore.submissionValues.Count().ToString());
+							QuickLog("The digit missing on the keypad has a value of {0}.", missingKeyValue);
+							tenDigitKeypadCore.MimicLogging(string.Format("[Everchanging #{0}] ", modID));
+							for (var x = 0; x < tenDigitKeypadCore.digitTexts.Length; x++)
+								tenDigitKeypadCore.digitTexts[x].text = x == missingKeyValue ? "" : x.ToString();
 							break;
 						case InputProcedure.WireSequences:
 							break;
@@ -1007,7 +1027,8 @@ public class EverchangingCore : MonoBehaviour {
 					if (inputModeActive)
 					{
 						currentInputSet = InputProcedure.None;
-						QuickLog("The input procedure was not completed!");
+						QuickLog("The input procedure was not completed! Handling strike as a response.");
+						modSelf.HandleStrike();
 						while (showingInputs)
 							yield return true;
 					}

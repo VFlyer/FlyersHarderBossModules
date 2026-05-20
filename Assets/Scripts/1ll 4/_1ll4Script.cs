@@ -74,16 +74,17 @@ public class _1ll4Script : MonoBehaviour {
 		{ '\u2261', "*-----**-----*" }, // Congruent
 		{ '\u2262', "*---*-**-*---*" }, // Not congruent to
 	};
-	readonly static Color[] colorOptions = new[] { Color.black, Color.grey, Color.white };
-	List<char> chrDigits;
-	List<bool> invChrDigit;
-	const string serialNoAllowedChrs = "0123456789ABCDEFGHIJKLMNPQRSTUVWXZ"; // O and Y will never appear for ambiguity reasons.
+	readonly static Color[] colorOptionsDebug = new[] { Color.black, Color.gray, Color.white },
+		colorOptions = new[] { Color.black, Color.blue, Color.green, Color.cyan, Color.red, Color.magenta, Color.yellow, Color.white };
+	List<char[]> chrDigits;
+	List<bool[]> invChrDigit;
 	IEnumerable<string> ignoreListIDs = DefaultIgnoreList.ignoreListIDs;
 	[SerializeField]
 	bool debugCharacters = true;
-	bool interactable = false, readyToSubmit = false, colorblindDetected, modSolved = false;
+	bool interactable = false, readyToSubmit = false, colorblindDetected, moduleSolved = false;
 
 	_1ll4Modifier selectedDifficulty;
+	List<_1ll4Stage> allStages;
 
 	int idxCycle = -1, curStageIdx, maxStageIdx, idxColorSelected = 0;
 
@@ -105,7 +106,7 @@ public class _1ll4Script : MonoBehaviour {
 		}
 		catch
 		{
-			selectedDifficulty = _1ll4Modifier.Normal;
+			selectedDifficulty = _1ll4Modifier.Stabilized;
 		}
 		finally
 		{
@@ -126,8 +127,8 @@ public class _1ll4Script : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moduleID = ++modIDCnt;
-		chrDigits = new List<char>();
-		invChrDigit = new List<bool>();
+		chrDigits = new List<char[]>();
+		invChrDigit = new List<bool[]>();
 		var ignoreListRepo = bossHandler.GetIgnoredModuleIDs(modSelf);
 		if (ignoreListRepo != null)
 			ignoreListIDs = ignoreListRepo;
@@ -135,14 +136,9 @@ public class _1ll4Script : MonoBehaviour {
 			Debug.LogWarningFormat("[{0}] Using default ignore list! This will cause some issues with other bosses present.", modSelf.ModuleDisplayName);
 		if (debugCharacters)
 		{
-			chrDigits.AddRange(chrSegmentDisplay.Keys);
-			invChrDigit.AddRange(Enumerable.Repeat(false, chrSegmentDisplay.Keys.Count));
+			chrDigits.Add(chrSegmentDisplay.Keys.ToArray());
+			invChrDigit.Add(Enumerable.Repeat(false, chrSegmentDisplay.Keys.Count).ToArray());
 		}
-		else
-        {
-			var allComboSegments = new Dictionary<string, int[]>();
-
-        }
 		for (var x = 0; x < clrSelectables.Length; x++)
 		{
 			var y = x;
@@ -157,30 +153,40 @@ public class _1ll4Script : MonoBehaviour {
 		var unignoredModCnt = bombInfo.GetSolvableModuleIDs().Count(a => !ignoreListIDs.Contains(a));
 		maxStageIdx = unignoredModCnt;
 		var stageCntPastInitial = unignoredModCnt - 1;
-		var serialNoExcludeForbidden = bombInfo.GetSerialNumber().Where(a => serialNoAllowedChrs.Contains(a));
 	}
 
 	IEnumerator CycleInitialDigits()
     {
 		yield break;
     }
+	IEnumerator SolveAnim()
+    {
 
+		mAudio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
+		yield break;
+    }
+
+	int PMod(int a, int div)
+	{
+		return ((a % div) + div) % div;
+	}
 	void HandleColorSelectable(int idx)
     {
 		if (!interactable) return;
 		
 		if (debugCharacters)
 		{
+			var digitsTotal = chrDigits.Count;
 			switch (idx)
 			{
 				case 0: idxCycle++; break;
 				case 1: idxColorSelected++; break;
-				case 2: invChrDigit[idxCycle] ^= true; break;
+				case 2: invChrDigit[0][idxCycle] ^= true; break;
 				case 3: idxColorSelected--; break;
 				case 4: idxCycle--; break;
 			}
-			idxCycle = ((idxCycle % chrDigits.Count) + chrDigits.Count) % chrDigits.Count;
-			idxColorSelected = ((idxColorSelected % chrDigits.Count) + chrDigits.Count) % chrDigits.Count;
+			idxCycle = PMod(idxCycle, digitsTotal);
+			idxColorSelected = PMod(idxColorSelected, digitsTotal);
 			UpdateSegmentsDebug();
 		}
 		else
@@ -190,17 +196,17 @@ public class _1ll4Script : MonoBehaviour {
 	void UpdateSegments()
     {
 		//var allChrs = chrSegmentDisplay.Keys.ToList();
-		var usedVal = chrSegmentDisplay[chrDigits.ElementAt(idxCycle)];
-		for (var x = 0; x < segmentRenderers.Length; x++)
-			segmentRenderers[x].material.color = usedVal[x] == '*' ^ invChrDigit[idxCycle] ? Color.white : Color.black;
+		//var usedVal = chrSegmentDisplay[chrDigits.ElementAt(idxCycle)];
+		//for (var x = 0; x < segmentRenderers.Length; x++)
+		//	segmentRenderers[x].material.color = usedVal[x] == '*' ^ invChrDigit[idxCycle] ? Color.white : Color.black;
     }
 	void UpdateSegmentsDebug()
     {
 		//var allChrs = chrSegmentDisplay.Keys.ToList();
-		var usedVal = chrSegmentDisplay[chrDigits.ElementAt(idxCycle)];
-		var usedVal2 = chrSegmentDisplay[chrDigits.ElementAt(idxColorSelected)];
+		var usedVal = chrSegmentDisplay[chrDigits[0].ElementAt(idxCycle)];
+		var usedVal2 = chrSegmentDisplay[chrDigits[0].ElementAt(idxColorSelected)];
 		for (var x = 0; x < segmentRenderers.Length; x++)
-			segmentRenderers[x].material.color = colorOptions[(usedVal[x] == '*' ^ invChrDigit[idxCycle] ? 1 : 0) + (usedVal2[x] == '*' ^ invChrDigit[idxColorSelected] ? 1 : 0)];
+			segmentRenderers[x].material.color = colorOptionsDebug[(usedVal[x] == '*' ^ invChrDigit[0][idxCycle] ? 1 : 0) + (usedVal2[x] == '*' ^ invChrDigit[0][idxColorSelected] ? 1 : 0)];
     }
 
 	// Update is called once per frame

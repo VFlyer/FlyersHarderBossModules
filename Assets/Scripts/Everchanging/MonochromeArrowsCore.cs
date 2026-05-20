@@ -7,6 +7,7 @@ public class MonochromeArrowsCore : MonoBehaviour {
 
     public KMSelectable[] arrowSelectables;
 	public MeshRenderer[] arrowRenderers;
+    public TextMesh progressText;
 	public List<int> obtainedValues, expectedPressIdxes;
     public int[] arrowDirectionIdxes, arrowColorIdxes;
     public int currentInputIdx;

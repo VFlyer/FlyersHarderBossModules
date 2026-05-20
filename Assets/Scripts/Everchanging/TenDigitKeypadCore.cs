@@ -6,8 +6,10 @@ using KModkit;
 
 public class TenDigitKeypadCore : MonoBehaviour {
     public KMSelectable[] digits;
+    public TextMesh[] digitTexts;
+    public TextMesh progressText;
     public KMBombInfo bombInfo;
-    public int currentInputIdx;
+    public int currentInputIdx, missingKeyValue;
     public List<int> obtainedValues, submissionValues;
     List<string> itemsToLog = new List<string>();
     public void MimicLogging(string startText)
@@ -23,7 +25,9 @@ public class TenDigitKeypadCore : MonoBehaviour {
             submissionValues = new List<int>();
         ResetInstance();
         obtainedValues.AddRange(calculatedValues);
+        missingKeyValue = Random.Range(0, 10);
         itemsToLog.Add(string.Format("Obtained Values: {0}", obtainedValues.Join()));
+        var snDigits = bombInfo.GetSerialNumberNumbers();
         for (var x = 0; x < obtainedValues.Count; x++)
         {
             var curValue = obtainedValues[x];
@@ -56,7 +60,7 @@ public class TenDigitKeypadCore : MonoBehaviour {
                         }
                         else
                         {
-                            curValue += bombInfo.GetSerialNumberNumbers().ElementAtOrDefault(1);
+                            curValue += snDigits.ElementAtOrDefault(1);
                             itemsToLog.Add(string.Format("Digit #{0}, applying modifier of +{1}.", x + 1, bombInfo.GetSerialNumberNumbers().ElementAtOrDefault(1)));
                         }
                         break;
@@ -87,12 +91,12 @@ public class TenDigitKeypadCore : MonoBehaviour {
                         if (submissionValues.ElementAt(x - 1) == 0 || submissionValues.ElementAt(x - 2) == 0)
                         {
                             //var FMWGraphReference = new[] { 1, 2, 3, 3, 5, 5, 7, 7, 10, 10, 12, 12, 15 };
-                            curValue += bombInfo.GetSerialNumberNumbers().FirstOrDefault();
+                            curValue += snDigits.FirstOrDefault();
                             itemsToLog.Add(string.Format("Digit #{0}, applying modifier of +{1}.", x + 1, bombInfo.GetSerialNumberNumbers().FirstOrDefault()));
                         }
                         else if (submissionValues.ElementAt(x - 1) % 2 == 1 && submissionValues.ElementAt(x - 2) % 2 == 0)
                         {
-                            var oddDigitsInSerial = bombInfo.GetSerialNumberNumbers().Where(a => a % 2 == 1);
+                            var oddDigitsInSerial = snDigits.Where(a => a % 2 == 1);
                             curValue += oddDigitsInSerial.Sum();
                             itemsToLog.Add(string.Format("Digit #{0}, applying modifier of +{1}.", x + 1, oddDigitsInSerial.Sum() % 10));
                         }
@@ -107,6 +111,7 @@ public class TenDigitKeypadCore : MonoBehaviour {
                         break;
                     }
             }
+            curValue = 10 + missingKeyValue - curValue; // Table procedure can be simp
             submissionValues.Add(((curValue % 10) + 10) % 10);
         }
         itemsToLog.Add(string.Format("Values to submit: {0}", submissionValues.Join()));

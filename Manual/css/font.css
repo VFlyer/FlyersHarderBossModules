@@ -6,7 +6,38 @@
     src: local('Special Elite'), local('SpecialElite-Regular'), url(../font/SpecialElite.ttf);
 }
 
-/* Primary font used by main page, FAQs and puzzles */
+/* Main page */
+@font-face {
+    font-family: 'NotoSans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('NotoSans'), url(../font/NotoSans-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'NotoSans';
+    font-style: normal;
+    font-weight: bold;
+    src: local('NotoSans Bold'), url(../font/NotoSans-Bold.ttf);
+}
+
+@font-face {
+    font-family: 'NotoSans';
+    font-style: italic;
+    font-weight: normal;
+    src: local('NotoSans Italic'), url(../font/NotoSans-Italic.ttf);
+}
+
+@font-face {
+    font-family: 'NotoSans';
+    font-style: italic;
+    font-weight: bold;
+    src: local('NotoSans Bold Italic'), url(../font/NotoSans-BoldItalic.ttf);
+}
+
+
+
+/* FAQs and puzzles */
 @font-face {
     font-family: 'Trebuchet MS';
     font-style: normal;
@@ -33,6 +64,11 @@
     font-style: italic;
     font-weight: bold;
     src: local('Trebuchet MS Bold Italic'), local('Trebuchet Bold Italic'), url(../font/trebucbi.ttf);
+}
+
+@font-face {
+    font-family: 'Inconsolata';
+    src: local('Inconsolata'), url(../font/Inconsolata-VariableFont_wdth,wght.ttf);
 }
 
 /* Big fat font used by headers on puzzles and FAQs */
@@ -70,7 +106,12 @@
     src: local('Georgia Bold Italic'), url(../font/georgiaz.ttf);
 }
 
-/* Used by the Periodic Table of Modules, Lion’s Share and the London Underground optimized sheet */
+@font-face {
+    font-family: 'GFSDidot';
+    src: url('../font/GFSDidot.ttf');
+}
+
+/* Used by the Periodic Table of Modules, Lion’s Share, the London Underground optimized sheet and the Simon Sends optimized sheet */
 @font-face {
     font-family: 'Agency FB';
     src: url('../font/Agency FB.ttf');
@@ -82,7 +123,7 @@
     src: url('../font/Agency FB Bold.ttf');
 }
 
-/* Round symbols; used by Symbolic Coordinates, The Cube, Lightspeed, Reverse Morse, and Letter Grid*/
+/* Round symbols; used by Symbolic Coordinates, The Cube, Lightspeed, Reverse Morse, and Letter Grid */
 @font-face {
     font-family: 'KRA';
     src: url(../font/KR_A_Round.ttf);
@@ -129,6 +170,13 @@
     font-family: 'complexbase';
     font-style: normal;
     src: url(../font/complexbase.ttf);
+}
+
+/* Twisty Terminals */
+@font-face {
+    font-family: 'BPtypewriteDamaged';
+    font-style: normal;
+    src: url(../font/BPtypewriteDamaged.otf);
 }
 
 /*** LOGFILE ANALYZER ***/
@@ -260,6 +308,13 @@
     font-family: "Braille";
     font-style: normal;
     font-weight: normal;
+    src: url(../font/Braille-lig.otf);
+}
+
+@font-face {
+    font-family: "Braille-bubble";
+    font-style: normal;
+    font-weight: normal;
     src: url(../font/Braille.ttf);
 }
 
@@ -341,16 +396,92 @@
 }
 
 /* Used by Shogi Ideintification and JA manuals */
-@font-face { 
-    font-family: "Noto Serif JP"; 
-    font-weight: 400; 
-    font-style: normal; 
-    src: local("Noto Serif JP Regular"), url(../font/NotoSerifJP-Regular.woff) format("woff"); 
+@font-face {
+    font-family: "Noto Serif JP";
+    font-weight: 400;
+    font-style: normal;
+    src: local("Noto Serif JP Regular"), url(../font/NotoSerifJP-Regular.woff) format("woff");
 }
 
-@font-face { 
-    font-family: "Noto Serif JP"; 
-    font-weight: bold; 
-    font-style: normal; 
-    src: local("Noto Serif JP Bold"), url(../font/NotoSerifJP-Bold.woff) format("woff"); 
+@font-face {
+    font-family: "Noto Serif JP";
+    font-weight: bold;
+    font-style: normal;
+    src: local("Noto Serif JP Bold"), url(../font/NotoSerifJP-Bold.woff) format("woff");
+}
+
+/* Used by The Navy Button */
+@font-face {
+    font-family: "Avrile";
+    src: url(../font/avrile-serif.bold.ttf);
+}
+
+/* Used by Encrypted Equations/Values */
+@font-face {
+    font-family: "501";
+    font-style: normal;
+    font-weight: normal;
+    src: url(../font/501.otf);
+}
+
+/* Used by Dot and Three-Way Gates */
+@font-face {
+    font-family: "MS Gothic";
+    src: local("MS Gothic"), url(../font/MS-Gothic-01.ttf)
+}
+
+/* Used by Face Recognition */
+@font-face {
+    font-family: "zoftfrakt eYe/FS";
+    src: local("zoftfrakt eYe/FS"), url(../font/zoftfrakt-eye-fs.ttf)
+}
+
+/* Used by Encryption Bingo */
+@font-face {
+    font-family: "Fontana";
+    src: local("Fontana"), url(../font/Fontana.otf)
+}
+@font-face {
+    font-family: "New York Point";
+    src: local("New York Point"), url(../font/New-York-Point.otf)
+}
+
+@font-face {
+    font-family: "Logic-round";
+    src: local("Logic-round"), url(../font/Logic-round.otf)
+}
+
+@font-face {
+  font-family: 'Nova Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../font/NovaMono.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Nova Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../font/NovaMono2.woff2) format('woff2');
+  unicode-range: U+0370-03FF;
+}
+
+@font-face {
+  font-family: 'Staatliches';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../font/Staatliches.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Staatliches';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../font/Staatliches2.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../font/RobotoMono-VariableFont_wght.ttf');
 }
