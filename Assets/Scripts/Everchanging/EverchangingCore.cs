@@ -243,19 +243,23 @@ public class EverchangingCore : MonoBehaviour {
 	void ProcessTenDigitKeypadInput(int numPressed)
     {
 		if (currentInputSet != InputProcedure.TenDigitKeypad) return;
-		var allSubmissionValue = tenDigitKeypadCore.submissionValues ?? new List<int>();
+		var allSubmissionValues = tenDigitKeypadCore.submissionValues ?? new List<int>();
 		var curIdxInput = tenDigitKeypadCore.currentInputIdx;
-		if (curIdxInput < allSubmissionValue.Count && allSubmissionValue[curIdxInput] == numPressed)
+		if (curIdxInput < allSubmissionValues.Count && allSubmissionValues[curIdxInput] == numPressed)
         {
 			tenDigitKeypadCore.currentInputIdx++;
-			if (tenDigitKeypadCore.currentInputIdx >= allSubmissionValue.Count)
+			if (tenDigitKeypadCore.currentInputIdx >= allSubmissionValues.Count)
             {
 				QuickLog("Ten Digit Keypad Input Procedure has been completed.");
 				HandleCompleteInputProcedure();
 			}
-			tenDigitKeypadCore.progressText.text = string.Format("{0}/{1}", tenDigitKeypadCore.currentInputIdx, allSubmissionValue.Count().ToString());
+			tenDigitKeypadCore.progressText.text = string.Format("{0}/{1}", tenDigitKeypadCore.currentInputIdx, allSubmissionValues.Count().ToString());
+			var curTextInput = allSubmissionValues.Skip(Mathf.Max(curIdxInput - 2, 0)).Take(Mathf.Clamp(curIdxInput + 1, 1, 3)).Join("");
+
+			tenDigitKeypadCore.lastInputText.text = curTextInput + Enumerable.Repeat('-', Mathf.Clamp(allSubmissionValues.Count() - curIdxInput - 1, 0, curIdxInput < 2 ? 3 : 1)).Join("");
+			
 		}
-		else if (curIdxInput >= allSubmissionValue.Count)
+		else if (curIdxInput >= allSubmissionValues.Count)
         {
 			QuickLog("Input Procedure, Ten Digit Keypad, has no required digits to input. Auto-completing...");
 			HandleCompleteInputProcedure();
@@ -1013,8 +1017,9 @@ public class EverchangingCore : MonoBehaviour {
 							tenDigitKeypadCore.MimicLogging(string.Format("[Everchanging #{0}] ", modID));
 							for (var x = 0; x < tenDigitKeypadCore.digitTexts.Length; x++)
 								tenDigitKeypadCore.digitTexts[x].text = x == missingKeyValue ? "" : x.ToString();
+							tenDigitKeypadCore.lastInputText.text = Enumerable.Repeat('-', Mathf.Clamp(specifiedCalculatedValues.Count(), 1, 3)).Join("");
 							break;
-						case InputProcedure.WireSequences:
+						case InputProcedure.WireSequences: // Omitted since input procedure was not interesting.
 							break;
                     }
 					StartCoroutine(HandleRevealInputProcedure(currentInputSet));

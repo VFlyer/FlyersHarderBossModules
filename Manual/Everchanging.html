@@ -89,7 +89,7 @@
                     </ul></li>
                     <li><h2><a href="#inputprocedure">Input Procedures</a></h2>
                     <ul>
-                        <li><a href="#fmnw">10 Digit Keypad</a></li>
+                        <li><a href="#fmnw">Ten Digit Keypad</a></li>
                         <li><a href="#arrows">Monochrome Arrows</a></li>
                     </ul></li>
                 </ul>
@@ -728,7 +728,7 @@
                 <p>If the defuser manages to input all of the requested stages correctly when the module successfully reveals none of the smaller components, the module will clear all of the requested stages up to this input procedure and speed up the timer if the timer has not expired for this stage. <strong>Those stages that were inputted correctly will NOT be included in the next input procedure.</strong> If this is the final input procedure, the module will instead disarm itself instead.</p>
                 <h2>Contents in this Section:</h2>
                 <ol>
-                    <li><a href="#fmnw">10 Digit Keypad</a></li>
+                    <li><a href="#fmnw">Ten Digit Keypad</a></li>
                     <li><a href="#arrows">Monochrome Arrows</a></li>
                 </ol>
             </div>
@@ -740,10 +740,10 @@
                 <span class="page-header-section-title">Everchanging, IP</span>
             </div>
             <div class="page-content">
-                <h2>Input Procedures: 10 Digit Keypad</h2>
+                <h2>Input Procedures: Ten Digit Keypad</h2>
                 <p class="fake-flavor-text">It's going to Forget Me... Not. Now? Maybe... Later? No.</p>
                 <p>If the revealed component does not contain <strong>[ Keypad ]</strong>, you are looking at the wrong page! <a href="#inputprocedure">Click here to go back to General Overview for Input Procedures.</a></p>
-                <p>The keypad will show 10 digits ranging from 0-9 respectively, with one of the keys missing a label, alongside the number of digits to input to complete this input procedure. The key with the missing label will always input the 10th digit out of the rest of the displayed labels.</p>
+                <p>The keypad will show 10 digits ranging from 0-9 respectively, with one of the keys missing a label, a display showing the amount of digits to input to complete this input procedure, and another display showing the last inputted digits. The key with the missing label will always input the 10th digit out of the rest of the displayed labels.</p>
                 <p>Start with the least significant digit of the calculated value from each stage that requests it. Where the left-most column is the amount of digits inputted so far, the new digit for each stage will be calculated value modified by the first condition from the given set of conditions, modulo 10 (kept within 0-9 by adding/subtracting 10).</p>
                 <table>
                     <tr><th rowspan="4">0</th><th>FRK indicator present</th><td>+2 if lit FRK, -2 otherwise</td></tr>
@@ -753,11 +753,14 @@
                     <tr><th rowspan="3">1</th><th>Empty port plate present</th><td>0</td></tr>
                     <tr><th>Prev. input % 2 != 0</th><td>+(# of stages to input % 10)</td></tr>
                     <tr><th>Otherwise</th><td>-(1st digit inputted - 1)</td></tr>
-                    <tr><th rowspan="3">2+</th><th>Last 2 prev. inputs contain a 0</th><td>+(S.N. 1st digit)</td></tr>
+                    <tr><th rowspan="3">2<br>4<br>6<br>8<br>&vellip;</th><th>Last 2 prev. inputs<br>contain at least one 0</th><td>+(S.N. 1st digit)</td></tr>
                     <tr><th>Last 2 prev. inputs both odd</th><td>+(sum of all odd digits in S.N.)</td></tr>
                     <tr><th>Otherwise</th><td>+(left-most digit sum of 2 prev. inputs)</td></tr>
+                    <tr><th rowspan="3">3<br>5<br>7<br>9<br>&vellip;</th><th>Last 2 prev. inputs both even</th><td>+(digtial root of sum of 2 prev. inputs)</td></tr>
+                    <tr><th>Last 2 prev. inputs contain<br>EXACTLY one 5</th><td>+(S.N. 1st letter, A1Z26, % 10)</td></tr>
+                    <tr><th>Otherwise</th><td>+(batteries or ports, higher of the two)</td></tr>
                 </table>
-                <p>Subtract this digit from (10 + the digit with the missing label). If this result is over 9, take the last digit. This results in the digit you must input for that stage.</p>
+                <p>Subtract this digit from (10 + the digit with the missing label). If the result after subtracting is over 9, take the last digit. This results in the digit you must input for that stage.</p>
             </div>
             <div class="page-footer relative-footer">12</div>
         </div>
