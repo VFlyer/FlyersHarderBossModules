@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+        <title>1ll 4 — Keep Talking and Nobody Explodes Module</title>
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="js/ktane-utils.js"></script>
+        <style>
+            .wide { width: 100%; }
+            .center-text { text-align: center; }
+            .squeeze { margin-bottom: auto; margin-top: auto; }
+            .small { font-size: 90%; }
+            .page-footer::before { content: "Page " }
+            .page-footer::after { content: " of 8" }
+        span.linting-header {
+            font-size: 20px; 
+            font-weight: bold; 
+            line-height: 200%
+        }
+        .equationBig
+        {
+            font-size: 90%;
+            text-align: center;
+        }
+        .dark svg text { filter:invert(85%); }
+        span.clue { font-weight: bolder; text-decoration: underline; }
+        </style>
+    </head>
+    <body>
+        <div class="section">
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <img src="img/Component/1ll 4.svg" class="diagram">
+                    <h2>On the Subject of 1ll 4</h2>
+                    <p class="flavour-text">“Out of all the evil things he spoke to me, there is still one that he never speaks.”</p>
+                    <p><strong>The contents of this manual denote the <a href="#diffPreset">Glitched</a> difficulty preset of this module, which may be overridden.</strong></p>
+                    <p class="squeeze">Before the first solved module, barring any <a href="../More/Ignore Table.html#mod=">ignored modules</a>, the module will cycle between a series of characters that represent the balanced base the module used:</p>
+                    <ul class="squeeze">
+                        <li>Base q use digits whose values range from 0 to q-1. If q is odd, a balanced base can be formed using integers -(q-1)/2 to (q-1)/2 inclusively, which includes 0.</li>
+                        <li>Digits in balanced bases whose values are positive will have an inverted counterpart, both value and display; segments that would be off will be on, and vice versa.</li>
+                    </ul>
+                    <p class="squeeze">Selecting the submit button will pause/resume the digit display, and the arrows can be used to manually scroll through the displays.</p>
+                    <p>For each channel the digit that is <strong>not displayed</strong> corresponds to the initial value for the given base, or V<sub>0</sub>.</p>
+                    <p>After the first solve, three values will be displayed on the module, corresponding to their RGB channels. These channels additively mix.
+					   An LED will also light up with 1-3 possible distinct colors in the process. These will change when an unexcluded module has been solved.
+					   The defuser may select a channel to disable to get a better view of a particular stage.
+					<strong>At least one channel must be active per stage when toggling.</strong></p>
+                    <p>For each stage, apply the function corresponding to the color(s) of the LED and the segments displayed. Use the tables provided to determine the resulting values.</p>
+                    <p>If the stage indicator opens up to reveal a button and there is at least 1 other non-ignored module not solved, you must enter <a href="#submission">submission</a> for this stage.
+                       A correct submission will <strong>NOT</strong> disarm the module but adds a random percent of time corresponding to the current time on the bomb.
+                       Missing this submission will not result in a strike but <strong>decrease the countdown timer by 10%.</strong>
+                       This penalty will <strong>INCREASE</strong> by 10% for every missed submission after the first and has no effect if the timer ticks up, instead of down.</p>
+                </div>
+                <div class="page-footer relative-footer">1</div>
+            </div>
+            <div class="page page-bg-02">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>Stage Calculation Overview</h3>
+                    <p>The amount of distinct colors the LED flashed correspond to a series of operations that must be performed to obtained the resulting values of each stage.</p>
+                    <p>If at any point after applying the operations/functions:</p>
+                    <ul class="squeeze">
+                        <li><strong>Any channel's value exceeds (q-1)/2:</strong> repeatedly subtract (q-1)/2 from that result, until its value is less than or equal to (q-1)/2.</li>
+                        <li><strong>Any channel's value falls below -(q-1)/2:</strong> repeatedly add (q-1)/2 to the result, until its value is greater than or equal to -(q-1)/2.</li>
+                        <li><strong>The resulting combined <strong>true</strong> value exceeds ((q-1)/2)<sup>3</sup>+((q-1)/2)<sup>2</sup>+((q-1)/2):</strong> repeatedly subtract ((q-1)/2)<sup>3</sup>+((q-1)/2)<sup>2</sup>+((q-1)/2) from the true value, until it is less than or equal to ((q-1)/2)<sup>3</sup>+((q-1)/2)<sup>2</sup>+((q-1)/2)</li>
+                        <li><strong>The resulting combined <strong>true</strong> value falls below -((q-1)/2)<sup>3</sup>-((q-1)/2)<sup>2</sup>-((q-1)/2):</strong> repeatedly add ((q-1)/2)<sup>3</sup>+((q-1)/2)<sup>2</sup>+((q-1)/2) to the true value, until it is greater than or equal to -((q-1)/2)<sup>3</sup>-((q-1)/2)<sup>2</sup>-((q-1)/2)</li>
+                    </ul>
+                    <p>n is the current stage number, stage 1 counts as n = 1.<br>
+                    D<sub>n</sub> refers to the individual <strong>true</strong> value of each channel displayed on this stage.<br>
+                    C<sub>n</sub> refers to the combined <strong>true</strong> value displayed on this stage whose digits are ordered by the three channels, RGB, with B corresponding to the least significant.<br>
+                    V<sub>n</sub> refers to the resulting individual <strong>true</strong> value of each channel for this stage.<br>
+                    T<sub>n</sub> refers to the resulting combined <strong>true</strong> value for this stage.<br>
+                    |X| is the absolute value of X. Absolute values are treated as positive during calculations.<br>
+                    max(X, Y) refers to the largest value out of X and Y; min(X, Y) refers to the smallest.<br>
+                    % refers to the modulo operator. <strong>This operation respects signs and follows the same rules as if the value falls out of the range. For X % Y, if Y is 0, leave X unchanged. </strong><br>
+                    <span class="clue">P</span>rimary colors used in this manual are <span class="clue">R</span>ed, <span class="clue">G</span>reen, <span class="clue">B</span>lue; <span class="clue">S</span>econdary being <span class="clue">C</span>yan, <span class="clue">M</span>agenta, <span class="clue">Y</span>ellow; and blac<span class="clue">K</span> and <span class="clue">W</span>hite corresponds to <span class="clue">A</span>ny other color.<br>
+                    <strong>P<sub>3</sub>, S<sub>3</sub>, A<sub>2</sub>, all reference the function of the color that did NOT flash within their corresponding color groups.</strong><br>
+                    <strong>True values always account for its inversions.</strong></p>
+                </div>
+                <div class="page-footer relative-footer">2</div>
+            </div>
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>One Color Calculations</h3>
+                    <p>Simply apply the function to individual channels to obtain the resulting individual values. I.E. V<sub>n</sub> = X(V<sub>n-1</sub>)</p>
+                    <div class="hstack">
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>K</th><th>Black</th><th style="background-color:#000"></th><td>K(V<sub>n</sub>) = V<sub>n</sub> + D<sub>n</sub></td></tr>
+                            <tr><th>B</th><th>Blue</th><th style="background-color:#00f"></th><td>B(V<sub>n</sub>) = V<sub>n</sub> + |D<sub>n</sub>|</td></tr>
+                            <tr><th>G</th><th>Green</th><th style="background-color:#0f0"></th><td>G(V<sub>n</sub>) = D<sub>n</sub> + |V<sub>n</sub>|</td></tr>
+                            <tr><th>C</th><th>Cyan</th><th style="background-color:#0fF"></th><td>C(V<sub>n</sub>) = D<sub>n</sub> - V<sub>n</sub></td></tr>
+                        </table>
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>R</th><th>Red</th><th style="background-color:#f00"></th><td>R(V<sub>n</sub>) = - V<sub>n</sub> - D<sub>n</sub></td></tr>
+                            <tr><th>M</th><th>Magenta</th><th style="background-color:#f0f"></th><td>M(V<sub>n</sub>) = D<sub>n</sub> - |V<sub>n</sub>|</td></tr>
+                            <tr><th>Y</th><th>Yellow</th><th style="background-color:#ff0"></th><td>Y(V<sub>n</sub>) = V<sub>n</sub> - |D<sub>n</sub>|</td></tr>
+                            <tr><th>W</th><th>White</th><th style="background-color:#fff"></th><td>W(V<sub>n</sub>) = V<sub>n</sub> - D<sub>n</sub></td></tr>
+                        </table>
+                    </div>
+                    <h3>Two Color Calculations</h3>
+                    <p>Out of two colors, each color flashed from the LED corresponds to function that modifies the combined value:</p>
+                    <div class="hstack">
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>K</th><th>Black</th><th style="background-color:#000"></th><td>K(T<sub>n</sub>) = - T<sub>n</sub> - C<sub>n</sub></td></tr>
+                            <tr><th>B</th><th>Blue</th><th style="background-color:#00f"></th><td>G(T<sub>n</sub>) = C<sub>n</sub> - |T<sub>n</sub>|</td></tr>
+                            <tr><th>G</th><th>Green</th><th style="background-color:#0f0"></th><td>B(T<sub>n</sub>) = T<sub>n</sub> - |C<sub>n</sub>|</td></tr>
+                            <tr><th>C</th><th>Cyan</th><th style="background-color:#0fF"></th><td>C(T<sub>n</sub>) = T<sub>n</sub> - C<sub>n</sub></td></tr>
+                        </table>
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>R</th><th>Red</th><th style="background-color:#f00"></th><td>R(T<sub>n</sub>) = C<sub>n</sub> - T<sub>n</sub></td></tr>
+                            <tr><th>M</th><th>Magenta</th><th style="background-color:#f0f"></th><td>M(T<sub>n</sub>) = C<sub>n</sub> + |T<sub>n</sub>|</td></tr>
+                            <tr><th>Y</th><th>Yellow</th><th style="background-color:#ff0"></th><td>Y(T<sub>n</sub>) = T<sub>n</sub> + |C<sub>n</sub>|</td></tr>
+                            <tr><th>W</th><th>White</th><th style="background-color:#fff"></th><td>W(T<sub>n</sub>) = T<sub>n</sub> + C<sub>n</sub></td></tr>
+                        </table>
+                    </div>
+                    <p>The length of the flashes between the LED colors, will correspond to the correct operation to use for this stage. Approximate timings are provided for each column. The order of which LED color flashed first does not matter.</p>
+                    <p><strong>Some expressions may require combined values in previous stages. For specific combined values, if n &lt; 0, T<sub>n</sub> = C<sub>n</sub> = 0, and C<sub>0</sub> = T<sub>0</sub>.</strong></p>
+                    <table>
+                        <table class="centered equationBig">
+                            <tr><td class="corner" rowspan="2"></td><th colspan="3">Rate, T<sub>n</sub> =</th></tr>
+                            <tr><th>Fast ( &le; 1 sec.)</th><th>Slow ( &ge; 2 sec.)</th></tr>
+                            <tr><th>2P</th><td>P<sub>1</sub>(T<sub>n-1</sub>) + P<sub>2</sub>(T<sub>n-1</sub>)</td><td> - P<sub>1</sub>(T<sub>n-1</sub>) - P<sub>2</sub>(T<sub>n-1</sub>)</td></tr>
+                            <tr><th>2S</th><td>S<sub>3</sub>(T<sub>n-1</sub>) + T<sub>n-1</sub> * n</td><td>S<sub>3</sub>(T<sub>n-1</sub>) - T<sub>n-1</sub> * n</td></tr>
+                            <tr><th>2A</th><td>T<sub>n-1</sub> + 2 * C<sub>n</sub></td><td>T<sub>n-1</sub> - 2 * C<sub>n</sub></td></tr>
+                            <tr><th>1P, 1S</th><td>n * S(T<sub>n-1</sub>) + P(T<sub>n-1</sub>)</td><td>n * P(T<sub>n-1</sub>) + S(T<sub>n-1</sub>)</td></tr>
+                            <tr><th>1P, 1A</th><td>P(C<sub>n-1</sub>) + A(T<sub>n-1</sub>) * (2 - n % 5)</td><td>P(C<sub>n-1</sub>) - A(T<sub>n-1</sub>) * (2 - n % 5)</td></tr>
+                            <tr><th>1S, 1A</th><td>S(T<sub>n-1</sub>) * (2 - n % 5) + A<sub>2</sub>(C<sub>n-1</sub>)</td><td>S(T<sub>n-1</sub>) * (n % 5 - 2) + A<sub>2</sub>(C<sub>n-1</sub>)</td></tr>
+                        </table>
+                    </table>
+                </div>
+                <div class="page-footer relative-footer">3</div>
+            </div>
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>Three Color Calculations</h3>
+                    <p>Out of three colors, each color flashed from the LED corresponds to function that modifies the combined value:</p>
+                    <p><strong>Some expressions may require combined values in previous stages. For specific combined values, if n &lt; 0, T<sub>n</sub> = C<sub>n</sub> = 0, and C<sub>0</sub> = T<sub>0</sub>.</strong></p>
+                    <div class="hstack">
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>K</th><th>Black</th><th style="background-color:#000"></th><td>K(T<sub>n</sub>) = T<sub>n</sub> - C<sub>n</sub></td></tr>
+                            <tr><th>B</th><th>Blue</th><th style="background-color:#00f"></th><td>G(T<sub>n</sub>) = 2 * C<sub>n</sub> + T<sub>n</sub></td></tr>
+                            <tr><th>G</th><th>Green</th><th style="background-color:#0f0"></th><td>B(T<sub>n</sub>) = 2 * T<sub>n</sub> + C<sub>n</sub></td></tr>
+                            <tr><th>C</th><th>Cyan</th><th style="background-color:#0fF"></th><td>C(T<sub>n</sub>) = T<sub>n</sub> - |C<sub>n</sub>|</td></tr>
+                        </table>
+                        <table class="centered center-text">
+                            <tr><th colspan="3">LED Color</th><th colspan="2">Function</th></tr>
+                            <tr><th>R</th><th>Red</th><th style="background-color:#f00"></th><td>R(T<sub>n</sub>) = C<sub>n</sub> - |T<sub>n</sub>|</td></tr>
+                            <tr><th>M</th><th>Magenta</th><th style="background-color:#f0f"></th><td>M(T<sub>n</sub>) = C<sub>n</sub> + |T<sub>n</sub>|</td></tr>
+                            <tr><th>Y</th><th>Yellow</th><th style="background-color:#ff0"></th><td>Y(T<sub>n</sub>) = T<sub>n</sub> + |C<sub>n</sub>|</td></tr>
+                            <tr><th>W</th><th>White</th><th style="background-color:#fff"></th><td>W(T<sub>n</sub>) = T<sub>n</sub> + C<sub>n</sub></td></tr>
+                        </table>
+                    </div>
+                    <p>Some extra variables are used in this calculation, which represent the function of the LED colors that had the shortest/longest flash time, and Z<sub>n</sub>, which represents the <strong>ONLY</strong> remaining function unaffected by the calculations.</p>
+                    <p>From this table, use the column as the flash length that is dominant across all 3 LEDs, and the colors of the LEDs that flashed as the row that flashed in the dominant category.</p>
+                    <table>
+                        <table class="centered equationBig">
+                            <tr><td class="corner" rowspan="2"></td><th colspan="3">Dominant Flash Length Range</th></tr>
+                            <tr><th>Fast ( &le; 1 sec.)</th><th>Slow ( &ge; 2 sec.)</th></tr>
+                            <tr><th>3P</th><td></td><td></td></tr>
+                            <tr><th>3S</th><td></td><td></td></tr>
+                            <tr><th>2P</th><td>P<sub>3</sub>(T<sub>n-1</sub>) + Q(T<sub>n-1</sub>)</td><td> - P<sub>3</sub>(T<sub>n-1</sub>) - Q(T<sub>n-1</sub>)</td></tr>
+                            <tr><th>2S</th><td>S<sub>3</sub>(T<sub>n-1</sub>) + T<sub>n-1</sub> * (1 + n % 4)</td><td>S<sub>3</sub>(T<sub>n-1</sub>) - T<sub>n-1</sub> * (1 + n % 4)</td></tr>
+                            <tr><th>2A</th><td>T<sub>n-1</sub> + (2 - n % 5) * C<sub>n-1</sub> + Q(T<sub>n-1</sub>)</td><td>T<sub>n-1</sub> - (2 - n % 5)  * C<sub>n-1</sub> + Q(T<sub>n-1</sub>)</td></tr>
+                            <tr><th>1P, 1S</th><td></td><td></td></tr>
+                            <tr><th>1P, 1A</th><td></td><td></td></tr>
+                            <tr><th>1S, 1A</th><td></td><td></td></tr>
+                        </table>
+                    </table>
+                </div>
+                <div class="page-footer relative-footer">4</div>
+            </div>
+            <div class="page page-bg-01" id="submission">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>Submission</h3>
+                    <p>When the module is ready to solve, all segments will blank out, alongside the left LED displaying the current color, . Select the channel, represented by the squares, to toggle their values, then select the segment to apply the resulting color to it. The up and down arrows can be used to turn all of the channels on or off respectively when inputting.</p>
+                    <p>The 3 channels must correspond to a valid character encoded on the module when submitting, otherwise, the module will strike and force the user to review the character displays again.</p>
+                    <p>An incorrect submission with valid characters will turn correct segments green, incorrect segments red, and forces the user to view all stages again.</p>
+                    <p>Use the arrows and component selectors to scroll through the stages that were missed, with the outer-most arrows cycling by a factor of 10 stages. When ready, press the submit button to try again.</p>
+                    <h3>Color Reference</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15cm" viewbox="0 0 125 86.59"><path d="M-1-1h92v88H-1z" fill="#000"/><path fill="#00f" d="M70.121 33.404L50 51.59l-4.66 24.72c4.236 3.299 9.56 5.282 15.344 5.282 13.807 0 25-11.193 25-25 0-10.465-6.437-19.462-15.563-23.188z" color="#000" style="marker:none"/><path fill="red" d="M45.34 4.998c-13.807 0-25 11.193-25 25 0 1.154.067 2.294.219 3.406L45 41.59l25.121-8.186c.153-1.116.22-2.247.22-3.406 0-13.807-11.194-25-25.001-25z" color="#000" style="marker:none"/><path fill="#0f0" d="M20.559 33.404C11.433 37.13 4.996 46.127 4.996 56.592c0 13.807 11.193 25 25 25 5.785 0 11.108-1.983 15.344-5.281L40 51.59z" color="#000"/><path fill="#ff0" d="M29.996 31.592c-3.342 0-6.523.623-9.437 1.812 1.222 8.987 7.238 16.442 15.375 19.75l9.375-16.28c-4.23-3.292-9.535-5.282-15.313-5.282z" color="#000"/><path fill="#f0f" d="M60.684 31.592a25.038 25.038 0 0 0-15.375 5.281l9.437 16.281c8.137-3.308 14.153-10.763 15.375-19.75-2.914-1.19-6.095-1.812-9.437-1.812z" color="#000"/><path fill="#0ff" d="M35.934 53.154a25.223 25.223 0 0 0-.25 3.438c0 8.022 3.781 15.144 9.656 19.719 5.875-4.575 9.656-11.697 9.656-19.72 0-1.166-.095-2.312-.25-3.437z" color="#000"/><path fill="#fff" d="M45.309 36.873a24.955 24.955 0 0 0-9.375 16.281 24.893 24.893 0 0 0 9.406 1.844c3.333 0 6.499-.66 9.406-1.844-.909-6.614-4.412-12.371-9.437-16.28z" color="#000"/><path fill="none" stroke="gray" stroke-width=".4" d="M45 21.59h55M30 36.59h70M60 41.59h40M45 51.59h55M20 56.59h80M45 66.59h55M60 76.59h40" color="#000"/><text x="102.5" y="23.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="23.22">Red</tspan></text><text x="102.5" y="38.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="38.22">Yellow</tspan></text><text x="102.5" y="43.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="43.22">Magenta</tspan></text><text x="102.5" y="53.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="53.22">White</tspan></text><text x="102.5" y="58.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="58.22">Green</tspan></text><text x="102.5" y="68.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="68.22">Cyan</tspan></text><text x="102.5" y="78.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="78.22">Blue</tspan></text><path fill="none" stroke="gray" stroke-width=".4" d="M75 11.59h25" color="#000"/><text x="102.5" y="13.22" stroke-width=".2" color="#000" font-size="5" font-weight="400" style="text-align:start;line-height:125%;block-progression:tb"><tspan x="102.5" y="13.22">Black</tspan></text></svg>
+                </div>
+                <div class="page-footer relative-footer">5</div>
+            </div>
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>Appendix: Possible Basic Characters</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 550" style="width: 90%; display: block; margin: 0 auto;"><path fill="#141f2c" d="M-230-155h860v860h-860z"/><path fill="#293e57" d="M20 468l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H20zm24 0l4-4h12l4 4-4 4H44zm45-24l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm14-2h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4H85zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm14-2h8v-16l-4-4-4 4zm-18-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm-6-2l4 4v16l-4 4-4-4v-16zm20 4h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm-6 2l4-4v-16l-4-4-4 4v16zm20-4h8v-16l-4-4-4 4zm24 0l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm-6-2l4 4v16l-4 4-4-4v-16zm20 4h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm-6 2l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm24-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm39-26l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-44 48l4-4v-16l-4-4-4 4v16zm20-4h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zM20 380h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H20zm24 0l4-4h12l4 4-4 4H44zm45-22h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm27-44h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm-18-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm45-22h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm24 0l4 4 4-4v-16l-4-4-4 4zm27-44h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-44 48l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm35-32l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm24 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm-6 2l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm24-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zM14 286l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm24 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-44 48l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm24-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4H20zm24 0l4-4h12l4 4-4 4H44zm45-24l-4-4 4-4h36l4 4-4 4zm-6-2l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H85zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm24 0l4 4 4-4v-16l-4-4-4 4zm-18-22l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 44h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm14 2h8v16l-4 4-4-4zm-14 46l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zm45-24l-4-4 4-4h36l4 4-4 4zm14 2h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm-18-22l4-4h12l4 4-4 4h-12zm24 0l4-4h12l4 4-4 4h-12zM20 200h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 44h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4H20zm24 0l4-4h12l4 4-4 4H44zm39-26l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm24 16v-6l8-10h4v6l-8 10zm-30 32l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm24-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H85zm24 0l4-4h12l4 4-4 4h-12zm45-22h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 44h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm27-44h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm27-44h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 44h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4h-12zm69-24l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zM20 110h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-38 44h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm35-32l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm24 0l4-4 4 4v16l-4 4-4-4zm-38 46l-4 4 4 4h36l4-4-4-4zm-6 2l4-4v-16l-4-4-4 4v16zm20-4h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4v-16l-4-4-4 4zm-42-22l4-4h12l4 4-4 4H85zm24 0l4-4h12l4 4-4 4h-12zm45-22h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm41-28h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-30 32l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm41-28h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm0-2h4l8-10v-6h-4l-8 10zm14 0h8v-16l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm35-32l4 4v16l-4 4-4-4v-16zm6 4h4l8 10v6h-4l-8-10zm24 16v-6l8-10h4v6l-8 10zm-30 32l4-4v-16l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm24-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4h-12zM20 20h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm0 44h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H20zm24 0l4-4h12l4 4-4 4H44zm45-24l-4-4 4-4h36l4 4-4 4zm-6-2l4 4v16l-4 4-4-4V20zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zM85 66l-4 4 4 4h36l4-4-4-4zm-6 2l4-4V48l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4H85zm24 0l4-4h12l4 4-4 4h-12zm39-26l4 4v16l-4 4-4-4V20zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 28h4l8-10v-6h-4l-8 10zm14 0h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm14 16l4 4 4-4V48l-4-4-4 4zm21-48l4 4v16l-4 4-4-4V20zm6 4h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-30 32l4-4V48l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm41-30l-4-4 4-4h36l4 4-4 4zm0 2h4l8 10v6h-4l-8-10zm14 0h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm-24 30l-4 4 4 4h36l4-4-4-4zm-6 2l4-4V48l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm35-32l4 4v16l-4 4-4-4V20zm20 4h8v16l-4 4-4-4zm10 16v-6l8-10h4v6l-8 10zm14-16l4-4 4 4v16l-4 4-4-4zm-44 48l4-4V48l-4-4-4 4v16zm6-4h4l8-10v-6h-4l-8 10zm14 0h8V48l-4-4-4 4zm10-16v6l8 10h4v-6l-8-10zm-28-6l4-4h12l4 4-4 4h-12z"/><path fill="#fff" d="M345 516l-4 4 4 4h36l4-4-4-4zm-325 0l-4 4 4 4h36l4-4-4-4zm333-18l-8 10v6h4l8-10v-6zm-114 0v6l8 10h4v-6l-8-10zm-16 0l-8 10v6h4l8-10v-6zm-49 0v6l8 10h4v-6l-8-10zm-16 0l-8 10v6h4l8-10v-6zm-65 0l-8 10v6h4l8-10v-6zm205-4l-4 4v16h8v-16zm-106 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm363-24l-8 10v6h4l8-10v-6zm-65 0l-8 10v6h4l8-10v-6zm-32 0v6l8 10h4v-6l-8-10zm-33 0l-8 10v6h4l8-10v-6zm-32 0v6l8 10h4v-6l-8-10zm-98 0l-8 10v6h4l8-10v-6zm75-4l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm331-6l-4 4 4 4h36l4-4-4-4zm-65-34l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm219-18v6l8 10h4v-6l-8-10zm-65 0v6l8 10h4v-6l-8-10zm189-4l-4 4v16h8v-16zm-41 0l-4 4v16l4 4 4-4v-16zm-113 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm290-6l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-106 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm274-18v16l4 4 4-4v-16zm-85-4l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm331-6l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm195-34l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm349-18v6l8 10h4v-6l-8-10zm-195 0v6l8 10h4v-6l-8-10zm213-4l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-41 0l-4 4v16h8v-16zm112-6l-4 4 4 4h12l4-4-4-4zm195-18v6l8 10h4v-6l-8-10zm-33 0l-8 10v6h4l8-10v-6zm-32 0v6l8 10h4v-6l-8-10zm-98 0l-8 10v6h4l8-10v-6zm-148 0v16l4 4 4-4v-16zm353-4l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-107-6l-4 4 4 4h36l4-4-4-4zm260-34l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm367-22l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-24 0l-4 4v16h8v-16zm-89 0l-4 4v16l4 4 4-4v-16zm355-6l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-65 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-51-18v16l4 4 4-4v-16zm288-4l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-113 0l-4 4v16l4 4 4-4v-16zm266-6l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm325-34l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm73-18l-8 10v6h4l8-10v-6zm294-4l-4 4v16l4 4 4-4v-16zm-24 0l-4 4v16h8v-16zm-41 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-82 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm355-6l-4 4 4 4h12l4-4-4-4zm-65 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-106 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm339-18v16l4 4 4-4v-16zm-242 0l-8 10v6h4l8-10v-6zm270-4l-4 4v16l4 4 4-4v-16zm-65 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-17 0l-4 4v16l4 4 4-4v-16zm-48 0l-4 4v16l4 4 4-4v-16zm-130 0l-4 4v16l4 4 4-4v-16zm331-6l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zm325-34l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zM20 66l-4 4 4 4h36l4-4-4-4zm367-22l-4 4v16l4 4 4-4V48zm-65 0l-4 4v16l4 4 4-4V48zm-65 0l-4 4v16l4 4 4-4V48zm-113 0l-4 4v16l4 4 4-4V48zm-17 0l-4 4v16l4 4 4-4V48zm-65 0l-4 4v16l4 4 4-4V48zm-48 0l-4 4v16l4 4 4-4V48zm355-6l-4 4 4 4h12l4-4-4-4zm-65 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm-41 0l-4 4 4 4h12l4-4-4-4zm-24 0l-4 4 4 4h12l4-4-4-4zm195-18v6l8 10h4v-6l-8-10zm-228 0l-8 10v6h4l8-10v-6zm205-4l-4 4v16l4 4 4-4V20zm-48 0l-4 4v16l4 4 4-4V20zm-17 0l-4 4v16l4 4 4-4V20zm-65 0l-4 4v16l4 4 4-4V20zm-65 0l-4 4v16l4 4 4-4V20zm-65 0l-4 4v16l4 4 4-4V20zm-48 0l-4 4v16l4 4 4-4V20zm331-6l-4 4 4 4h36l4-4-4-4zm-130 0l-4 4 4 4h36l4-4-4-4zm-65 0l-4 4 4 4h36l4-4-4-4zM20 10l-4 4 4 4h36l4-4-4-4zm338.9 519.4v1.5h6.2l-6.4 7.7v1.4h8.6v-1.5h-6.6l6.4-7.7v-1.4zm-65.5 0l3.7 6.6v4h1.7v-4l3.8-6.6h-1.9l-1.9 3.4-.8 1.6-.8-1.6-2-3.4zm-64.7 0l3.4 5.2-3.7 5.4h2l2.6-4.1 2.6 4.1h2l-3.6-5.4 3.4-5.2h-1.8l-2.4 4-2.5-4zm-68 0l3 10.6h2.1l1.7-6.3.5-2.5.5 2.5 1.7 6.3h2l3.1-10.6h-1.7l-2.4 9.3-2.3-9.3h-1.8l-2.3 9.2-2.3-9.2zm-62.6 0L102 540h2l4-10.6H106l-2.5 7-.6 2.2-.6-2.1-2.5-7zm-64.4 0v6.6c0 2.8 1.5 4.2 4.3 4.2s4.3-1.4 4.3-4.2v-6.6h-1.7v6.3c0 2-.8 3-2.6 3s-2.6-1-2.6-3v-6.3zM230.4 441h2.4c1.4 0 2.1.6 2.1 1.7 0 1.2-.7 1.8-2 1.8h-2.5zm-1.7-1.5V450h1.7v-4.2h2.3l2.6 4.2h2l-2.9-4.4a3 3 0 002.3-3c0-2-1.4-3.2-3.7-3.2zM100.8 441h2.1c1.5 0 2.2.6 2.2 1.8 0 1.2-.7 1.9-2.2 1.9h-2zm-1.7-1.5V450h1.7v-4h2.4c2.2 0 3.7-1.2 3.7-3.3 0-2-1.5-3.3-3.7-3.3zm68.9 1.4c2 0 3.2 1.4 3.2 4 0 2.4-1.2 3.9-3.2 3.9s-3.2-1.5-3.2-4 1.2-4 3.2-4zm0-1.5c-3 0-5 2-5 5.4 0 3.1 1.6 5.1 4.3 5.4 0 2.2 1.4 3 3.2 3 1 0 2-.2 2.5-.7l-.5-1.4c-.4.4-1.1.6-2 .6-1 0-1.7-.2-1.9-1.5 2.7-.2 4.4-2.3 4.4-5.4 0-3.3-2-5.4-5-5.4zm-130 1.5c2 0 3.2 1.4 3.2 4 0 2.4-1.2 3.9-3.2 3.9s-3.2-1.5-3.2-4 1.2-4 3.2-4zm0-1.5c-3 0-5 2-5 5.4 0 3.4 2 5.5 5 5.5s5-2.1 5-5.5c0-3.3-2-5.4-5-5.4zm320.5.1v1.5h3.6v9.1h1.8v-9h3.6v-1.6zm-60.4-.1c-2.6 0-4.1 1.4-4.1 3.2 0 1.7 1 2.6 4 3.1 2 .4 2.6.8 2.6 1.6 0 1-1 1.5-2.4 1.5-1.6 0-2.7-.6-3.4-1.9l-1.2 1.2c.8 1.3 2.3 2.2 4.6 2.2 2.5 0 4.2-1.2 4.2-3.1 0-1.7-1-2.6-3.9-3.1-2-.4-2.7-.8-2.7-1.7 0-.9.8-1.5 2.3-1.5 1.5 0 2.3.5 3 1.8l1.2-1.2c-.9-1.4-2.2-2.1-4.2-2.1zm60.6-89.9V360h1.5v-8.6l1 2 4.1 6.6h2v-10.6h-1.6v6.9l.1 1.7-1-2-4.1-6.6zm-66.1 0V360h1.6v-6.1l-.1-3 3.2 9.1h1.4l3.2-9v9h1.5v-10.6h-2.5l-2.1 6.2-.8 2.5-.7-2.5-2.2-6.2zm-63.4 0V360h7.6v-1.5h-5.9v-9zm-65.6 0V360h1.7v-3.2l1.7-1.9 3.4 5.1h2l-4.1-6.2 4-4.4h-2.1l-4.9 5.3v-5.3zm-58.7 0v6.5c0 1.8-.5 2.8-2.1 2.8-1.5 0-2-.9-1.7-2.7l-1.7.3c-.4 2.3.8 3.9 3.4 3.9 2.4 0 3.8-1.5 3.8-4v-6.8zm-67.8 0V360H39v-10.6zm63.3-88.5h2c2.2 0 3.4 1.4 3.4 3.8 0 2.5-1.2 3.8-3.4 3.8h-2zm-1.8-1.5V270h3.8c3.3 0 5.2-1.9 5.2-5.3s-2-5.3-5.2-5.3zm260 0V270h1.8v-4.6h5.2v4.6h1.7v-10.6h-1.7v4.5h-5.2v-4.5zm-129.3 0V270h1.7v-4.5h4.6V264H231v-3h5.9v-1.6zm-65.1 0V270h7.8v-1.5H166v-3.1h4.6V264H166v-3h6v-1.6zm134.1-.1c-3 0-5 2-5 5.4 0 3.4 2 5.5 5 5.5 1.5 0 2.5-.6 3.1-1.5v1.3h1.4v-5.5H298v1.5h3.2v.3c0 1.6-1.2 2.4-2.8 2.4-2.2 0-3.3-1.5-3.3-4s1.3-4 3.3-4c1.3 0 2.3.7 2.7 1.8l1.6-.7c-.8-1.7-2.2-2.5-4.4-2.5zm-259.8 0c-3 0-5 2-5 5.4 0 3.4 2 5.5 5 5.5 2 0 3.7-1 4.3-3l-1.6-.5c-.4 1.3-1.4 2-2.7 2-2 0-3.2-1.5-3.2-4s1.3-4 3.3-4c1.3 0 2 .6 2.5 1.9l1.6-.7c-.7-1.7-2.1-2.6-4.2-2.6zm322.1-83.9h2.7c1.3 0 2 .6 2 1.6s-.7 1.6-2 1.6h-2.7zm0-4.5h2.4c1.3 0 2 .5 2 1.5s-.7 1.6-2 1.6h-2.4zm-1.6-1.5V180h4.2c2.5 0 3.8-1.1 3.8-3 0-1.1-.8-2.1-2.1-2.3a2.2 2.2 0 001.9-2.4c0-1.8-1.2-2.9-3.7-2.9zm-191 5.8c1.4 0 2.3.7 2.3 1.8 0 1-.9 1.7-2.3 1.7-1.3 0-2.2-.6-2.2-1.7s.9-1.8 2.2-1.8zm0-4.5c1.2 0 1.9.6 1.9 1.6s-.7 1.5-1.9 1.5c-1 0-1.8-.6-1.8-1.5 0-1 .7-1.6 1.8-1.6zm0-1.4c-2.1 0-3.5 1-3.5 2.8 0 1.1.6 2 1.6 2.4-1.3.4-2 1.4-2 2.7 0 1.8 1.5 3 4 3 2.4 0 4-1.2 4-3 0-1.4-.8-2.3-2-2.7 1-.4 1.5-1.3 1.5-2.4 0-1.7-1.4-2.8-3.6-2.8zm-129.7 5.5c1.3 0 2 .7 2 1.9 0 1.3-.7 2-2 2s-2-.8-2-2c0-1.1.7-2 2-2zm0-5.5c-2.4 0-4.2 1.8-4.2 5.4 0 3.3 1.5 5.5 4.2 5.5 2.3 0 3.7-1.4 3.7-3.5 0-2-1.4-3.4-3.5-3.4-1.2 0-2.4.6-2.8 1.8v-.3c0-2.3 1-4 2.6-4 1.1 0 1.7.5 2 1.5l1.5-.8c-.6-1.6-1.7-2.2-3.4-2.2zm259.7 1.6l.5 1.5 1.2 3.4h-3.4l1.2-3.4zm-1-1.5l-4 10.6h1.8l1-2.8h4.4l1 2.8h1.8l-4-10.6zm-64.2 1.4c1.3 0 2 .8 2 2 0 1.1-.7 1.9-2 1.9s-2-.7-2-2c0-1.2.7-2 2-2zm0-1.5c-2.3 0-3.8 1.3-3.8 3.5 0 2 1.5 3.4 3.6 3.4 1.1 0 2.5-.5 2.8-1.8v.1c0 2.6-.6 4.2-2.6 4.2-1.4 0-1.8-.7-2.1-1.7l-1.6.8c.6 1.6 1.8 2.4 3.7 2.4 2.7 0 4.2-1.8 4.2-5.5 0-3.3-1.5-5.4-4.2-5.4zm-133.8.1v1.5h6.3a13 13 0 00-3.6 9.1h1.7c0-3.5 1-6.4 3.7-9.1v-1.5zM38 80.7c1.5 0 2.3 1.4 2.3 4 0 2.7-.8 4-2.3 4-1.5 0-2.3-1.3-2.3-4 0-2.6.8-4 2.3-4zm0-1.4c-2.7 0-4 1.9-4 5.4 0 3.6 1.3 5.5 4 5.5s4-2 4-5.5-1.3-5.4-4-5.4zm261 1.4l-.1 1.7V86h-3.5l2.5-3.5 1-1.8zm-.6-1.3l-4.7 7v1h5.2V90h1.6v-2.6h1.8V86h-1.8v-6.6zm61.8 0l-.7 6 1.4.1c.5-.6 1.2-.9 2.2-.9 1.3 0 2 .7 2 2 0 1.4-.8 2.1-2.1 2.1-1.4 0-1.9-.7-2.2-1.7l-1.6.8c.7 1.6 1.9 2.4 3.8 2.4 2.3 0 3.8-1.3 3.8-3.6 0-2-1.3-3.4-3.3-3.4-1.1 0-1.9.3-2.4.9v-.3l.4-2.9h4.8v-1.5zm-256.3 0c-.6.8-2.4 1.8-3.2 2l.3 1.4c1-.2 2-.8 2.7-1.5V90h1.6V79.4zm129.2-.1c-1.7 0-3.1.8-3.6 2.4l1.6.6c.2-1 .9-1.5 2-1.5s1.8.5 1.7 1.6c0 1.1-.6 1.6-2 1.6h-.4v1.4h.5c1.5 0 2.2.4 2.2 1.5 0 1-.8 1.8-2 1.8-1.4 0-2-.7-2.4-1.9l-1.5.8c.6 1.7 1.9 2.6 3.8 2.6 2.3 0 3.8-1.3 3.8-3 0-1.6-1-2.5-2.2-2.5 1 0 2-1 2-2.6s-1.2-2.8-3.5-2.8zm-65.1 0c-2.2 0-3.6 1.3-3.8 3.3l1.4.6c.2-1.5 1-2.4 2.3-2.4 1.2 0 2 .8 2 1.9 0 1.7-1.4 3.2-5.4 6V90h7.3v-1.5h-5c3.5-2.2 4.8-3.9 4.8-5.9 0-1.8-1.3-3.3-3.6-3.3zM44 36v-6l8-10h4v6l-8 10zM20 64h4l8-10v-6h-4l-8 10z"/></svg>
+                </div>
+                <div class="page-footer relative-footer">6</div>
+            </div>
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                    <h3>Appendix: Module Diagram Reference</h3>
+                </div>
+                <div class="page-footer relative-footer">6</div>
+            </div>
+            <div class="page page-bg-01" id="diffPreset">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                <h2>Appendix: Difficulty Settings (Presets)</h2>
+                <p>This module may be configured to have some or all of its behaviors modified. Preset difficulties are provided here:</p>
+                <h3>Stabilized</h3>
+                <ul>
+                    <li>The balanced base used is between 41 to 71 inclusive, with basic characters ordered in the appendix provided. All 3 channels will share the same set of characters.</li>
+                    <li>1 color and 2 color operators will only show up. 2 color operators show up 4 times less frequently than 1 color operators.</li>
+                    <li>Colors displayed on all stages are always correct in the manual.</li>
+                </ul>
+                <h3>Glitched</h3>
+                <ul>
+                    <li>The balanced base used is between 57 to 87 inclusive, some characters that represent those values will be replaced entirely with other familiar characters. 2 channels will share the same order of characters.</li>
+                    <li>2 of the channels will use the same balanced base; with the other channel <strong>having a different base.</strong></li>
+                    <li>Any color operators will show up. 3 color operators show 4 times up less frequently than 2 color operators, which show up 4 times less frequently than 1 color operators.</li>
+                    <li>Primary components are swapped and/or inverted, the component selectors must be used as a reference instead.</li>
+					<li><strong>If early submission is enabled, early submissions are separated by at least 10 stages, including the initial stage.</strong></li>
+                </ul>
+                <h3>Chaotic</h3>
+                <ul>
+                    <li>The balanced base used is between 71 to 101 inclusive, some characters that represent those values will be replaced entirely, sometimes with randomly picked segments. No channel will contain the exact same order of characters.</li>
+                    <li><strong>All 3 channels will use different balanced bases, which each channel having different maxmium values.</strong></li>
+                    <li>2 color and 3 color operators will show up more frequently.</li>
+                    <li>Colors displayed will no longer correspond to their correct colors, the component selectors must be used as a reference instead.</li>
+					<li><strong>If early submission is enabled, early submission are separated by at least 20 stages, including the initial stage.</strong></li>
+                </ul>
+                </div>
+                <div class="page-footer relative-footer">7</div>
+            </div>
+            <div class="page page-bg-01">
+                <div class="page-header">
+                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                    <span class="page-header-section-title">1ll 4</span>
+                </div>
+                <div class="page-content">
+                <h2>Appendix: Difficulty Settings (Custom)</h2>
+                <p>This module may be configured to have some or all of its behaviors modified. Custom settings are defined here, prefixed with <code>_1ll4</code>:</p>
+                <ul>
+                    <li><strong><code>EnableEarlySubmission</code></strong>: Enables early submission for this module. See the first page on how early submission works.</li>
+                    <li><strong><code>ModuleDifficulty</code></strong>: Sets the difficulty of the module via the preset difficulties. <code>Custom</code> enables a lot of options below:</li>
+                    <li><strong><code>UpperMaxValBal</code></strong>: Sets the largest value in any base that can be rolled onto the module. <strong>Clamped to 9 - 4095.</strong></li>
+                    <li><strong><code>LowerMaxValBal</code></strong>: Sets the smallest value in any base that can be rolled onto the module. <strong>Clamped to 9 - 4095.</strong></li>
+                    <li><strong><code>ColorCycleDifficulty</code></strong>: 1 only inverts the component colors; 2 cycles the component colors; 3 inverts and/or cycles the component colors; 4 is every color scrambled. 0, or any invalid value makes the colors respect that of the manual provided.</li>
+                    <li><strong><code>Op1ClrWeight</code></strong>: Sets the frequency of 1 color operators that can show up on the module. 0 or lower prevents 1 color operators from showing up.</li>
+                    <li><strong><code>Op2ClrWeight</code></strong>: Sets the frequency of 2 color operators that can show up on the module. 0 or lower prevents 2 color operators from showing up.</li>
+                    <li><strong><code>Op3ClrWeight</code></strong>: Sets the frequency of 3 color operators that can show up on the module. 0 or lower prevents 3 color operators from showing up.</li>
+                    <li><strong><code>ChannelsPerStage</code></strong>: Configures the amount of channels used to calculate each stage. Clamped to 1 - 4. If set to 1, only Black and White will be used as possible colors for the segments. <strong>DO NOT SET THIS VALUE TO 4 UNLESS YOU KNOW WHAT YOU ARE DOING.</strong></li>
+                </ul>
+                </div>
+                <div class="page-footer relative-footer">8</div>
+            </div>
+        </div>
+    </body>
+</html>
